@@ -1,0 +1,8 @@
+.vs/                      
+packages/                  
+UserAuth/bin/       
+UserAuth/Content/   
+UserAuth/obj/       
+UserAuth/Scripts/
+*.user
+*.config
