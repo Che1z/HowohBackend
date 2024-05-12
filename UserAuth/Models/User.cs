@@ -6,7 +6,6 @@ using System.Linq;
 using System.Web;
 using UserAuth.Models.UserEnumList;
 
-
 namespace UserAuth.Models
 {
     public class User
@@ -58,8 +57,10 @@ namespace UserAuth.Models
         public float averageRating { get; set; }
 
         [Display(Name = "評分筆數")]
-        public int ratingCount { get; set;}
-       
+        public int ratingCount { get; set; }
+
         public DateTime CreateAt { get; set; }
+
+        public virtual ICollection<House> Houses { get; set; }
     }
 }
