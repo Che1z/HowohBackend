@@ -8,11 +8,14 @@ using UserAuth.Models;
 using System.Security.Cryptography;
 using Konscious.Security.Cryptography;
 using System.Text;
+using UserAuth.Models.ViewModel;
+using UserAuth.Security;
 
 namespace UserAuth.Controllers
 {
     public class UserAuthController : ApiController
     {
+        //註冊
         DBModel db = new DBModel();
         [HttpPost]
         [Route("api/signup")]
@@ -35,36 +38,37 @@ namespace UserAuth.Controllers
                         {
                             return Content(HttpStatusCode.BadRequest, "手機號碼已被使用");
                         }
-                        else { 
-                        string userLastName = user.lastName;
-                        string userFirstName = user.firstName;
-                        string userEmail = user.email;
-                        string password = user.password;
-                        //加鹽
-                        var salt = CreateSalt();
-                        string userSalt = Convert.ToBase64String(salt); //將 byte 改回字串存回資料表
-                        var hash = HashPassword(password, salt);
-                        string hashPassword = Convert.ToBase64String(hash);
+                        else
+                        {
+                            string userLastName = user.lastName;
+                            string userFirstName = user.firstName;
+                            string userEmail = user.email;
+                            string password = user.password;
+                            //加鹽
+                            var salt = CreateSalt();
+                            string userSalt = Convert.ToBase64String(salt); //將 byte 改回字串存回資料表
+                            var hash = HashPassword(password, salt);
+                            string hashPassword = Convert.ToBase64String(hash);
 
-                        string userPassword = user.password;
-                        string userPhoto = user.photo;
-                        // new一個User物件
-                        User InsertNewAccount = new User();
-                        InsertNewAccount.lastName = userLastName;
-                        InsertNewAccount.firstName = userFirstName;
-                        InsertNewAccount.email = userEmail;
-                        InsertNewAccount.salt = userSalt;
-                        InsertNewAccount.password = hashPassword;
-                        InsertNewAccount.telphone = userTel;
-                        InsertNewAccount.photo = userPhoto;
-                        InsertNewAccount.CreateAt = DateTime.Now;
-                        InsertNewAccount.job = user.job;
-                        InsertNewAccount.gender = user.gender;
-                        InsertNewAccount.role = user.role;
+                            string userPassword = user.password;
+                            string userPhoto = user.photo;
+                            // new一個User物件
+                            User InsertNewAccount = new User();
+                            InsertNewAccount.lastName = userLastName;
+                            InsertNewAccount.firstName = userFirstName;
+                            InsertNewAccount.email = userEmail;
+                            InsertNewAccount.salt = userSalt;
+                            InsertNewAccount.password = hashPassword;
+                            InsertNewAccount.telphone = userTel;
+                            InsertNewAccount.photo = userPhoto;
+                            InsertNewAccount.CreateAt = DateTime.Now;
+                            InsertNewAccount.job = user.job;
+                            InsertNewAccount.gender = user.gender;
+                            InsertNewAccount.role = user.role;
 
-                        db.UserEntities.Add(InsertNewAccount);
-                        db.SaveChanges();
-                        return Content(HttpStatusCode.OK, "已成功註冊");
+                            db.UserEntities.Add(InsertNewAccount);
+                            db.SaveChanges();
+                            return Content(HttpStatusCode.OK, "已成功註冊");
                         }
 
                     }
@@ -75,6 +79,81 @@ namespace UserAuth.Controllers
                     }
             }
         }
+
+        [HttpGet]
+        [Route("api/login")]
+        // 登入
+        public IHttpActionResult LogIn(LogInInput loginput)
+        {
+            if (!ModelState.IsValid || loginput == null)
+            {
+                return Content(HttpStatusCode.BadRequest, "錯誤資訊不符合規範");
+            }
+            else
+            {
+                using (DBModel db = new DBModel())
+                    try
+                    {
+                        //檢查是否重複手機號碼
+                        string inputTel = loginput.telphone;
+                        string password = loginput.password;
+                        var existData = db.UserEntities.Where(x => x.telphone == inputTel).FirstOrDefault();
+                        if (existData == null)
+                        {
+                            return Content(HttpStatusCode.BadRequest, "尚未註冊手機號碼");
+                        }
+                        else
+                        {
+                            byte[] hash = Convert.FromBase64String(existData.password.ToString());
+                            byte[] salt = Convert.FromBase64String(existData.salt.ToString());
+                            bool success = VerifyHash(password, salt, hash);
+                          
+
+                            if (success)
+                            {
+
+                                // 產生JWT Token
+                                JwtAuthUtil jwtAuthUtil = new JwtAuthUtil();
+                                string jwtToken = jwtAuthUtil.GenerateToken(existData.Id);
+                                var result = new
+                                {
+                                    statusCode = 200,
+                                    status = "success",
+                                    message = "登入成功", // token失效時間:一天
+                                    token = jwtToken,  // 登入成功時，回傳登入成功順便夾帶 JwtToken
+                                    data = new
+                                    {
+                                        lastName = existData.lastName,
+                                        firstName = existData.firstName,
+                                        telphone = existData.telphone,
+                                    }
+                                };
+
+                                return Content(HttpStatusCode.OK, result);
+                            }
+                            else
+                            {
+                                return Content(HttpStatusCode.BadRequest, "密碼錯誤");
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        return Content(HttpStatusCode.BadRequest, ex);
+                    }
+            }
+        }
+
+
+        [HttpPost]
+        [Route("api/addhouse")]
+        [JwtAuthFilters]
+        public IHttpActionResult AddHouse() {
+            return Content(HttpStatusCode.OK, "成功");
+        }
+
+
+
 
         private byte[] CreateSalt()
         {
@@ -94,6 +173,13 @@ namespace UserAuth.Controllers
             argon2.Iterations = 4; // 迭代運算次數
             argon2.MemorySize = 1024 * 1024; // 1 GB
             return argon2.GetBytes(16);
+        }
+
+        //驗證密碼
+        private bool VerifyHash(string password, byte[] salt, byte[] hash)
+        {
+            var newHash = HashPassword(password, salt);
+            return hash.SequenceEqual(newHash); // LINEQ
         }
 
 
