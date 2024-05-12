@@ -80,7 +80,7 @@ namespace UserAuth.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("api/login")]
         // 登入
         public IHttpActionResult LogIn(LogInInput loginput)
