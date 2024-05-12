@@ -145,12 +145,7 @@ namespace UserAuth.Controllers
         }
 
 
-        [HttpPost]
-        [Route("api/addhouse")]
-        [JwtAuthFilters]
-        public IHttpActionResult AddHouse() {
-            return Content(HttpStatusCode.OK, "成功");
-        }
+       
 
 
 
