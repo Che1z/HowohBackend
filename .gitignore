@@ -1,8 +1,8 @@
-.vs/                      
-packages/                  
-UserAuth/bin/       
-UserAuth/Content/   
-UserAuth/obj/       
-UserAuth/Scripts/
-*.user
-*.config
+.vs/                       
+packages/    
+.cache
+UserAuth/obj/
+UserAuth/bin/
+UserAuth/upload/
+UserAuth/Web.config
+UserAuth/Properties/PublishProfiles/
