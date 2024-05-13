@@ -215,6 +215,10 @@
     <Compile Include="Migrations\202405130641130_get House table script.designer.cs">
       <DependentUpon>202405130641130_get House table script.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202405130801366_Update House Table Column.cs" />
+    <Compile Include="Migrations\202405130801366_Update House Table Column.designer.cs">
+      <DependentUpon>202405130801366_Update House Table Column.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\DBModel.cs" />
     <Compile Include="Models\House.cs" />
@@ -322,6 +326,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202405130641130_get House table script.resx">
       <DependentUpon>202405130641130_get House table script.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202405130801366_Update House Table Column.resx">
+      <DependentUpon>202405130801366_Update House Table Column.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
