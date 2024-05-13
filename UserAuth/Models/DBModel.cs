@@ -9,7 +9,7 @@ namespace UserAuth.Models
         // 您的內容已設定為使用應用程式組態檔 (App.config 或 Web.config)
         // 中的 'DBModel' 連接字串。根據預設，這個連接字串的目標是
         // 您的 LocalDb 執行個體上的 'UserAuth.Models.DBModel' 資料庫。
-        // 
+        //
         // 如果您的目標是其他資料庫和 (或) 提供者，請修改
         // 應用程式組態檔中的 'DBModel' 連接字串。
         public DBModel()
@@ -22,6 +22,8 @@ namespace UserAuth.Models
 
         // public virtual DbSet<MyEntity> MyEntities { get; set; }
         public virtual DbSet<User> UserEntities { get; set; }
+
+        public virtual DbSet<House> HouseEntities { get; set; }
     }
 
     //public class MyEntity
