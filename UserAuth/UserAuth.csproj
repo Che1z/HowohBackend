@@ -204,6 +204,8 @@
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\DBModel.cs" />
+    <Compile Include="Models\House.cs" />
+    <Compile Include="Models\HouseEnumList\HouseEnum.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="Models\UserEnumList\UserEnum.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

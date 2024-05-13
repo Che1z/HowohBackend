@@ -36,6 +36,26 @@ namespace UserAuth.Models.HouseEnumList
         金門縣 = 09020,
     }
 
+    public class ZipCodeList
+    {
+        public Dictionary<CityType, List<string>> ZipCodeLists { get; set; }
+
+        public ZipCodeList()
+        {
+            ZipCodeLists = new Dictionary<CityType, List<string>>();
+
+            // 建立臺北市對應的 ZipCodeList
+            List<string> taipeiZipCodes = new List<string> { "100", "103", "104" };
+            ZipCodeLists.Add(CityType.臺北市, taipeiZipCodes);
+
+            // 建立新北市對應的 ZipCodeList
+            List<string> newTaipeiZipCodes = new List<string> { "220", "221", "222" };
+            ZipCodeLists.Add(CityType.新北市, newTaipeiZipCodes);
+
+            // 其他縣市郵遞區號列表...
+        }
+    }
+
     //行政區, ref: https://zh.wikipedia.org/wiki/%E8%87%BA%E7%81%A3%E5%9C%B0%E5%8D%80%E9%83%B5%E9%81%9E%E5%8D%80%E8%99%9F%E5%88%97%E8%A1%A8
     //臺北市
     public enum TaipeiCityDistrictType
@@ -513,5 +533,77 @@ namespace UserAuth.Models.HouseEnumList
         玉里鎮 = 981,
         卓溪鄉 = 982,
         富里鄉 = 983,
+    }
+
+    //房屋類型
+    public enum type
+    {
+        整層住家 = 0,
+        獨立套房 = 1,
+        分租套房 = 2,
+        雅房 = 3,
+        其他 = 4,
+    }
+
+    //水費繳納方式
+    public enum paymentTypeOfWaterBill
+    {
+        自訂 = 0,
+        依台水計價 = 1,
+        包含於房租 = 2,
+    }
+
+    //電費計價方式
+    public enum paymentTypeOfElectricBill
+    {
+        自訂 = 0,
+        依台電計價 = 1,
+    }
+
+    //電費繳納方式
+    public enum paymentMethodOfElectricBill
+    {
+        隨房租繳納 = 0,
+        自行繳納 = 1,
+    }
+
+    //管理費繳納方式
+    public enum paymentMethodOfManagementFee
+    {
+        無管理費 = 0,
+        包含於租金 = 1,
+        隨房租繳納 = 2,
+        自行繳納 = 3,
+    }
+
+    //押金
+    public enum securityDepositType
+    {
+        無 = 0,
+        一個月 = 1,
+        兩個月 = 2,
+    }
+
+    //租客性別限制
+    public enum genderRestrictionType
+    {
+        僅限男性 = 0,
+        僅限女性 = 1,
+        性別友善 = 2,
+    }
+
+    public enum statusType
+    {
+        未完成步驟1 = 1,
+        完成步驟1 = 2,
+        完成步驟2 = 3,
+        完成步驟3 = 4,
+        完成步驟4 = 5,
+        完成步驟5 = 6,
+        完成步驟6 = 7,
+        完成步驟7 = 8,
+        刊登中 = 10,
+        已承租 = 20,
+        已完成 = 30,
     }
 }
