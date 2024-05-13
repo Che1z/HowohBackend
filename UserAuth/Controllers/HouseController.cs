@@ -7,6 +7,7 @@ using System.Web.Http;
 using UserAuth.Models;
 using UserAuth.Models.HouseEnumList;
 using UserAuth.Models.UserEnumList;
+using UserAuth.Security;
 
 namespace UserAuth.Controllers
 {
@@ -16,12 +17,12 @@ namespace UserAuth.Controllers
 
         [HttpPost]
         [Route("api/createListing")]
-        [JwtAuthFilter]
-        public IHttpActionResult createListing(House house)
+        [JwtAuthFilters]
+        public IHttpActionResult createListing()
         {
             //檢查是否為房東
             //取得使用者JWT
-            var jwtObject = JwtAuthFilter.GetToken(Request.Headers.Authorization.Parameter);
+            var jwtObject = JwtAuthFilters.GetToken(Request.Headers.Authorization.Parameter);
 
             //取得JWT內部資料
             int UserId = (int)jwtObject["Id"];
@@ -33,10 +34,10 @@ namespace UserAuth.Controllers
                 {
                     throw new Exception("該使用者不是房東，不可使用此功能");
                 }
-                if (!ModelState.IsValid || house == null)
-                {
-                    throw new Exception("錯誤資訊不符合規範");
-                }
+                //if (!ModelState.IsValid || house == null)
+                //{
+                //    throw new Exception("錯誤資訊不符合規範");
+                //}
                 using (DBModel db = new DBModel())
                 {
                     //int houseUserId = house.userId;
@@ -56,7 +57,7 @@ namespace UserAuth.Controllers
             }
         }
 
-        //// GET: api/House
+        // GET: api/House
         //public IEnumerable<string> Get()
         //{
         //    return new string[] { "value1", "value2" };

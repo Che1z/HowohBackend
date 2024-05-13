@@ -30,11 +30,11 @@ namespace UserAuth.Models
         [Display(Name = "名稱")]
         public string name { get; set; }
 
-        [Display(Name = "縣市")]
+        [Display(Name = "縣市區域鄉鎮")]
         public CityType city { get; set; }
 
-        //[Display(Name = "區域鄉鎮")]
-        //public CityType city { get; set; }
+        [Display(Name = "區域鄉鎮")]
+        public DistrictType district { get; set; }
 
         [Display(Name = "路街")]
         public string road { get; set; }
@@ -209,7 +209,7 @@ namespace UserAuth.Models
 
         [Required]
         [Display(Name = "房源狀態")]
-        public statusType status { get; set; };
+        public statusType status { get; set; }
 
         [Display(Name = "建立時間")]
         public DateTime CreateAt { get; set; } = DateTime.Now;
