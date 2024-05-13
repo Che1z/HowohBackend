@@ -207,8 +207,9 @@ namespace UserAuth.Models
         [Display(Name = "設定租客工作限制")]
         public List<UserJob> jobRestriction { get; set; }
 
+        [Required]
         [Display(Name = "房源狀態")]
-        public statusType status { get; set; }
+        public statusType status { get; set; };
 
         [Display(Name = "建立時間")]
         public DateTime CreateAt { get; set; } = DateTime.Now;
