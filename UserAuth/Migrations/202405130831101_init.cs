@@ -3,7 +3,7 @@
     using System;
     using System.Data.Entity.Migrations;
     
-    public partial class AddHouseTable : DbMigration
+    public partial class init : DbMigration
     {
         public override void Up()
         {
@@ -15,6 +15,7 @@
                         userId = c.Int(nullable: false),
                         name = c.String(maxLength: 100),
                         city = c.Int(nullable: false),
+                        district = c.Int(nullable: false),
                         road = c.String(),
                         lane = c.String(),
                         alley = c.String(),
@@ -78,12 +79,34 @@
                 .ForeignKey("dbo.Users", t => t.userId, cascadeDelete: true)
                 .Index(t => t.userId);
             
+            CreateTable(
+                "dbo.Users",
+                c => new
+                    {
+                        Id = c.Int(nullable: false, identity: true),
+                        firstName = c.String(nullable: false, maxLength: 10),
+                        lastName = c.String(nullable: false, maxLength: 10),
+                        email = c.String(),
+                        salt = c.String(),
+                        password = c.String(nullable: false),
+                        telphone = c.String(nullable: false, maxLength: 10),
+                        gender = c.Int(nullable: false),
+                        job = c.Int(nullable: false),
+                        photo = c.String(),
+                        role = c.Int(nullable: false),
+                        averageRating = c.Single(nullable: false),
+                        ratingCount = c.Int(nullable: false),
+                        CreateAt = c.DateTime(nullable: false),
+                    })
+                .PrimaryKey(t => t.Id);
+            
         }
         
         public override void Down()
         {
             DropForeignKey("dbo.Houses", "userId", "dbo.Users");
             DropIndex("dbo.Houses", new[] { "userId" });
+            DropTable("dbo.Users");
             DropTable("dbo.Houses");
         }
     }

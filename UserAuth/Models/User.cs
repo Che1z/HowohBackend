@@ -24,6 +24,7 @@ namespace UserAuth.Models
         [Display(Name = "姓")]
         public string lastName { get; set; }
 
+        [Required(ErrorMessage = "{0}必填")]
         [MaxLength(int.MaxValue)]
         [Display(Name = "信箱")]
         public string email { get; set; }
@@ -40,12 +41,15 @@ namespace UserAuth.Models
         [Display(Name = "手機號碼")]
         public string telphone { get; set; }
 
+        [Required(ErrorMessage = "{0}必填")]
         [Display(Name = "性別")]
         public UserSexType gender { get; set; }
 
+        [Required(ErrorMessage = "{0}必填")]
         [Display(Name = "職業")]
         public UserJob job { get; set; }
 
+        [Required(ErrorMessage = "{0}必填")]
         [Display(Name = "照片")]
         public string photo { get; set; }
 

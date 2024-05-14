@@ -7,13 +7,13 @@ namespace UserAuth.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.4.4")]
-    public sealed partial class UpdateHouseTableColumn : IMigrationMetadata
+    public sealed partial class init : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(UpdateHouseTableColumn));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(init));
         
         string IMigrationMetadata.Id
         {
-            get { return "202405130801366_Update House Table Column"; }
+            get { return "202405130831101_init"; }
         }
         
         string IMigrationMetadata.Source
