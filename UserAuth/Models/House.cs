@@ -61,19 +61,19 @@ namespace UserAuth.Models
         public string ping { get; set; }
 
         [Display(Name = "房數")]
-        public int? roomNumbers { get; set; }
+        public string roomNumbers { get; set; }
 
         [Display(Name = "廳數")]
-        public int? livingRoomNumbers { get; set; }
+        public string livingRoomNumbers { get; set; }
 
         [Display(Name = "衛浴數")]
-        public int? bathRoomNumbers { get; set; }
+        public string bathRoomNumbers { get; set; }
 
         [Display(Name = "陽台數")]
-        public int? balconyNumbers { get; set; }
+        public string balconyNumbers { get; set; }
 
         [Display(Name = "車位數")]
-        public int? parkingSpaceNumbers { get; set; }
+        public string parkingSpaceNumbers { get; set; }
 
         [Display(Name = "是否可申請租屋補助")]
         public bool isRentSubsidy { get; set; } = false;
@@ -118,31 +118,31 @@ namespace UserAuth.Models
         public bool isNearMRT { get; set; } = false;
 
         [Display(Name = "鄰近捷運公里")]
-        public int? kmAwayMRT { get; set; }
+        public string kmAwayMRT { get; set; }
 
         [Display(Name = "是否鄰近輕軌")]
         public bool isNearLRT { get; set; } = false;
 
         [Display(Name = "鄰近輕軌公里")]
-        public int? kmAwayLRT { get; set; }
+        public string kmAwayLRT { get; set; }
 
         [Display(Name = "是否鄰近公車站")]
         public bool isNearBusStation { get; set; } = false;
 
         [Display(Name = "鄰近公車站公里")]
-        public int? kmAwayBusStation { get; set; }
+        public string kmAwayBusStation { get; set; }
 
         [Display(Name = "是否鄰近高鐵")]
         public bool isNearHSR { get; set; } = false;
 
         [Display(Name = "鄰近高鐵公里")]
-        public int? kmAwayHSR { get; set; }
+        public string kmAwayHSR { get; set; }
 
         [Display(Name = "是否鄰近火車")]
         public bool isNearTrainStation { get; set; } = false;
 
         [Display(Name = "鄰近火車公里")]
-        public int? kmAwayTrainStation { get; set; }
+        public string kmAwayTrainStation { get; set; }
 
         [Display(Name = "是否提供冷氣")]
         public bool hasAirConditioner { get; set; } = false;
@@ -175,7 +175,7 @@ namespace UserAuth.Models
         public paymentTypeOfWaterBill paymentMethodOfWaterBill { get; set; }
 
         [Display(Name = "每月水費價錢")]
-        public int? waterBillPerMonth { get; set; }
+        public string waterBillPerMonth { get; set; }
 
         [Display(Name = "電費計價方式")]
         public paymentTypeOfElectricBill electricBill { get; set; }
@@ -187,10 +187,10 @@ namespace UserAuth.Models
         public paymentMethodOfManagementFee paymentMethodOfManagementFee { get; set; }
 
         [Display(Name = "每月管理費價錢")]
-        public int? managementFeePerMonth { get; set; }
+        public string managementFeePerMonth { get; set; }
 
         [Display(Name = "每月租金")]
-        public int? rent { get; set; }
+        public string rent { get; set; }
 
         [Display(Name = "押金")]
         public securityDepositType securityDeposit { get; set; }
