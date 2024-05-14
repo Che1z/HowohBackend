@@ -49,7 +49,6 @@ namespace UserAuth.Models
         [Display(Name = "職業")]
         public UserJob job { get; set; }
 
-        [Required(ErrorMessage = "{0}必填")]
         [Display(Name = "照片")]
         public string photo { get; set; }
 
@@ -61,7 +60,6 @@ namespace UserAuth.Models
         public float averageRating { get; set; }
 
         [Display(Name = "自我介紹")]
-        [Required(ErrorMessage = "{0}必填")]
         public string userIntro { get; set; }
 
         [Display(Name = "評分筆數")]
