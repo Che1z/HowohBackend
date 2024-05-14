@@ -205,7 +205,7 @@ namespace UserAuth.Models
         public genderRestrictionType genderRestriction { get; set; }
 
         [Display(Name = "設定租客工作限制")]
-        public List<UserJob> jobRestriction { get; set; }
+        public string jobRestriction { get; set; }
 
         [Required]
         [Display(Name = "房源狀態")]
