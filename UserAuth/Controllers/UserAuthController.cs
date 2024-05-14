@@ -65,6 +65,7 @@ namespace UserAuth.Controllers
                             InsertNewAccount.job = user.job;
                             InsertNewAccount.gender = user.gender;
                             InsertNewAccount.role = user.role;
+                            InsertNewAccount.userIntro = user.userIntro;
 
                             db.UserEntities.Add(InsertNewAccount);
                             db.SaveChanges();
