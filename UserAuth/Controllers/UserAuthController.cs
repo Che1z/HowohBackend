@@ -16,10 +16,10 @@ namespace UserAuth.Controllers
     public class UserAuthController : ApiController
     {
         //註冊
-        DBModel db = new DBModel();
+        private DBModel db = new DBModel();
+
         [HttpPost]
         [Route("api/signup")]
-
         public IHttpActionResult SignUp(User user)
         {
             if (!ModelState.IsValid || user == null)
@@ -65,16 +65,15 @@ namespace UserAuth.Controllers
                             InsertNewAccount.job = user.job;
                             InsertNewAccount.gender = user.gender;
                             InsertNewAccount.role = user.role;
+                            InsertNewAccount.userIntro = user.userIntro;
 
                             db.UserEntities.Add(InsertNewAccount);
                             db.SaveChanges();
                             return Content(HttpStatusCode.OK, "已成功註冊");
                         }
-
                     }
                     catch (Exception ex)
                     {
-
                         return Content(HttpStatusCode.BadRequest, ex);
                     }
             }
@@ -82,7 +81,6 @@ namespace UserAuth.Controllers
 
         [HttpPost]
         [Route("api/login")]
-        // 登入
         public IHttpActionResult LogIn(LogInInput loginput)
         {
             if (!ModelState.IsValid || loginput == null)
@@ -107,11 +105,9 @@ namespace UserAuth.Controllers
                             byte[] hash = Convert.FromBase64String(existData.password.ToString());
                             byte[] salt = Convert.FromBase64String(existData.salt.ToString());
                             bool success = VerifyHash(password, salt, hash);
-                          
 
                             if (success)
                             {
-
                                 // 產生JWT Token
                                 JwtAuthUtil jwtAuthUtil = new JwtAuthUtil();
                                 string jwtToken = jwtAuthUtil.GenerateToken(existData.Id);
@@ -144,12 +140,6 @@ namespace UserAuth.Controllers
             }
         }
 
-
-       
-
-
-
-
         private byte[] CreateSalt()
         {
             var buffer = new byte[16];
@@ -157,6 +147,7 @@ namespace UserAuth.Controllers
             rng.GetBytes(buffer);
             return buffer;
         }
+
         // Hash 處理加鹽的密碼功能
         private byte[] HashPassword(string password, byte[] salt)
         {
@@ -176,7 +167,6 @@ namespace UserAuth.Controllers
             var newHash = HashPassword(password, salt);
             return hash.SequenceEqual(newHash); // LINEQ
         }
-
 
         // GET: api/UserAuth
         public IEnumerable<string> Get()

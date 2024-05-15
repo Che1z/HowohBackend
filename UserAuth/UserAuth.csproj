@@ -199,32 +199,12 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\202405100733576_init.cs" />
-    <Compile Include="Migrations\202405100733576_init.designer.cs">
-      <DependentUpon>202405100733576_init.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202405100954402_init2.cs" />
-    <Compile Include="Migrations\202405100954402_init2.designer.cs">
-      <DependentUpon>202405100954402_init2.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202405130544112_Add House Table.cs" />
-    <Compile Include="Migrations\202405130544112_Add House Table.designer.cs">
-      <DependentUpon>202405130544112_Add House Table.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202405130641130_get House table script.cs" />
-    <Compile Include="Migrations\202405130641130_get House table script.designer.cs">
-      <DependentUpon>202405130641130_get House table script.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202405130801366_Update House Table Column.cs" />
-    <Compile Include="Migrations\202405130801366_Update House Table Column.designer.cs">
-      <DependentUpon>202405130801366_Update House Table Column.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\DBModel.cs" />
     <Compile Include="Models\House.cs" />
     <Compile Include="Models\HouseEnumList\HouseEnum.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="Models\UserEnumList\UserEnum.cs" />
+    <Compile Include="Models\ViewModel\HouseInput.cs" />
     <Compile Include="Models\ViewModel\LogInInput.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Security\JwtAuthFilters.cs" />
@@ -312,24 +292,6 @@
     <None Include="packages.config" />
     <Content Include="Scripts\jquery-3.4.1.slim.min.map" />
     <Content Include="Scripts\jquery-3.4.1.min.map" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Migrations\202405100733576_init.resx">
-      <DependentUpon>202405100733576_init.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202405100954402_init2.resx">
-      <DependentUpon>202405100954402_init2.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202405130544112_Add House Table.resx">
-      <DependentUpon>202405130544112_Add House Table.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202405130641130_get House table script.resx">
-      <DependentUpon>202405130641130_get House table script.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202405130801366_Update House Table Column.resx">
-      <DependentUpon>202405130801366_Update House Table Column.cs</DependentUpon>
-    </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

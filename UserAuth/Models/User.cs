@@ -24,6 +24,7 @@ namespace UserAuth.Models
         [Display(Name = "姓")]
         public string lastName { get; set; }
 
+        [Required(ErrorMessage = "{0}必填")]
         [MaxLength(int.MaxValue)]
         [Display(Name = "信箱")]
         public string email { get; set; }
@@ -55,6 +56,10 @@ namespace UserAuth.Models
 
         [Display(Name = "平均分數")]
         public float averageRating { get; set; }
+
+        [Display(Name = "自我介紹")]
+        [Required(ErrorMessage = "{0}必填")]
+        public string userIntro { get; set; }
 
         [Display(Name = "評分筆數")]
         public int ratingCount { get; set; }

@@ -978,58 +978,58 @@ namespace UserAuth.Models.HouseEnumList
     //房屋類型
     public enum type
     {
-        整層住家 = 0,
-        獨立套房 = 1,
-        分租套房 = 2,
-        雅房 = 3,
-        其他 = 4,
+        整層住家 = 1,
+        獨立套房 = 2,
+        分租套房 = 3,
+        雅房 = 4,
+        其他 = 5,
     }
 
     //水費繳納方式
     public enum paymentTypeOfWaterBill
     {
-        自訂 = 0,
-        依台水計價 = 1,
-        包含於房租 = 2,
+        自訂 = 1,
+        依台水計價 = 2,
+        包含於房租 = 3,
     }
 
     //電費計價方式
     public enum paymentTypeOfElectricBill
     {
-        自訂 = 0,
-        依台電計價 = 1,
+        自訂 = 1,
+        依台電計價 = 2,
     }
 
     //電費繳納方式
     public enum paymentMethodOfElectricBill
     {
-        隨房租繳納 = 0,
-        自行繳納 = 1,
+        隨房租繳納 = 1,
+        自行繳納 = 2,
     }
 
     //管理費繳納方式
     public enum paymentMethodOfManagementFee
     {
-        無管理費 = 0,
-        包含於租金 = 1,
-        隨房租繳納 = 2,
-        自行繳納 = 3,
+        無管理費 = 1,
+        包含於租金 = 2,
+        隨房租繳納 = 3,
+        自行繳納 = 4,
     }
 
     //押金
     public enum securityDepositType
     {
-        無 = 0,
-        一個月 = 1,
-        兩個月 = 2,
+        無 = 1,
+        一個月 = 2,
+        兩個月 = 3,
     }
 
     //租客性別限制
     public enum genderRestrictionType
     {
-        僅限男性 = 0,
-        僅限女性 = 1,
-        性別友善 = 2,
+        僅限男性 = 1,
+        僅限女性 = 2,
+        性別友善 = 3,
     }
 
     public enum statusType
