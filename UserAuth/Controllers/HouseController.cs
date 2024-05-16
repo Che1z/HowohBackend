@@ -4,7 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
-using System.Web.Mvc;
+
 using UserAuth.Models;
 using UserAuth.Models.HouseEnumList;
 using UserAuth.Models.UserEnumList;
@@ -446,14 +446,8 @@ namespace UserAuth.Controllers
 
             //取得JWT內部資料
             int UserId = (int)jwtObject["Id"];
-            UserRoleType UserRole = (UserRoleType)jwtObject["Role"];
             try
             {
-                //檢查是否為房東
-                if (UserRole != UserRoleType.房東)
-                {
-                    throw new Exception("該使用者不是房東，不可使用此功能");
-                }
                 if (!ModelState.IsValid || houseImgInput == null)
                 {
                     throw new Exception("錯誤資訊不符合規範");
@@ -501,6 +495,64 @@ namespace UserAuth.Controllers
                         //}
                     };
                     return Content(HttpStatusCode.OK, result);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Content(HttpStatusCode.BadRequest, ex);
+            }
+        }
+
+        [HttpDelete]
+        [Route("api/myHouse/{id}")]
+        [JwtAuthFilters]
+        public IHttpActionResult deleteMyHouse(int id)
+        {
+            //取得使用者JWT
+            var jwtObject = JwtAuthFilters.GetToken(Request.Headers.Authorization.Parameter);
+
+            //取得JWT內部資料
+            int UserId = (int)jwtObject["Id"];
+
+            try
+            {
+                using (DBModel db = new DBModel())
+                {
+                    var houseEnter = db.HouseEntities.Where(x => x.id == id).FirstOrDefault();
+                    if (houseEnter == null)
+                    {
+                        throw new Exception("查無此房源");
+                    }
+                    if (houseEnter.userId == UserId)
+                    {
+                        var houseImgsOfUser = db.HouseImgsEntities.Where(x => x.houseId == id).ToList();
+                        if (houseImgsOfUser != null)
+                        {
+                            foreach (var img in houseImgsOfUser)
+                            {
+                                db.HouseImgsEntities.Remove(img);
+                            }
+                            db.SaveChanges();
+                        }
+                        db.HouseEntities.Remove(houseEnter);
+                        db.SaveChanges();
+
+                        var result = new
+                        {
+                            statusCode = 200,
+                            status = "success",
+                            message = "已成功刪除房源",
+                            //data = new
+                            //{
+                            //    //houseId = createHouse.id,
+                            //}
+                        };
+                        return Content(HttpStatusCode.OK, result);
+                    }
+                    else
+                    {
+                        throw new Exception("該房源擁有者非使用者");
+                    }
                 }
             }
             catch (Exception ex)
