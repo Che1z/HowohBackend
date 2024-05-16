@@ -1019,9 +1019,8 @@ namespace UserAuth.Models.HouseEnumList
     //押金
     public enum securityDepositType
     {
-        無 = 1,
-        一個月 = 2,
-        兩個月 = 3,
+        一個月 = 1,
+        兩個月 = 2,
     }
 
     //租客性別限制
@@ -1041,7 +1040,6 @@ namespace UserAuth.Models.HouseEnumList
         完成步驟4 = 5,
         完成步驟5 = 6,
         完成步驟6 = 7,
-        完成步驟7 = 8,
         刊登中 = 10,
         已承租 = 20,
         已完成 = 30,
