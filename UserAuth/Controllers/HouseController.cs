@@ -561,31 +561,119 @@ namespace UserAuth.Controllers
             }
         }
 
-        // GET: api/House
-        //public IEnumerable<string> Get()
-        //{
-        //    return new string[] { "value1", "value2" };
-        //}
+        [HttpGet]
+        [Route("api/myHouse/getHomePageHouse")]
+        public IHttpActionResult getHomePageHouse()
+        {
+            DBModel db = new DBModel();
+            var query = db.HouseEntities.Where(h => h.isRentSubsidy && h.isCookAllowed && h.isPetAllowed && h.isSTRAllowed)
+                .Select(h => new
+                {
+                    Id = h.id,
+                    image = h.HouseImgs,
+                    title = h.name,
+                    city = h.city,
+                    district = h.district,
+                    road = h.road,
+                    lane = h.lane,
+                    alley = h.alley,
+                    number = h.number,
+                    floor = h.floor,
+                    floorTotal = h.floorTotal,
+                    type = h.type,
+                    ping = h.ping,
+                    roomNumber = h.roomNumbers,
+                    livingRoomNumbers = h.livingRoomNumbers,
+                    bathRoomNumbers = h.bathRoomNumbers,
+                    balconyNumbers = h.balconyNumbers,
+                    rent = h.rent,
+                    isRentSubsidy = h.isRentSubsidy,
+                    isCookAllowd = h.isCookAllowed,
+                    isPetAllowd = h.isPetAllowed,
+                    isSTRAllowed = h.isSTRAllowed,
+                });
+            // 隨機性:使用OrderBy Guid
+            var filteredHouses = query.ToList().OrderBy(h => Guid.NewGuid()).Take(8).ToList();
+            if (filteredHouses.Count != 8)
+            {
+                var additionalHouses = db.HouseEntities
+                    .Where(h => (h.isRentSubsidy && h.isCookAllowed) || (h.isPetAllowed && h.isSTRAllowed) || (h.isRentSubsidy && h.isPetAllowed) || h.isRentSubsidy || h.isCookAllowed || h.isPetAllowed || h.isSTRAllowed)
+                    .Select(h => new
+                    {
+                        Id = h.id,
+                        image = h.HouseImgs,
+                        title = h.name,
+                        city = h.city,
+                        district = h.district,
+                        road = h.road,
+                        lane = h.lane,
+                        alley = h.alley,
+                        number = h.number,
+                        floor = h.floor,
+                        floorTotal = h.floorTotal,
+                        type = h.type,
+                        ping = h.ping,
+                        roomNumber = h.roomNumbers,
+                        livingRoomNumbers = h.livingRoomNumbers,
+                        bathRoomNumbers = h.bathRoomNumbers,
+                        balconyNumbers = h.balconyNumbers,
+                        rent = h.rent,
+                        isRentSubsidy = h.isRentSubsidy,
+                        isCookAllowd = h.isCookAllowed,
+                        isPetAllowd = h.isPetAllowed,
+                        isSTRAllowed = h.isSTRAllowed,
+                    });
+                filteredHouses.AddRange(additionalHouses);
+                // 兩次結果相加後，再篩選 (為了讓符合全條件的物件優先被找到)
+                // 隨機性:使用OrderBy Guid, 獨特性:使用Groupby Id
+                var combinedHouses = filteredHouses.OrderBy(h => Guid.NewGuid()).GroupBy(h => h.Id).Select(group => group.FirstOrDefault()).Take(8).ToList();
+                if (combinedHouses.Count == 8)
+                {
+                    return Ok(combinedHouses);
+                }
 
-        //// GET: api/House/5
-        //public string Get(int id)
-        //{
-        //    return "value";
-        //}
+                else
+                {
+                    return Content(HttpStatusCode.BadRequest, combinedHouses);
+                }
+            }
 
-        //// POST: api/House
-        //public void Post([FromBody]string value)
-        //{
-        //}
 
-        //// PUT: api/House/5
-        //public void Put(int id, [FromBody]string value)
-        //{
-        //}
+            else
+            {
+                return Ok(filteredHouses);
 
-        //// DELETE: api/House/5
-        //public void Delete(int id)
-        //{
-        //}
+            }
+        }
+
+
+
     }
+
+    // GET: api/House
+    //public IEnumerable<string> Get()
+    //{
+    //    return new string[] { "value1", "value2" };
+    //}
+
+    //// GET: api/House/5
+    //public string Get(int id)
+    //{
+    //    return "value";
+    //}
+
+    //// POST: api/House
+    //public void Post([FromBody]string value)
+    //{
+    //}
+
+    //// PUT: api/House/5
+    //public void Put(int id, [FromBody]string value)
+    //{
+    //}
+
+    //// DELETE: api/House/5
+    //public void Delete(int id)
+    //{
+    //}
 }
