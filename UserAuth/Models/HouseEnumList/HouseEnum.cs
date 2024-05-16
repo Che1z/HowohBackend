@@ -1003,7 +1003,6 @@ namespace UserAuth.Models.HouseEnumList
     //電費繳納方式
     public enum paymentMethodOfElectricBill
     {
-        
         自行繳納 = 1,
         隨房租繳納 = 2,
     }
@@ -1020,7 +1019,6 @@ namespace UserAuth.Models.HouseEnumList
     //押金
     public enum securityDepositType
     {
-     
         一個月 = 1,
         兩個月 = 2,
         無 = 3,
@@ -1043,7 +1041,6 @@ namespace UserAuth.Models.HouseEnumList
         完成步驟4 = 5,
         完成步驟5 = 6,
         完成步驟6 = 7,
-        完成步驟7 = 8,
         刊登中 = 10,
         已承租 = 20,
         已完成 = 30,
