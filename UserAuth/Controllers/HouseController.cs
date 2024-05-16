@@ -43,11 +43,11 @@ namespace UserAuth.Controllers
                 {
                     //int houseUserId = house.userId;
                     //statusType houseStatus = house.status;
-                    House InsertNewAccount = new House();
-                    InsertNewAccount.userId = UserId;
-                    InsertNewAccount.status = statusType.未完成步驟1;
+                    House InsertNewHouse = new House();
+                    InsertNewHouse.userId = UserId;
+                    InsertNewHouse.status = statusType.未完成步驟1;
 
-                    db.HouseEntities.Add(InsertNewAccount);
+                    db.HouseEntities.Add(InsertNewHouse);
 
                     db.SaveChanges();
                     var createHouse = db.HouseEntities.Where(x => x.userId == UserId).OrderByDescending(x => x.id).FirstOrDefault();
@@ -439,6 +439,75 @@ namespace UserAuth.Controllers
         [HttpPost]
         [Route("api/myHouseImg/{id}")]
         [JwtAuthFilters]
+        public IHttpActionResult creatingHouseImg(int id, HouseImgInput houseImgInput)
+        {
+            //取得使用者JWT
+            var jwtObject = JwtAuthFilters.GetToken(Request.Headers.Authorization.Parameter);
+
+            //取得JWT內部資料
+            int UserId = (int)jwtObject["Id"];
+            UserRoleType UserRole = (UserRoleType)jwtObject["Role"];
+            try
+            {
+                //檢查是否為房東
+                if (UserRole != UserRoleType.房東)
+                {
+                    throw new Exception("該使用者不是房東，不可使用此功能");
+                }
+                if (!ModelState.IsValid || houseImgInput == null)
+                {
+                    throw new Exception("錯誤資訊不符合規範");
+                }
+                using (DBModel db = new DBModel())
+                {
+                    //檢查有沒有舊照片，有的話先刪掉
+                    var houseImgsOfUser = db.HouseImgsEntities.Where(x => x.houseId == id).ToList();
+                    if (houseImgsOfUser != null)
+                    {
+                        foreach (var img in houseImgsOfUser)
+                        {
+                            db.HouseImgsEntities.Remove(img);
+                        }
+                        db.SaveChanges();
+                    }
+
+                    //新增照片
+                    List<houseImgObject> newHouseImgsOfUser = houseImgInput.files;
+                    foreach (var houseImgObject in newHouseImgsOfUser)
+                    {
+                        HouseImg InsertNewHouseImg = new HouseImg();
+                        InsertNewHouseImg.houseId = id;
+                        InsertNewHouseImg.name = houseImgObject.name;
+                        InsertNewHouseImg.path = houseImgObject.path;
+                        InsertNewHouseImg.isCover = houseImgObject.isCover;
+
+                        db.HouseImgsEntities.Add(InsertNewHouseImg);
+                    }
+                    db.SaveChanges();
+
+                    //修改房源狀態
+                    var updateHouse = db.HouseEntities.Where(x => x.id == id).FirstOrDefault();
+                    updateHouse.status = houseImgInput.status;
+                    db.SaveChanges();
+
+                    var result = new
+                    {
+                        statusCode = 200,
+                        status = "success",
+                        message = "已成功新增房源照片",
+                        //data = new
+                        //{
+                        //    //houseId = createHouse.id,
+                        //}
+                    };
+                    return Content(HttpStatusCode.OK, result);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Content(HttpStatusCode.BadRequest, ex);
+            }
+        }
 
         // GET: api/House
         //public IEnumerable<string> Get()
