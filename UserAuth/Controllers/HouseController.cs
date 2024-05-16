@@ -21,7 +21,7 @@ namespace UserAuth.Controllers
         //private DBModel db = new DBModel();
 
         [HttpPost]
-        [Route("api/house")]
+        [Route("api/myHouse")]
         [JwtAuthFilters]
         public IHttpActionResult createListing()
         {
@@ -72,7 +72,7 @@ namespace UserAuth.Controllers
         }
 
         [HttpPatch]
-        [Route("api/house/{id}")]
+        [Route("api/myHouse/{id}")]
         [JwtAuthFilters]
         public IHttpActionResult updateListing(int id, HouseInput houseInput)
         {
@@ -435,6 +435,10 @@ namespace UserAuth.Controllers
                 return Content(HttpStatusCode.BadRequest, ex);
             }
         }
+
+        [HttpPost]
+        [Route("api/myHouseImg/{id}")]
+        [JwtAuthFilters]
 
         // GET: api/House
         //public IEnumerable<string> Get()
