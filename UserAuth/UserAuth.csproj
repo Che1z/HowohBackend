@@ -193,17 +193,20 @@
     <Compile Include="Areas\HelpPage\SampleGeneration\TextSample.cs" />
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\HouseController.cs" />
     <Compile Include="Controllers\UserAuthController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\202405100733576_init.cs" />
-    <Compile Include="Migrations\202405100733576_init.designer.cs">
-      <DependentUpon>202405100733576_init.cs</DependentUpon>
-    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Models\Appointment.cs" />
     <Compile Include="Models\DBModel.cs" />
+    <Compile Include="Models\House.cs" />
+    <Compile Include="Models\HouseEnumList\HouseEnum.cs" />
+    <Compile Include="Models\HouseImg.cs" />
+    <Compile Include="Models\Order.cs" />
+    <Compile Include="Models\OrderEnumList\OrderEnum.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="Models\UserEnumList\UserEnum.cs" />
     <Compile Include="Models\ViewModel\LogInInput.cs" />
@@ -293,12 +296,6 @@
     <None Include="packages.config" />
     <Content Include="Scripts\jquery-3.4.1.slim.min.map" />
     <Content Include="Scripts\jquery-3.4.1.min.map" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Migrations\202405100733576_init.resx">
-      <DependentUpon>202405100733576_init.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
