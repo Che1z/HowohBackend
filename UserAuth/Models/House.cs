@@ -26,6 +26,11 @@ namespace UserAuth.Models
         [Display(Name = "房東")]
         public virtual User userIdFK { get; set; }
 
+        [JsonIgnore]
+        [ForeignKey("userId")]
+        [Display(Name = "訂單")]
+        public virtual ICollection<Order> orderIdFK { get; set; }
+
         [MaxLength(100)]
         [Display(Name = "名稱")]
         public string name { get; set; }
@@ -213,5 +218,9 @@ namespace UserAuth.Models
 
         [Display(Name = "建立時間")]
         public DateTime CreateAt { get; set; } = DateTime.Now;
+
+        public virtual ICollection<Appointment> Appointments { get; set; }
+        public virtual ICollection<HouseImg> HouseImgs { get; set; }
+
     }
 }

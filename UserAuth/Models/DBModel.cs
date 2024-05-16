@@ -24,6 +24,20 @@ namespace UserAuth.Models
         public virtual DbSet<User> UserEntities { get; set; }
 
         public virtual DbSet<House> HouseEntities { get; set; }
+        public virtual DbSet<HouseImg> HouseImgsEntities { get; set; }
+
+        public virtual DbSet<Appointment> AppointmentsEntities { get; set; }
+        public virtual DbSet<Order> OrdersEntities { get; set; }
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            // Fluent API 配置
+            // 當刪除House資料時，不要自動刪除相關聯的userIdFK（User表格中對應的資料）
+            modelBuilder.Entity<House>()
+                .HasRequired(c => c.userIdFK)
+                .WithMany()
+                .WillCascadeOnDelete(false);                
+        }
     }
 
     //public class MyEntity
