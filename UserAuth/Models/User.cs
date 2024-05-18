@@ -57,14 +57,14 @@ namespace UserAuth.Models
         [Required(ErrorMessage = "{0}必填")]
         public UserRoleType role { get; set; }
 
-        [Display(Name = "平均分數")]
-        public float averageRating { get; set; }
+        //[Display(Name = "平均分數")]
+        //public float averageRating { get; set; }
 
         [Display(Name = "自我介紹")]
         public string userIntro { get; set; }
 
-        [Display(Name = "評分筆數")]
-        public int ratingCount { get; set; }
+        //[Display(Name = "評分筆數")]
+        //public int ratingCount { get; set; }
 
         [JsonIgnore]
         [ForeignKey("userId")]

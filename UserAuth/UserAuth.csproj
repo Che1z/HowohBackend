@@ -207,6 +207,8 @@
     <Compile Include="Models\HouseImg.cs" />
     <Compile Include="Models\Order.cs" />
     <Compile Include="Models\OrderEnumList\OrderEnum.cs" />
+    <Compile Include="Models\OrderRating.cs" />
+    <Compile Include="Models\ReplyRating.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="Models\UserEnumList\UserEnum.cs" />
     <Compile Include="Models\ViewModel\HouseImgInput.cs" />

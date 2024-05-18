@@ -25,12 +25,12 @@ namespace UserAuth.Models
         public virtual House houseIdFK { get; set; }
 
         [Required]
-        [Display(Name = "房東")]
+        [Display(Name = "租客")]
         public int userId { get; set; }
 
         [JsonIgnore]
         [ForeignKey("userId")]
-        [Display(Name = "房東")]
+        [Display(Name = "租客")]
         public virtual User userIdFK { get; set; }
 
         [Display(Name = "建立時間")]

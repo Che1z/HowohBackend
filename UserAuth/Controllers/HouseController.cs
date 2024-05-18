@@ -471,7 +471,6 @@ namespace UserAuth.Controllers
                     {
                         HouseImg InsertNewHouseImg = new HouseImg();
                         InsertNewHouseImg.houseId = id;
-                        InsertNewHouseImg.name = houseImgObject.name;
                         InsertNewHouseImg.path = houseImgObject.path;
                         InsertNewHouseImg.isCover = houseImgObject.isCover;
 
