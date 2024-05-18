@@ -23,11 +23,7 @@ namespace UserAuth.Models
         [JsonIgnore]
         [ForeignKey("houseId")]
         [Display(Name = "房屋")]
-        public virtual House houseIdFK { get; set; }
-
-        [Required]
-        [Display(Name = "圖片名稱")]
-        public string name { get; set; }
+        public virtual House houseIdFK { get; set; }       
 
         [Required]
         [Display(Name = "圖片路徑")]
