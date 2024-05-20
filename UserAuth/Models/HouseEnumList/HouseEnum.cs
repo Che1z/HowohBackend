@@ -1026,8 +1026,8 @@ namespace UserAuth.Models.HouseEnumList
     //租客性別限制
     public enum genderRestrictionType
     {
-        僅限男性 = 1,
-        僅限女性 = 2,
+        排除男性 = 1,
+        排除女性 = 2,
         性別友善 = 3,
     }
 

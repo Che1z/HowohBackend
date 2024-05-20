@@ -22,9 +22,9 @@ namespace UserAuth.Models.ViewModel
 
     public class houseImgObject
     {
-        [Required]
-        [Display(Name = "圖片名稱")]
-        public string name { get; set; }
+        //[Required]
+        //[Display(Name = "圖片名稱")]
+        //public string name { get; set; }
 
         [Required]
         [Display(Name = "圖片路徑")]

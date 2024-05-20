@@ -4,7 +4,9 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using System.Web.Http.Results;
 using UserAuth.Models;
+using UserAuth.Models.HouseEnumList;
 using UserAuth.Models.UserEnumList;
 using UserAuth.Security;
 
@@ -89,6 +91,76 @@ namespace UserAuth.Controllers
             {
                 return Content(HttpStatusCode.BadRequest, ex);
             }
+        }
+
+        [HttpPost]
+        [Route("api/userInfo/{id}")]
+        [JwtAuthFilters]
+        public IHttpActionResult PostUserInfo(int id)
+        {
+            //取得使用者JWT
+            var jwtObject = JwtAuthFilters.GetToken(Request.Headers.Authorization.Parameter);
+
+            //取得JWT內部資料
+            int UserId = (int)jwtObject["Id"];
+            UserRoleType UserRole = (UserRoleType)jwtObject["Role"];
+            UserSexType UserGender = (UserSexType)jwtObject["Gender"];
+            UserJob UserJob = (UserJob)jwtObject["Job"];
+            try
+            {
+                if (UserRole != UserRoleType.租客)
+                {
+                    throw new Exception("使用者角色並非租客");
+                }
+
+                using (DBModel db = new DBModel())
+                {
+                    var houseForMatching = db.HouseEntities.Where(x => x.id == id).FirstOrDefault();
+                    if (houseForMatching == null)
+                    {
+                        throw new Exception("該房源不存在");
+                    }
+                    if (houseForMatching.hasTenantRestrictions == true)
+                    {
+                        var genderRestriction = Enum.GetName(typeof(genderRestrictionType), houseForMatching.genderRestriction);
+                        if (genderRestriction == "排除男性" && UserGender == UserSexType.男)
+                        {
+                            throw new Exception("使用者不符此房源之租客限制");
+                        }
+                        if (genderRestriction == "排除女性" && UserGender == UserSexType.女)
+                        {
+                            throw new Exception("使用者不符此房源之租客限制");
+                        }
+                        if (!String.IsNullOrEmpty(houseForMatching.jobRestriction))
+                        {
+                            string[] jobRestriction = houseForMatching.jobRestriction.Split(',');
+                            for (int i = 0; i < jobRestriction.Length; i++)
+                            {
+                                jobRestriction[i] = jobRestriction[i].Trim();
+                                if (jobRestriction[i] == UserJob.ToString())
+                                {
+                                    throw new Exception("使用者不符此房源之租客限制");
+                                }
+                            }
+                        }
+                    }
+
+                    Appointment appointment = new Appointment();
+                    appointment.houseId = id;
+                    appointment.userId = UserId;
+                    db.AppointmentsEntities.Add(appointment);
+                    db.SaveChanges();
+
+                    var result = new
+                    {
+                        statusCode = 200,
+                        status = "success",
+                        message = "已成功預約看房",
+                    };
+                    return Content(HttpStatusCode.OK, result);
+                }
+            }
+            catch (Exception ex) { return Content(HttpStatusCode.BadRequest, ex); }
         }
 
         // GET: api/Tenant
