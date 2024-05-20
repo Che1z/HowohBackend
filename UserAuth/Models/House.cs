@@ -185,6 +185,9 @@ namespace UserAuth.Models
         [Display(Name = "電費計價方式")]
         public paymentTypeOfElectricBill electricBill { get; set; }
 
+        [Display(Name = "電費每度幾元")]
+        public string electricBillPerDegree { get; set; }
+
         [Display(Name = "電費繳納方式")]
         public paymentMethodOfElectricBill paymentMethodOfElectricBill { get; set; }
 

@@ -555,7 +555,9 @@ namespace UserAuth.Controllers
         public IHttpActionResult getHomePageHouse()
         {
             DBModel db = new DBModel();
-            var query = db.HouseEntities.Where(h => h.isRentSubsidy && h.isCookAllowed && h.isPetAllowed && h.isSTRAllowed)
+
+            var query = db.HouseEntities.Where(h => h.status == (statusType)10 && h.isRentSubsidy && h.isCookAllowed && h.isPetAllowed && h.isSTRAllowed)
+
                 .Select(h => new
                 {
                     Id = h.id,
@@ -586,7 +588,10 @@ namespace UserAuth.Controllers
             if (filteredHouses.Count != 8)
             {
                 var additionalHouses = db.HouseEntities
-                    .Where(h => (h.isRentSubsidy && h.isCookAllowed) || (h.isPetAllowed && h.isSTRAllowed) || (h.isRentSubsidy && h.isPetAllowed) || h.isRentSubsidy || h.isCookAllowed || h.isPetAllowed || h.isSTRAllowed)
+
+                    .Where(h => (h.status == (statusType)10 && h.isRentSubsidy && h.isCookAllowed) || (h.status == (statusType)10 && h.isPetAllowed && h.isSTRAllowed) || (h.status == (statusType)10 && h.isRentSubsidy && h.isPetAllowed) || h.status == (statusType)10 && h.isRentSubsidy || h.status == (statusType)10 && h.isCookAllowed || h.status == (statusType)10 && h.isPetAllowed || h.status == (statusType)10 && h.isSTRAllowed)
+
+
                     .Select(h => new
                     {
                         Id = h.id,
@@ -620,11 +625,176 @@ namespace UserAuth.Controllers
                 {
                     return Ok(combinedHouses);
                 }
+
                 else
                 {
                     return Content(HttpStatusCode.BadRequest, combinedHouses);
                 }
             }
+            else
+            {
+                return Ok(filteredHouses);
+
+            }
+        }
+
+        [HttpGet]
+        [Route("api/myHouse/searchHouse")]
+        public IHttpActionResult searchHouse(int city, string districts = null)
+        {
+            DBModel db = new DBModel();
+            var query = db.HouseEntities.AsQueryable();
+            var cityType = (CityType)city;
+
+            query = query.Where(h => h.city == cityType);
+
+
+            if (!string.IsNullOrEmpty(districts))
+            {
+                // 將逗號分隔的districts字符串轉換為整數列表
+                var districtList = districts.Split(',')
+                                            .Select(int.Parse)
+                                            .Select(d => (DistrictType)d)
+                                            .ToList();
+
+                // 使用Contains方法來篩選符合districtList中的區域的房屋 && 篩選刊登中房源(10)
+
+                query = query.Where(h => districtList.Contains(h.district) && h.status == (statusType)10);
+
+
+            }
+            int totalCount = query.Count();
+
+            // 選取並返回篩選後的結果
+            // 刊登中 = 10
+            var result = query.Select(h => new
+            {
+                houseId = h.id,
+                landlordId = h.userId,
+                landlordFirstName = h.userIdFK.firstName,
+                landlordlastName = h.userIdFK.lastName,
+                landlordgender = h.userIdFK.gender,
+
+                // 列舉所有data
+                //ratingsData = db.OrdersEntities
+                //    .Where(o => db.HouseEntities
+                //        .Where(house => house.userId == h.userId)
+                //        .Select(house => house.id)
+                //        .Contains(o.houseId))
+                //    .SelectMany(o => o.orderRatings)
+                //    .Select(r => r.Rating)
+                //    .DefaultIfEmpty(0) // Handle case when there are no ratings
+                //    .ToList(),
+
+                ratingDetails = new
+                {
+                    Sum = db.OrdersEntities
+                     .Where(o => db.HouseEntities 
+                         .Where(house => house.userId == h.userId) //House表格中找屬於房東的所有房子  
+                         .Select(house => house.id) //選擇這些house id
+                         .Contains(o.houseId)) // 篩選:檢查 OrderEntities中訂單的houseId是否在上述id清單中，若是則保留該訂單
+                     .SelectMany(o => o.orderRatings)
+                     .Select(r => r.Rating)
+                     .DefaultIfEmpty(0)
+                     .Sum(),
+
+                    Count = db.OrdersEntities
+                      .Where(o => db.HouseEntities
+                          .Where(house => house.userId == h.userId)
+                          .Select(house => house.id)
+                          .Contains(o.houseId))
+                      .SelectMany(o => o.orderRatings)
+                      .Count(),
+
+                    AverageRating = db.OrdersEntities
+                      .Where(o => db.HouseEntities
+                          .Where(house => house.userId == h.userId)
+                          .Select(house => house.id)
+                          .Contains(o.houseId))
+                      .SelectMany(o => o.orderRatings)
+                      .Count() == 0 ? 0 :
+                        db.OrdersEntities
+                     .Where(o => db.HouseEntities
+                         .Where(house => house.userId == h.userId)
+                         .Select(house => house.id)
+                         .Contains(o.houseId))
+                     .SelectMany(o => o.orderRatings)
+                     .Select(r => r.Rating)
+                     .DefaultIfEmpty(0)
+                     .Sum() /
+                        db.OrdersEntities
+                      .Where(o => db.HouseEntities
+                          .Where(house => house.userId == h.userId)
+                          .Select(house => house.id)
+                          .Contains(o.houseId))
+                      .SelectMany(o => o.orderRatings)
+                      .Count(),
+                },
+
+                image = h.HouseImgs,
+                title = h.name,
+                city = h.city,
+                district = h.district,
+                road = h.road,
+                lane = h.lane,
+                alley = h.alley,
+                number = h.number,
+                parkingSpaceNumbers = h.parkingSpaceNumbers,
+                floor = h.floor,
+                floorTotal = h.floorTotal,
+                type = h.type,
+                ping = h.ping,
+                roomNumber = h.roomNumbers,
+                livingRoomNumbers = h.livingRoomNumbers,
+                bathRoomNumbers = h.bathRoomNumbers,
+                balconyNumbers = h.balconyNumbers,
+                rent = h.rent,
+                isRentSubsidy = h.isRentSubsidy,
+                isCookAllowd = h.isCookAllowed,
+                isPetAllowd = h.isPetAllowed,
+                isSTRAllowed = h.isSTRAllowed,
+            }).ToList();
+
+
+
+            var response = new
+            {
+                TotalCount = totalCount,
+                Houses = result,
+            };
+            return Content(HttpStatusCode.OK, response);
+
+
+        }
+
+
+        // GET: api/House
+        //public IEnumerable<string> Get()
+        //{
+        //    return new string[] { "value1", "value2" };
+        //}
+
+        //// GET: api/House/5
+        //public string Get(int id)
+        //{
+        //    return "value";
+        //}
+
+        //// POST: api/House
+        //public void Post([FromBody]string value)
+        //{
+        //}
+
+        //// PUT: api/House/5
+        //public void Put(int id, [FromBody]string value)
+        //{
+        //}
+
+        //// DELETE: api/House/5
+        //public void Delete(int id)
+        //{
+        //}
+
             else
             {
                 return Ok(filteredHouses);

@@ -19,7 +19,7 @@ namespace UserAuth.Models
         [Display(Name = "房子")]
         public int houseId { get; set; }
 
-        [JsonIgnore]
+        [JsonIgnore] 
         [ForeignKey("houseId")]
         [Display(Name = "房子")]
         public virtual House houseIdFK { get; set; }
@@ -49,5 +49,8 @@ namespace UserAuth.Models
 
         [Display(Name = "建立時間")]
         public DateTime CreateAt { get; set; } = DateTime.Now;
+
+        public ICollection<OrderRating> orderRatings { get; set; }
+
     }
 }
