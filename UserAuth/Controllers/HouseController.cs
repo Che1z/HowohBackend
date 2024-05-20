@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Ajax.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -121,38 +122,38 @@ namespace UserAuth.Controllers
                     string houseBathRoomNumbers = houseInput.bathRoomNumbers;
                     string houseBalconyNumbers = houseInput.balconyNumbers;
                     string houseParkingSpaceNumbers = houseInput.parkingSpaceNumbers;
-                    bool houseIsRentSubsidy = houseInput.isRentSubsidy;
-                    bool houseIsPetAllowed = houseInput.isPetAllowed;
-                    bool houseIsCookAllowed = houseInput.isCookAllowed;
-                    bool houseIsSTRAllowed = houseInput.isSTRAllowed;
-                    bool houuseIsNearByDepartmentStore = houseInput.isNearByDepartmentStore;
-                    bool houseIsNearBySchool = houseInput.isNearBySchool;
-                    bool houseIsNearByMorningMarket = houseInput.isNearByMorningMarket;
-                    bool houseIsNearByNightMarket = houseInput.isNearByNightMarket;
-                    bool houseIsNearByConvenientStore = houseInput.isNearByConvenientStore;
-                    bool houseIsNearByPark = houseInput.isNearByPark;
-                    bool houseHasGarbageDisposal = houseInput.hasGarbageDisposal;
-                    bool houseHasWindowInBathroom = houseInput.hasWindowInBathroom;
-                    bool houseHasElevator = houseInput.hasElevator;
-                    bool houseIsNearMRT = houseInput.isNearMRT;
+                    //bool? houseIsRentSubsidy = houseInput.isRentSubsidy;
+                    //bool houseIsPetAllowed = houseInput.isPetAllowed;
+                    //bool houseIsCookAllowed = houseInput.isCookAllowed;
+                    //bool houseIsSTRAllowed = houseInput.isSTRAllowed;
+                    //bool houuseIsNearByDepartmentStore = houseInput.isNearByDepartmentStore;
+                    //bool houseIsNearBySchool = houseInput.isNearBySchool;
+                    //bool houseIsNearByMorningMarket = houseInput.isNearByMorningMarket;
+                    //bool houseIsNearByNightMarket = houseInput.isNearByNightMarket;
+                    //bool houseIsNearByConvenientStore = houseInput.isNearByConvenientStore;
+                    //bool houseIsNearByPark = houseInput.isNearByPark;
+                    //bool houseHasGarbageDisposal = houseInput.hasGarbageDisposal;
+                    //bool houseHasWindowInBathroom = houseInput.hasWindowInBathroom;
+                    //bool houseHasElevator = houseInput.hasElevator;
+                    //bool houseIsNearMRT = houseInput.isNearMRT;
                     string houseKmAwayMRT = houseInput.kmAwayMRT;
-                    bool houseIsNearLRT = houseInput.isNearLRT;
+                    //bool houseIsNearLRT = houseInput.isNearLRT;
                     string houseKmAwayLRT = houseInput.kmAwayLRT;
-                    bool houseIsNearBusStation = houseInput.isNearBusStation;
+                    //bool houseIsNearBusStation = houseInput.isNearBusStation;
                     string houseKmAwayBusStation = houseInput.kmAwayBusStation;
-                    bool houseIsNearHSR = houseInput.isNearHSR;
+                    //bool houseIsNearHSR = houseInput.isNearHSR;
                     string houseKmAwayHSR = houseInput.kmAwayHSR;
-                    bool houseIsNearTrainStation = houseInput.isNearTrainStation;
+                    //bool houseIsNearTrainStation = houseInput.isNearTrainStation;
                     string houseKmAwayTrainStation = houseInput.kmAwayTrainStation;
-                    bool houseHasAirConditioner = houseInput.hasAirConditioner;
-                    bool houseHasWashingMachine = houseInput.hasWashingMachine;
-                    bool houseHasRefrigerator = houseInput.hasRefrigerator;
-                    bool houseHasCloset = houseInput.hasCloset;
-                    bool houseHasTableAndChair = houseInput.hasTableAndChair;
-                    bool houseHasWaterHeater = houseInput.hasWaterHeater;
-                    bool houseHasInternet = houseInput.hasInternet;
-                    bool houseHasBed = houseInput.hasBed;
-                    bool houseHasTV = houseInput.hasTV;
+                    //bool houseHasAirConditioner = houseInput.hasAirConditioner;
+                    //bool houseHasWashingMachine = houseInput.hasWashingMachine;
+                    //bool houseHasRefrigerator = houseInput.hasRefrigerator;
+                    //bool houseHasCloset = houseInput.hasCloset;
+                    //bool houseHasTableAndChair = houseInput.hasTableAndChair;
+                    //bool houseHasWaterHeater = houseInput.hasWaterHeater;
+                    //bool houseHasInternet = houseInput.hasInternet;
+                    //bool houseHasBed = houseInput.hasBed;
+                    //bool houseHasTV = houseInput.hasTV;
                     paymentTypeOfWaterBill housePaymentMethodOfWaterBill = houseInput.paymentMethodOfWaterBill;
                     string houseWaterBillPerMonth = houseInput.waterBillPerMonth;
                     paymentTypeOfElectricBill houseElectricBill = houseInput.electricBill;
@@ -162,7 +163,7 @@ namespace UserAuth.Controllers
                     string houseRent = houseInput.rent;
                     securityDepositType houseSecurityDeposit = houseInput.securityDeposit;
                     string houseDescription = houseInput.description;
-                    bool houseHasTenantRestrictions = houseInput.hasTenantRestrictions;
+                    //bool houseHasTenantRestrictions = houseInput.hasTenantRestrictions;
                     genderRestrictionType houseGenderRestriction = houseInput.genderRestriction;
                     string houseJobRestriction = houseInput.jobRestriction;
                     statusType houseStatus = houseInput.status;
@@ -269,133 +270,134 @@ namespace UserAuth.Controllers
                     {
                         updateHouse.parkingSpaceNumbers = houseParkingSpaceNumbers;
                     }
-                    if (houseIsRentSubsidy)
+                    if (houseInput.isRentSubsidy.HasValue)
                     {
-                        updateHouse.isRentSubsidy = houseIsRentSubsidy;
+                        updateHouse.isRentSubsidy = houseInput.isRentSubsidy.Value;
                     }
-                    if (houseIsPetAllowed)
+
+                    if (houseInput.isPetAllowed.HasValue)
                     {
-                        updateHouse.isPetAllowed = houseIsPetAllowed;
+                        updateHouse.isPetAllowed = houseInput.isPetAllowed.Value;
                     }
-                    if (houseIsCookAllowed)
+                    if (houseInput.isCookAllowed.HasValue)
                     {
-                        updateHouse.isCookAllowed = houseIsCookAllowed;
+                        updateHouse.isCookAllowed = houseInput.isCookAllowed.Value;
                     }
-                    if (houseIsSTRAllowed)
+                    if (houseInput.isSTRAllowed.HasValue)
                     {
-                        updateHouse.isSTRAllowed = houseIsSTRAllowed;
+                        updateHouse.isSTRAllowed = houseInput.isSTRAllowed.Value;
                     }
-                    if (houuseIsNearByDepartmentStore)
+                    if (houseInput.isNearByDepartmentStore.HasValue)
                     {
-                        updateHouse.isNearByDepartmentStore = houuseIsNearByDepartmentStore;
+                        updateHouse.isNearByDepartmentStore = houseInput.isNearByDepartmentStore.Value;
                     }
-                    if (houseIsNearBySchool)
+                    if (houseInput.isNearBySchool.HasValue)
                     {
-                        updateHouse.isNearBySchool = houseIsNearBySchool;
+                        updateHouse.isNearBySchool = houseInput.isNearBySchool.Value;
                     }
-                    if (houseIsNearByMorningMarket)
+                    if (houseInput.isNearByMorningMarket.HasValue)
                     {
-                        updateHouse.isNearByMorningMarket = houseIsNearByMorningMarket;
+                        updateHouse.isNearByMorningMarket = houseInput.isNearByMorningMarket.Value;
                     }
-                    if (houseIsNearByNightMarket)
+                    if (houseInput.isNearByNightMarket.HasValue)
                     {
-                        updateHouse.isNearByNightMarket = houseIsNearByNightMarket;
+                        updateHouse.isNearByNightMarket = houseInput.isNearByNightMarket.Value;
                     }
-                    if (houseIsNearByConvenientStore)
+                    if (houseInput.isNearByConvenientStore.HasValue)
                     {
-                        updateHouse.isNearByConvenientStore = houseIsNearByConvenientStore;
+                        updateHouse.isNearByConvenientStore = houseInput.isNearByConvenientStore.Value;
                     }
-                    if (houseIsNearByPark)
+                    if (houseInput.isNearByPark.HasValue)
                     {
-                        updateHouse.isNearByPark = houseIsNearByPark;
+                        updateHouse.isNearByPark = houseInput.isNearByPark.Value;
                     }
-                    if (houseHasGarbageDisposal)
+                    if (houseInput.hasGarbageDisposal.HasValue)
                     {
-                        updateHouse.hasGarbageDisposal = houseHasGarbageDisposal;
+                        updateHouse.hasGarbageDisposal = houseInput.hasGarbageDisposal.Value;
                     }
-                    if (houseHasWindowInBathroom)
+                    if (houseInput.hasWindowInBathroom.HasValue)
                     {
-                        updateHouse.hasWindowInBathroom = houseHasWindowInBathroom;
+                        updateHouse.hasWindowInBathroom = houseInput.hasWindowInBathroom.Value;
                     }
-                    if (houseHasElevator)
+                    if (houseInput.hasElevator.HasValue)
                     {
-                        updateHouse.hasElevator = houseHasElevator;
+                        updateHouse.hasElevator = houseInput.hasElevator.Value;
                     }
-                    if (houseIsNearMRT)
+                    if (houseInput.isNearMRT.HasValue)
                     {
-                        updateHouse.isNearMRT = houseIsNearMRT;
+                        updateHouse.isNearMRT = houseInput.isNearMRT.Value;
                     }
                     if (houseKmAwayMRT != null)
                     {
                         updateHouse.kmAwayMRT = houseKmAwayMRT;
                     }
-                    if (houseIsNearLRT)
+                    if (houseInput.isNearLRT.HasValue)
                     {
-                        updateHouse.isNearLRT = houseIsNearLRT;
+                        updateHouse.isNearLRT = houseInput.isNearLRT.Value;
                     }
                     if (houseKmAwayLRT != null)
                     {
                         updateHouse.kmAwayLRT = houseKmAwayLRT;
                     }
-                    if (houseIsNearBusStation)
+                    if (houseInput.isNearBusStation.HasValue)
                     {
-                        updateHouse.isNearBusStation = houseIsNearBusStation;
+                        updateHouse.isNearBusStation = houseInput.isNearBusStation.Value;
                     }
                     if (houseKmAwayBusStation != null)
                     {
                         updateHouse.kmAwayBusStation = houseKmAwayBusStation;
                     }
-                    if (houseIsNearHSR)
+                    if (houseInput.isNearHSR.HasValue)
                     {
-                        updateHouse.isNearHSR = houseIsNearHSR;
+                        updateHouse.isNearHSR = houseInput.isNearHSR.Value;
                     }
                     if (houseKmAwayHSR != null)
                     {
                         updateHouse.kmAwayHSR = houseKmAwayHSR;
                     }
-                    if (houseIsNearTrainStation)
+                    if (houseInput.isNearTrainStation.HasValue)
                     {
-                        updateHouse.isNearTrainStation = houseIsNearTrainStation;
+                        updateHouse.isNearTrainStation = houseInput.isNearTrainStation.Value;
                     }
                     if (houseKmAwayTrainStation != null)
                     {
                         updateHouse.kmAwayTrainStation = houseKmAwayTrainStation;
                     }
-                    if (houseHasAirConditioner)
+                    if (houseInput.hasAirConditioner.HasValue)
                     {
-                        updateHouse.hasAirConditioner = houseHasAirConditioner;
+                        updateHouse.hasAirConditioner = houseInput.hasAirConditioner.Value;
                     }
-                    if (houseHasWashingMachine)
+                    if (houseInput.hasWashingMachine.HasValue)
                     {
-                        updateHouse.hasWashingMachine = houseHasWashingMachine;
+                        updateHouse.hasWashingMachine = houseInput.hasWashingMachine.Value;
                     }
-                    if (houseHasRefrigerator)
+                    if (houseInput.hasRefrigerator.HasValue)
                     {
-                        updateHouse.hasRefrigerator = houseHasRefrigerator;
+                        updateHouse.hasRefrigerator = houseInput.hasRefrigerator.Value;
                     }
-                    if (houseHasCloset)
+                    if (houseInput.hasCloset.HasValue)
                     {
-                        updateHouse.hasCloset = houseHasCloset;
+                        updateHouse.hasCloset = houseInput.hasCloset.Value;
                     }
-                    if (houseHasTableAndChair)
+                    if (houseInput.hasTableAndChair.HasValue)
                     {
-                        updateHouse.hasTableAndChair = houseHasTableAndChair;
+                        updateHouse.hasTableAndChair = houseInput.hasTableAndChair.Value;
                     }
-                    if (houseHasWaterHeater)
+                    if (houseInput.hasWaterHeater.HasValue)
                     {
-                        updateHouse.hasWaterHeater = houseHasWaterHeater;
+                        updateHouse.hasWaterHeater = houseInput.hasWaterHeater.Value;
                     }
-                    if (houseHasInternet)
+                    if (houseInput.hasInternet.HasValue)
                     {
-                        updateHouse.hasInternet = houseHasInternet;
+                        updateHouse.hasInternet = houseInput.hasInternet.Value;
                     }
-                    if (houseHasBed)
+                    if (houseInput.hasBed.HasValue)
                     {
-                        updateHouse.hasBed = houseHasBed;
+                        updateHouse.hasBed = houseInput.hasBed.Value;
                     }
-                    if (houseHasTV)
+                    if (houseInput.hasTV.HasValue)
                     {
-                        updateHouse.hasTV = houseHasTV;
+                        updateHouse.hasTV = houseInput.hasTV.Value;
                     }
                     updateHouse.paymentMethodOfWaterBill = housePaymentMethodOfWaterBill;
                     if (houseWaterBillPerMonth != null)
@@ -418,9 +420,9 @@ namespace UserAuth.Controllers
                     {
                         updateHouse.description = houseDescription;
                     }
-                    if (houseHasTenantRestrictions)
+                    if (houseInput.hasTenantRestrictions.HasValue)
                     {
-                        updateHouse.hasTenantRestrictions = houseHasTenantRestrictions;
+                        updateHouse.hasTenantRestrictions = houseInput.hasTenantRestrictions.Value;
                     }
                     updateHouse.genderRestriction = houseGenderRestriction;
                     updateHouse.status = houseStatus;
@@ -851,15 +853,15 @@ namespace UserAuth.Controllers
                                     hasBed = houseEnter.hasBed, //設備: 床
                                     hasTV = houseEnter.hasTV, //設備: 電視
                                     isNearMRT = houseEnter.isNearMRT, //交通: 捷運
-                                    kmAwayMRT = "", //距離捷運公里
+                                    kmAwayMRT = houseEnter.kmAwayMRT, //距離捷運公里
                                     isNearLRT = houseEnter.isNearLRT, //交通: 輕軌
-                                    kmAwayLRT = "", //距離輕軌公里
+                                    kmAwayLRT = houseEnter.kmAwayLRT, //距離輕軌公里
                                     isNearBusStation = houseEnter.isNearBusStation, //交通: 公車
-                                    kmAwayBusStation = "", //距離公車公里
+                                    kmAwayBusStation = houseEnter.kmAwayBusStation, //距離公車公里
                                     isNearHSR = houseEnter.isNearHSR, //交通: 高鐵
-                                    kmAwayHSR = "", //距離高鐵公里
+                                    kmAwayHSR = houseEnter.kmAwayHSR, //距離高鐵公里
                                     isNearTrainStation = houseEnter.isNearTrainStation, //交通: 火車
-                                    kmAwayTrainStation = "", //距離火車公里
+                                    kmAwayTrainStation = houseEnter.kmAwayTrainStation, //距離火車公里
 
                                     pictures = pictureObject
                                 };
@@ -920,23 +922,23 @@ namespace UserAuth.Controllers
                                     hasBed = houseEnter.hasBed, //設備: 床
                                     hasTV = houseEnter.hasTV, //設備: 電視
                                     isNearMRT = houseEnter.isNearMRT, //交通: 捷運
-                                    kmAwayMRT = "", //距離捷運公里
+                                    kmAwayMRT = houseEnter.kmAwayMRT, //距離捷運公里
                                     isNearLRT = houseEnter.isNearLRT, //交通: 輕軌
-                                    kmAwayLRT = "", //距離輕軌公里
+                                    kmAwayLRT = houseEnter.kmAwayLRT, //距離輕軌公里
                                     isNearBusStation = houseEnter.isNearBusStation, //交通: 公車
-                                    kmAwayBusStation = "", //距離公車公里
+                                    kmAwayBusStation = houseEnter.kmAwayBusStation, //距離公車公里
                                     isNearHSR = houseEnter.isNearHSR, //交通: 高鐵
-                                    kmAwayHSR = "", //距離高鐵公里
+                                    kmAwayHSR = houseEnter.kmAwayHSR, //距離高鐵公里
                                     isNearTrainStation = houseEnter.isNearTrainStation, //交通: 火車
-                                    kmAwayTrainStation = "", //距離火車公里
-                                    rent = "", //每月租金
+                                    kmAwayTrainStation = houseEnter.kmAwayTrainStation, //距離火車公里
+                                    rent = houseEnter.rent, //每月租金
                                     securityDeposit = Enum.GetName(typeof(securityDepositType), houseEnter.securityDeposit), //押金幾個月 Enum
                                     paymentMethodOfWaterBill = Enum.GetName(typeof(paymentTypeOfWaterBill), houseEnter.paymentMethodOfWaterBill), //水費繳納方式 Enum
-                                    waterBillPerMonth = "", //水費每月價錢
+                                    waterBillPerMonth = houseEnter.waterBillPerMonth, //水費每月價錢
                                     electricBill = Enum.GetName(typeof(paymentTypeOfElectricBill), houseEnter.electricBill), //電費計價方式 Enum
                                     paymentMethodOfElectricBill = Enum.GetName(typeof(paymentMethodOfElectricBill), houseEnter.paymentMethodOfElectricBill), //電費繳納方式 Enum
                                     paymentMethodOfManagementFee = Enum.GetName(typeof(paymentMethodOfManagementFee), houseEnter.paymentMethodOfManagementFee), //管理費方式 Enum
-                                    managementFeePerMonth = "", //管理費每月價錢
+                                    managementFeePerMonth = houseEnter.managementFeePerMonth, //管理費每月價錢
 
                                     pictures = pictureObject
                                 };
@@ -997,24 +999,24 @@ namespace UserAuth.Controllers
                                     hasBed = houseEnter.hasBed, //設備: 床
                                     hasTV = houseEnter.hasTV, //設備: 電視
                                     isNearMRT = houseEnter.isNearMRT, //交通: 捷運
-                                    kmAwayMRT = "", //距離捷運公里
+                                    kmAwayMRT = houseEnter.kmAwayMRT, //距離捷運公里
                                     isNearLRT = houseEnter.isNearLRT, //交通: 輕軌
-                                    kmAwayLRT = "", //距離輕軌公里
+                                    kmAwayLRT = houseEnter.kmAwayLRT, //距離輕軌公里
                                     isNearBusStation = houseEnter.isNearBusStation, //交通: 公車
-                                    kmAwayBusStation = "", //距離公車公里
+                                    kmAwayBusStation = houseEnter.kmAwayBusStation, //距離公車公里
                                     isNearHSR = houseEnter.isNearHSR, //交通: 高鐵
-                                    kmAwayHSR = "", //距離高鐵公里
+                                    kmAwayHSR = houseEnter.kmAwayHSR, //距離高鐵公里
                                     isNearTrainStation = houseEnter.isNearTrainStation, //交通: 火車
-                                    kmAwayTrainStation = "", //距離火車公里
-                                    rent = "", //每月租金
+                                    kmAwayTrainStation = houseEnter.kmAwayTrainStation, //距離火車公里
+                                    rent = houseEnter.rent, //每月租金
                                     securityDeposit = Enum.GetName(typeof(securityDepositType), houseEnter.securityDeposit), //押金幾個月 Enum
                                     paymentMethodOfWaterBill = Enum.GetName(typeof(paymentTypeOfWaterBill), houseEnter.paymentMethodOfWaterBill), //水費繳納方式 Enum
-                                    waterBillPerMonth = "", //水費每月價錢
+                                    waterBillPerMonth = houseEnter.waterBillPerMonth, //水費每月價錢
                                     electricBill = Enum.GetName(typeof(paymentTypeOfElectricBill), houseEnter.electricBill), //電費計價方式 Enum
                                     paymentMethodOfElectricBill = Enum.GetName(typeof(paymentMethodOfElectricBill), houseEnter.paymentMethodOfElectricBill), //電費繳納方式 Enum
                                     paymentMethodOfManagementFee = Enum.GetName(typeof(paymentMethodOfManagementFee), houseEnter.paymentMethodOfManagementFee), //管理費方式 Enum
-                                    managementFeePerMonth = "", //管理費每月價錢
-                                    description = "", //房源介紹
+                                    managementFeePerMonth = houseEnter.managementFeePerMonth, //管理費每月價錢
+                                    description = houseEnter.description, //房源介紹
 
                                     pictures = pictureObject
                                 };
@@ -1084,24 +1086,24 @@ namespace UserAuth.Controllers
                                     hasBed = houseEnter.hasBed, //設備: 床
                                     hasTV = houseEnter.hasTV, //設備: 電視
                                     isNearMRT = houseEnter.isNearMRT, //交通: 捷運
-                                    kmAwayMRT = "", //距離捷運公里
+                                    kmAwayMRT = houseEnter.kmAwayMRT, //距離捷運公里
                                     isNearLRT = houseEnter.isNearLRT, //交通: 輕軌
-                                    kmAwayLRT = "", //距離輕軌公里
+                                    kmAwayLRT = houseEnter.kmAwayLRT, //距離輕軌公里
                                     isNearBusStation = houseEnter.isNearBusStation, //交通: 公車
-                                    kmAwayBusStation = "", //距離公車公里
+                                    kmAwayBusStation = houseEnter.kmAwayBusStation, //距離公車公里
                                     isNearHSR = houseEnter.isNearHSR, //交通: 高鐵
-                                    kmAwayHSR = "", //距離高鐵公里
+                                    kmAwayHSR = houseEnter.kmAwayHSR, //距離高鐵公里
                                     isNearTrainStation = houseEnter.isNearTrainStation, //交通: 火車
-                                    kmAwayTrainStation = "", //距離火車公里
-                                    rent = "", //每月租金
+                                    kmAwayTrainStation = houseEnter.kmAwayTrainStation, //距離火車公里
+                                    rent = houseEnter.rent, //每月租金
                                     securityDeposit = Enum.GetName(typeof(securityDepositType), houseEnter.securityDeposit), //押金幾個月 Enum
                                     paymentMethodOfWaterBill = Enum.GetName(typeof(paymentTypeOfWaterBill), houseEnter.paymentMethodOfWaterBill), //水費繳納方式 Enum
-                                    waterBillPerMonth = "", //水費每月價錢
+                                    waterBillPerMonth = houseEnter.waterBillPerMonth, //水費每月價錢
                                     electricBill = Enum.GetName(typeof(paymentTypeOfElectricBill), houseEnter.electricBill), //電費計價方式 Enum
                                     paymentMethodOfElectricBill = Enum.GetName(typeof(paymentMethodOfElectricBill), houseEnter.paymentMethodOfElectricBill), //電費繳納方式 Enum
                                     paymentMethodOfManagementFee = Enum.GetName(typeof(paymentMethodOfManagementFee), houseEnter.paymentMethodOfManagementFee), //管理費方式 Enum
-                                    managementFeePerMonth = "", //管理費每月價錢
-                                    description = "", //房源介紹
+                                    managementFeePerMonth = houseEnter.managementFeePerMonth, //管理費每月價錢
+                                    description = houseEnter.description, //房源介紹
                                     hasTenantRestrictions = true, //是否有租客限制
                                     genderRestriction = Enum.GetName(typeof(genderRestrictionType), houseEnter.genderRestriction), //男or女or性別友善
                                     jobRestriction = jobRestriction, //排除職業
