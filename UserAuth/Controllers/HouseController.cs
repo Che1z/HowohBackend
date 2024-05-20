@@ -115,58 +115,22 @@ namespace UserAuth.Controllers
                     string houseNumber = houseInput.number;
                     string houseFloor = houseInput.floor;
                     string houseFloorTotal = houseInput.floorTotal;
-                    type houseType = houseInput.type;
                     string ping = houseInput.ping;
                     string houseRoomNumbers = houseInput.roomNumbers;
                     string houseLivingRoomNumbers = houseInput.livingRoomNumbers;
                     string houseBathRoomNumbers = houseInput.bathRoomNumbers;
                     string houseBalconyNumbers = houseInput.balconyNumbers;
                     string houseParkingSpaceNumbers = houseInput.parkingSpaceNumbers;
-                    //bool? houseIsRentSubsidy = houseInput.isRentSubsidy;
-                    //bool houseIsPetAllowed = houseInput.isPetAllowed;
-                    //bool houseIsCookAllowed = houseInput.isCookAllowed;
-                    //bool houseIsSTRAllowed = houseInput.isSTRAllowed;
-                    //bool houuseIsNearByDepartmentStore = houseInput.isNearByDepartmentStore;
-                    //bool houseIsNearBySchool = houseInput.isNearBySchool;
-                    //bool houseIsNearByMorningMarket = houseInput.isNearByMorningMarket;
-                    //bool houseIsNearByNightMarket = houseInput.isNearByNightMarket;
-                    //bool houseIsNearByConvenientStore = houseInput.isNearByConvenientStore;
-                    //bool houseIsNearByPark = houseInput.isNearByPark;
-                    //bool houseHasGarbageDisposal = houseInput.hasGarbageDisposal;
-                    //bool houseHasWindowInBathroom = houseInput.hasWindowInBathroom;
-                    //bool houseHasElevator = houseInput.hasElevator;
-                    //bool houseIsNearMRT = houseInput.isNearMRT;
                     string houseKmAwayMRT = houseInput.kmAwayMRT;
-                    //bool houseIsNearLRT = houseInput.isNearLRT;
                     string houseKmAwayLRT = houseInput.kmAwayLRT;
-                    //bool houseIsNearBusStation = houseInput.isNearBusStation;
                     string houseKmAwayBusStation = houseInput.kmAwayBusStation;
-                    //bool houseIsNearHSR = houseInput.isNearHSR;
                     string houseKmAwayHSR = houseInput.kmAwayHSR;
-                    //bool houseIsNearTrainStation = houseInput.isNearTrainStation;
                     string houseKmAwayTrainStation = houseInput.kmAwayTrainStation;
-                    //bool houseHasAirConditioner = houseInput.hasAirConditioner;
-                    //bool houseHasWashingMachine = houseInput.hasWashingMachine;
-                    //bool houseHasRefrigerator = houseInput.hasRefrigerator;
-                    //bool houseHasCloset = houseInput.hasCloset;
-                    //bool houseHasTableAndChair = houseInput.hasTableAndChair;
-                    //bool houseHasWaterHeater = houseInput.hasWaterHeater;
-                    //bool houseHasInternet = houseInput.hasInternet;
-                    //bool houseHasBed = houseInput.hasBed;
-                    //bool houseHasTV = houseInput.hasTV;
-                    paymentTypeOfWaterBill housePaymentMethodOfWaterBill = houseInput.paymentMethodOfWaterBill;
                     string houseWaterBillPerMonth = houseInput.waterBillPerMonth;
-                    paymentTypeOfElectricBill houseElectricBill = houseInput.electricBill;
-                    paymentMethodOfElectricBill housePaymentMethodOfElectricBill = houseInput.paymentMethodOfElectricBill;
-                    paymentMethodOfManagementFee housePaymentMethodOfManagementFee = houseInput.paymentMethodOfManagementFee;
                     string houseManagementFeePerMonth = houseInput.managementFeePerMonth;
                     string houseRent = houseInput.rent;
-                    securityDepositType houseSecurityDeposit = houseInput.securityDeposit;
                     string houseDescription = houseInput.description;
-                    //bool houseHasTenantRestrictions = houseInput.hasTenantRestrictions;
-                    genderRestrictionType houseGenderRestriction = houseInput.genderRestriction;
                     string houseJobRestriction = houseInput.jobRestriction;
-                    statusType houseStatus = houseInput.status;
 
                     CityType houseCityType;
                     DistrictType houseDistrictType;
@@ -253,7 +217,10 @@ namespace UserAuth.Controllers
                     {
                         updateHouse.roomNumbers = houseRoomNumbers;
                     }
-                    updateHouse.type = houseType;
+                    if (houseInput.type.HasValue)
+                    {
+                        updateHouse.type = houseInput.type.Value;
+                    }
                     if (houseLivingRoomNumbers != null)
                     {
                         updateHouse.livingRoomNumbers = houseLivingRoomNumbers;
@@ -274,7 +241,6 @@ namespace UserAuth.Controllers
                     {
                         updateHouse.isRentSubsidy = houseInput.isRentSubsidy.Value;
                     }
-
                     if (houseInput.isPetAllowed.HasValue)
                     {
                         updateHouse.isPetAllowed = houseInput.isPetAllowed.Value;
@@ -399,14 +365,26 @@ namespace UserAuth.Controllers
                     {
                         updateHouse.hasTV = houseInput.hasTV.Value;
                     }
-                    updateHouse.paymentMethodOfWaterBill = housePaymentMethodOfWaterBill;
+                    if (houseInput.paymentMethodOfWaterBill.HasValue)
+                    {
+                        updateHouse.paymentMethodOfWaterBill = houseInput.paymentMethodOfWaterBill.Value;
+                    }
                     if (houseWaterBillPerMonth != null)
                     {
                         updateHouse.waterBillPerMonth = houseWaterBillPerMonth;
                     }
-                    updateHouse.electricBill = houseElectricBill;
-                    updateHouse.paymentMethodOfElectricBill = housePaymentMethodOfElectricBill;
-                    updateHouse.paymentMethodOfManagementFee = housePaymentMethodOfManagementFee;
+                    if (houseInput.electricBill.HasValue)
+                    {
+                        updateHouse.electricBill = houseInput.electricBill.Value;
+                    }
+                    if (houseInput.paymentMethodOfElectricBill.HasValue)
+                    {
+                        updateHouse.paymentMethodOfElectricBill = houseInput.paymentMethodOfElectricBill.Value;
+                    }
+                    if (houseInput.paymentMethodOfManagementFee.HasValue)
+                    {
+                        updateHouse.paymentMethodOfManagementFee = houseInput.paymentMethodOfManagementFee.Value;
+                    }
                     if (houseManagementFeePerMonth != null)
                     {
                         updateHouse.managementFeePerMonth = houseManagementFeePerMonth;
@@ -415,7 +393,10 @@ namespace UserAuth.Controllers
                     {
                         updateHouse.rent = houseRent;
                     }
-                    updateHouse.securityDeposit = houseSecurityDeposit;
+                    if (houseInput.securityDeposit.HasValue)
+                    {
+                        updateHouse.securityDeposit = houseInput.securityDeposit.Value;
+                    }
                     if (houseDescription != null)
                     {
                         updateHouse.description = houseDescription;
@@ -424,8 +405,15 @@ namespace UserAuth.Controllers
                     {
                         updateHouse.hasTenantRestrictions = houseInput.hasTenantRestrictions.Value;
                     }
-                    updateHouse.genderRestriction = houseGenderRestriction;
-                    updateHouse.status = houseStatus;
+                    if (houseInput.genderRestriction.HasValue)
+                    {
+                        updateHouse.genderRestriction = houseInput.genderRestriction.Value;
+                    }
+                    if (houseInput.status.HasValue)
+                    {
+                        updateHouse.status = houseInput.status.Value;
+                    }
+                    //updateHouse.status = houseStatus;
 
                     db.SaveChanges();
 
