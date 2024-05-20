@@ -224,6 +224,5 @@ namespace UserAuth.Models
 
         public virtual ICollection<Appointment> Appointments { get; set; }
         public virtual ICollection<HouseImg> HouseImgs { get; set; }
-
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Ajax.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -114,58 +115,22 @@ namespace UserAuth.Controllers
                     string houseNumber = houseInput.number;
                     string houseFloor = houseInput.floor;
                     string houseFloorTotal = houseInput.floorTotal;
-                    type houseType = houseInput.type;
                     string ping = houseInput.ping;
                     string houseRoomNumbers = houseInput.roomNumbers;
                     string houseLivingRoomNumbers = houseInput.livingRoomNumbers;
                     string houseBathRoomNumbers = houseInput.bathRoomNumbers;
                     string houseBalconyNumbers = houseInput.balconyNumbers;
                     string houseParkingSpaceNumbers = houseInput.parkingSpaceNumbers;
-                    bool houseIsRentSubsidy = houseInput.isRentSubsidy;
-                    bool houseIsPetAllowed = houseInput.isPetAllowed;
-                    bool houseIsCookAllowed = houseInput.isCookAllowed;
-                    bool houseIsSTRAllowed = houseInput.isSTRAllowed;
-                    bool houuseIsNearByDepartmentStore = houseInput.isNearByDepartmentStore;
-                    bool houseIsNearBySchool = houseInput.isNearBySchool;
-                    bool houseIsNearByMorningMarket = houseInput.isNearByMorningMarket;
-                    bool houseIsNearByNightMarket = houseInput.isNearByNightMarket;
-                    bool houseIsNearByConvenientStore = houseInput.isNearByConvenientStore;
-                    bool houseIsNearByPark = houseInput.isNearByPark;
-                    bool houseHasGarbageDisposal = houseInput.hasGarbageDisposal;
-                    bool houseHasWindowInBathroom = houseInput.hasWindowInBathroom;
-                    bool houseHasElevator = houseInput.hasElevator;
-                    bool houseIsNearMRT = houseInput.isNearMRT;
                     string houseKmAwayMRT = houseInput.kmAwayMRT;
-                    bool houseIsNearLRT = houseInput.isNearLRT;
                     string houseKmAwayLRT = houseInput.kmAwayLRT;
-                    bool houseIsNearBusStation = houseInput.isNearBusStation;
                     string houseKmAwayBusStation = houseInput.kmAwayBusStation;
-                    bool houseIsNearHSR = houseInput.isNearHSR;
                     string houseKmAwayHSR = houseInput.kmAwayHSR;
-                    bool houseIsNearTrainStation = houseInput.isNearTrainStation;
                     string houseKmAwayTrainStation = houseInput.kmAwayTrainStation;
-                    bool houseHasAirConditioner = houseInput.hasAirConditioner;
-                    bool houseHasWashingMachine = houseInput.hasWashingMachine;
-                    bool houseHasRefrigerator = houseInput.hasRefrigerator;
-                    bool houseHasCloset = houseInput.hasCloset;
-                    bool houseHasTableAndChair = houseInput.hasTableAndChair;
-                    bool houseHasWaterHeater = houseInput.hasWaterHeater;
-                    bool houseHasInternet = houseInput.hasInternet;
-                    bool houseHasBed = houseInput.hasBed;
-                    bool houseHasTV = houseInput.hasTV;
-                    paymentTypeOfWaterBill housePaymentMethodOfWaterBill = houseInput.paymentMethodOfWaterBill;
                     string houseWaterBillPerMonth = houseInput.waterBillPerMonth;
-                    paymentTypeOfElectricBill houseElectricBill = houseInput.electricBill;
-                    paymentMethodOfElectricBill housePaymentMethodOfElectricBill = houseInput.paymentMethodOfElectricBill;
-                    paymentMethodOfManagementFee housePaymentMethodOfManagementFee = houseInput.paymentMethodOfManagementFee;
                     string houseManagementFeePerMonth = houseInput.managementFeePerMonth;
                     string houseRent = houseInput.rent;
-                    securityDepositType houseSecurityDeposit = houseInput.securityDeposit;
                     string houseDescription = houseInput.description;
-                    bool houseHasTenantRestrictions = houseInput.hasTenantRestrictions;
-                    genderRestrictionType houseGenderRestriction = houseInput.genderRestriction;
                     string houseJobRestriction = houseInput.jobRestriction;
-                    statusType houseStatus = houseInput.status;
 
                     CityType houseCityType;
                     DistrictType houseDistrictType;
@@ -252,7 +217,10 @@ namespace UserAuth.Controllers
                     {
                         updateHouse.roomNumbers = houseRoomNumbers;
                     }
-                    updateHouse.type = houseType;
+                    if (houseInput.type.HasValue)
+                    {
+                        updateHouse.type = houseInput.type.Value;
+                    }
                     if (houseLivingRoomNumbers != null)
                     {
                         updateHouse.livingRoomNumbers = houseLivingRoomNumbers;
@@ -269,142 +237,154 @@ namespace UserAuth.Controllers
                     {
                         updateHouse.parkingSpaceNumbers = houseParkingSpaceNumbers;
                     }
-                    if (houseIsRentSubsidy)
+                    if (houseInput.isRentSubsidy.HasValue)
                     {
-                        updateHouse.isRentSubsidy = houseIsRentSubsidy;
+                        updateHouse.isRentSubsidy = houseInput.isRentSubsidy.Value;
                     }
-                    if (houseIsPetAllowed)
+                    if (houseInput.isPetAllowed.HasValue)
                     {
-                        updateHouse.isPetAllowed = houseIsPetAllowed;
+                        updateHouse.isPetAllowed = houseInput.isPetAllowed.Value;
                     }
-                    if (houseIsCookAllowed)
+                    if (houseInput.isCookAllowed.HasValue)
                     {
-                        updateHouse.isCookAllowed = houseIsCookAllowed;
+                        updateHouse.isCookAllowed = houseInput.isCookAllowed.Value;
                     }
-                    if (houseIsSTRAllowed)
+                    if (houseInput.isSTRAllowed.HasValue)
                     {
-                        updateHouse.isSTRAllowed = houseIsSTRAllowed;
+                        updateHouse.isSTRAllowed = houseInput.isSTRAllowed.Value;
                     }
-                    if (houuseIsNearByDepartmentStore)
+                    if (houseInput.isNearByDepartmentStore.HasValue)
                     {
-                        updateHouse.isNearByDepartmentStore = houuseIsNearByDepartmentStore;
+                        updateHouse.isNearByDepartmentStore = houseInput.isNearByDepartmentStore.Value;
                     }
-                    if (houseIsNearBySchool)
+                    if (houseInput.isNearBySchool.HasValue)
                     {
-                        updateHouse.isNearBySchool = houseIsNearBySchool;
+                        updateHouse.isNearBySchool = houseInput.isNearBySchool.Value;
                     }
-                    if (houseIsNearByMorningMarket)
+                    if (houseInput.isNearByMorningMarket.HasValue)
                     {
-                        updateHouse.isNearByMorningMarket = houseIsNearByMorningMarket;
+                        updateHouse.isNearByMorningMarket = houseInput.isNearByMorningMarket.Value;
                     }
-                    if (houseIsNearByNightMarket)
+                    if (houseInput.isNearByNightMarket.HasValue)
                     {
-                        updateHouse.isNearByNightMarket = houseIsNearByNightMarket;
+                        updateHouse.isNearByNightMarket = houseInput.isNearByNightMarket.Value;
                     }
-                    if (houseIsNearByConvenientStore)
+                    if (houseInput.isNearByConvenientStore.HasValue)
                     {
-                        updateHouse.isNearByConvenientStore = houseIsNearByConvenientStore;
+                        updateHouse.isNearByConvenientStore = houseInput.isNearByConvenientStore.Value;
                     }
-                    if (houseIsNearByPark)
+                    if (houseInput.isNearByPark.HasValue)
                     {
-                        updateHouse.isNearByPark = houseIsNearByPark;
+                        updateHouse.isNearByPark = houseInput.isNearByPark.Value;
                     }
-                    if (houseHasGarbageDisposal)
+                    if (houseInput.hasGarbageDisposal.HasValue)
                     {
-                        updateHouse.hasGarbageDisposal = houseHasGarbageDisposal;
+                        updateHouse.hasGarbageDisposal = houseInput.hasGarbageDisposal.Value;
                     }
-                    if (houseHasWindowInBathroom)
+                    if (houseInput.hasWindowInBathroom.HasValue)
                     {
-                        updateHouse.hasWindowInBathroom = houseHasWindowInBathroom;
+                        updateHouse.hasWindowInBathroom = houseInput.hasWindowInBathroom.Value;
                     }
-                    if (houseHasElevator)
+                    if (houseInput.hasElevator.HasValue)
                     {
-                        updateHouse.hasElevator = houseHasElevator;
+                        updateHouse.hasElevator = houseInput.hasElevator.Value;
                     }
-                    if (houseIsNearMRT)
+                    if (houseInput.isNearMRT.HasValue)
                     {
-                        updateHouse.isNearMRT = houseIsNearMRT;
+                        updateHouse.isNearMRT = houseInput.isNearMRT.Value;
                     }
                     if (houseKmAwayMRT != null)
                     {
                         updateHouse.kmAwayMRT = houseKmAwayMRT;
                     }
-                    if (houseIsNearLRT)
+                    if (houseInput.isNearLRT.HasValue)
                     {
-                        updateHouse.isNearLRT = houseIsNearLRT;
+                        updateHouse.isNearLRT = houseInput.isNearLRT.Value;
                     }
                     if (houseKmAwayLRT != null)
                     {
                         updateHouse.kmAwayLRT = houseKmAwayLRT;
                     }
-                    if (houseIsNearBusStation)
+                    if (houseInput.isNearBusStation.HasValue)
                     {
-                        updateHouse.isNearBusStation = houseIsNearBusStation;
+                        updateHouse.isNearBusStation = houseInput.isNearBusStation.Value;
                     }
                     if (houseKmAwayBusStation != null)
                     {
                         updateHouse.kmAwayBusStation = houseKmAwayBusStation;
                     }
-                    if (houseIsNearHSR)
+                    if (houseInput.isNearHSR.HasValue)
                     {
-                        updateHouse.isNearHSR = houseIsNearHSR;
+                        updateHouse.isNearHSR = houseInput.isNearHSR.Value;
                     }
                     if (houseKmAwayHSR != null)
                     {
                         updateHouse.kmAwayHSR = houseKmAwayHSR;
                     }
-                    if (houseIsNearTrainStation)
+                    if (houseInput.isNearTrainStation.HasValue)
                     {
-                        updateHouse.isNearTrainStation = houseIsNearTrainStation;
+                        updateHouse.isNearTrainStation = houseInput.isNearTrainStation.Value;
                     }
                     if (houseKmAwayTrainStation != null)
                     {
                         updateHouse.kmAwayTrainStation = houseKmAwayTrainStation;
                     }
-                    if (houseHasAirConditioner)
+                    if (houseInput.hasAirConditioner.HasValue)
                     {
-                        updateHouse.hasAirConditioner = houseHasAirConditioner;
+                        updateHouse.hasAirConditioner = houseInput.hasAirConditioner.Value;
                     }
-                    if (houseHasWashingMachine)
+                    if (houseInput.hasWashingMachine.HasValue)
                     {
-                        updateHouse.hasWashingMachine = houseHasWashingMachine;
+                        updateHouse.hasWashingMachine = houseInput.hasWashingMachine.Value;
                     }
-                    if (houseHasRefrigerator)
+                    if (houseInput.hasRefrigerator.HasValue)
                     {
-                        updateHouse.hasRefrigerator = houseHasRefrigerator;
+                        updateHouse.hasRefrigerator = houseInput.hasRefrigerator.Value;
                     }
-                    if (houseHasCloset)
+                    if (houseInput.hasCloset.HasValue)
                     {
-                        updateHouse.hasCloset = houseHasCloset;
+                        updateHouse.hasCloset = houseInput.hasCloset.Value;
                     }
-                    if (houseHasTableAndChair)
+                    if (houseInput.hasTableAndChair.HasValue)
                     {
-                        updateHouse.hasTableAndChair = houseHasTableAndChair;
+                        updateHouse.hasTableAndChair = houseInput.hasTableAndChair.Value;
                     }
-                    if (houseHasWaterHeater)
+                    if (houseInput.hasWaterHeater.HasValue)
                     {
-                        updateHouse.hasWaterHeater = houseHasWaterHeater;
+                        updateHouse.hasWaterHeater = houseInput.hasWaterHeater.Value;
                     }
-                    if (houseHasInternet)
+                    if (houseInput.hasInternet.HasValue)
                     {
-                        updateHouse.hasInternet = houseHasInternet;
+                        updateHouse.hasInternet = houseInput.hasInternet.Value;
                     }
-                    if (houseHasBed)
+                    if (houseInput.hasBed.HasValue)
                     {
-                        updateHouse.hasBed = houseHasBed;
+                        updateHouse.hasBed = houseInput.hasBed.Value;
                     }
-                    if (houseHasTV)
+                    if (houseInput.hasTV.HasValue)
                     {
-                        updateHouse.hasTV = houseHasTV;
+                        updateHouse.hasTV = houseInput.hasTV.Value;
                     }
-                    updateHouse.paymentMethodOfWaterBill = housePaymentMethodOfWaterBill;
+                    if (houseInput.paymentMethodOfWaterBill.HasValue)
+                    {
+                        updateHouse.paymentMethodOfWaterBill = houseInput.paymentMethodOfWaterBill.Value;
+                    }
                     if (houseWaterBillPerMonth != null)
                     {
                         updateHouse.waterBillPerMonth = houseWaterBillPerMonth;
                     }
-                    updateHouse.electricBill = houseElectricBill;
-                    updateHouse.paymentMethodOfElectricBill = housePaymentMethodOfElectricBill;
-                    updateHouse.paymentMethodOfManagementFee = housePaymentMethodOfManagementFee;
+                    if (houseInput.electricBill.HasValue)
+                    {
+                        updateHouse.electricBill = houseInput.electricBill.Value;
+                    }
+                    if (houseInput.paymentMethodOfElectricBill.HasValue)
+                    {
+                        updateHouse.paymentMethodOfElectricBill = houseInput.paymentMethodOfElectricBill.Value;
+                    }
+                    if (houseInput.paymentMethodOfManagementFee.HasValue)
+                    {
+                        updateHouse.paymentMethodOfManagementFee = houseInput.paymentMethodOfManagementFee.Value;
+                    }
                     if (houseManagementFeePerMonth != null)
                     {
                         updateHouse.managementFeePerMonth = houseManagementFeePerMonth;
@@ -413,17 +393,27 @@ namespace UserAuth.Controllers
                     {
                         updateHouse.rent = houseRent;
                     }
-                    updateHouse.securityDeposit = houseSecurityDeposit;
+                    if (houseInput.securityDeposit.HasValue)
+                    {
+                        updateHouse.securityDeposit = houseInput.securityDeposit.Value;
+                    }
                     if (houseDescription != null)
                     {
                         updateHouse.description = houseDescription;
                     }
-                    if (houseHasTenantRestrictions)
+                    if (houseInput.hasTenantRestrictions.HasValue)
                     {
-                        updateHouse.hasTenantRestrictions = houseHasTenantRestrictions;
+                        updateHouse.hasTenantRestrictions = houseInput.hasTenantRestrictions.Value;
                     }
-                    updateHouse.genderRestriction = houseGenderRestriction;
-                    updateHouse.status = houseStatus;
+                    if (houseInput.genderRestriction.HasValue)
+                    {
+                        updateHouse.genderRestriction = houseInput.genderRestriction.Value;
+                    }
+                    if (houseInput.status.HasValue)
+                    {
+                        updateHouse.status = houseInput.status.Value;
+                    }
+                    //updateHouse.status = houseStatus;
 
                     db.SaveChanges();
 
@@ -565,7 +555,9 @@ namespace UserAuth.Controllers
         public IHttpActionResult getHomePageHouse()
         {
             DBModel db = new DBModel();
+
             var query = db.HouseEntities.Where(h => h.status == (statusType)10 && h.isRentSubsidy && h.isCookAllowed && h.isPetAllowed && h.isSTRAllowed)
+
                 .Select(h => new
                 {
                     Id = h.id,
@@ -596,7 +588,10 @@ namespace UserAuth.Controllers
             if (filteredHouses.Count != 8)
             {
                 var additionalHouses = db.HouseEntities
+
                     .Where(h => (h.status == (statusType)10 && h.isRentSubsidy && h.isCookAllowed) || (h.status == (statusType)10 && h.isPetAllowed && h.isSTRAllowed) || (h.status == (statusType)10 && h.isRentSubsidy && h.isPetAllowed) || h.status == (statusType)10 && h.isRentSubsidy || h.status == (statusType)10 && h.isCookAllowed || h.status == (statusType)10 && h.isPetAllowed || h.status == (statusType)10 && h.isSTRAllowed)
+
+
                     .Select(h => new
                     {
                         Id = h.id,
@@ -636,8 +631,6 @@ namespace UserAuth.Controllers
                     return Content(HttpStatusCode.BadRequest, combinedHouses);
                 }
             }
-
-
             else
             {
                 return Ok(filteredHouses);
@@ -801,5 +794,528 @@ namespace UserAuth.Controllers
         //public void Delete(int id)
         //{
         //}
+
+            else
+            {
+                return Ok(filteredHouses);
+            }
+        }
+
+        //房東取得各狀態的房源內容
+        [HttpGet]
+        [Route("api/myHouse/info/{id}")]
+        public IHttpActionResult getMyHouseInfo(int id)
+        {
+            //取得使用者JWT
+            var jwtObject = JwtAuthFilters.GetToken(Request.Headers.Authorization.Parameter);
+
+            //取得JWT內部資料
+            int UserId = (int)jwtObject["Id"];
+
+            try
+            {
+                using (DBModel db = new DBModel())
+                {
+                    var houseEnter = db.HouseEntities.Where(x => x.id == id).FirstOrDefault();
+                    //檢查房源是否存在
+                    if (houseEnter == null)
+                    {
+                        throw new Exception("查無此房源");
+                    }
+
+                    //檢查房源擁有者是否為使用者
+                    if (houseEnter.userId == UserId)
+                    {
+                        //狀態為未完成步驟1及完成步驟1
+                        if (houseEnter.status == statusType.未完成步驟1 || houseEnter.status == statusType.完成步驟1)
+                        {
+                            if (houseEnter.status == statusType.未完成步驟1)
+                            {
+                                var result = new
+                                {
+                                    statusCode = 200,
+                                    status = "success",
+                                    message = "page: 基本資訊"
+                                };
+                                return Content(HttpStatusCode.OK, result);
+                            }
+                            else
+                            {
+                                var data = new
+                                {
+                                    name = houseEnter.name, //名稱
+                                    city = Enum.GetName(typeof(CityType), houseEnter.city), //縣市 Enum
+                                    district = Enum.GetName(typeof(DistrictType), houseEnter.district).Remove(0, 3), //市區鄉鎮 Enum
+                                    road = houseEnter.road, //路街
+                                    lane = houseEnter.lane, //巷
+                                    alley = houseEnter.alley, //弄
+                                    number = houseEnter.number, //號
+                                    floor = houseEnter.floor, //樓層
+                                    floorTotal = houseEnter.floorTotal, //總樓數
+                                    type = Enum.GetName(typeof(type), houseEnter.type), //類型 Enum
+                                    ping = houseEnter.ping, //承租坪數
+                                    roomNumbers = houseEnter.roomNumbers, //房
+                                    livingRoomNumbers = houseEnter.livingRoomNumbers, //廳
+                                    bathRoomNumbers = houseEnter.bathRoomNumbers, //衛浴
+                                    balconyNumbers = houseEnter.balconyNumbers, //陽台
+                                    parkingSpaceNumbers = houseEnter.parkingSpaceNumbers, //車位
+                                };
+                                var result = new
+                                {
+                                    statusCode = 200,
+                                    status = "success",
+                                    message = "page: 照片",
+                                    data = data
+                                };
+                                return Content(HttpStatusCode.OK, result);
+                            }
+                        }
+                        else
+                        {   //狀態非步驟0或步驟1的一定有照片
+                            var houseImgsOfUser = db.HouseImgsEntities.Where(x => x.houseId == id).ToList();
+
+                            //找到首圖的item
+                            var firstPicture = houseImgsOfUser.Where(x => x.isCover == true).FirstOrDefault();
+                            //找到非首圖的items
+                            var restOfPicture = houseImgsOfUser.Where(x => x.isCover == false).ToList();
+                            List<string> restOfPicsList = new List<string>();
+                            foreach (var h in restOfPicture)
+                            {
+                                restOfPicsList.Add(h.path);
+                            }
+                            //狀態為已完成或刊登中
+                            if (houseEnter.status == statusType.已完成 || houseEnter.status == statusType.刊登中)
+                            {
+                                var pictureObject = new
+                                {
+                                    firstPic = firstPicture.path,
+                                    restOfPic = restOfPicsList
+                                };
+                                var data = new
+                                {
+                                    name = houseEnter.name, //名稱
+                                    city = Enum.GetName(typeof(CityType), houseEnter.city), //縣市 Enum
+                                    district = Enum.GetName(typeof(DistrictType), houseEnter.district).Remove(0, 3), //市區鄉鎮 Enum
+                                    road = houseEnter.road, //路街
+                                    lane = houseEnter.lane, //巷
+                                    alley = houseEnter.alley, //弄
+                                    number = houseEnter.number, //號
+                                    floor = houseEnter.floor, //樓層
+                                    floorTotal = houseEnter.floorTotal, //總樓數
+                                    type = Enum.GetName(typeof(type), houseEnter.type), //類型 Enum
+                                    ping = houseEnter.ping, //承租坪數
+                                    roomNumbers = houseEnter.roomNumbers, //房
+                                    livingRoomNumbers = houseEnter.livingRoomNumbers, //廳
+                                    bathRoomNumbers = houseEnter.bathRoomNumbers, //衛浴
+                                    balconyNumbers = houseEnter.balconyNumbers, //陽台
+                                    parkingSpaceNumbers = houseEnter.parkingSpaceNumbers, //車位
+                                    pictures = pictureObject
+                                };
+                                var result = new
+                                {
+                                    statusCode = 200,
+                                    status = "success",
+                                    message = "已成功回傳房源內容",
+                                    data = data
+                                };
+                                return Content(HttpStatusCode.OK, result);
+                            }
+                            //狀態為已承租
+                            else if (houseEnter.status == statusType.已承租)
+                            {
+                                ///todo: 房東取得各狀態的房源內容:已承租
+                                throw new Exception("已承租還沒做");
+                            }
+                            else if (houseEnter.status == statusType.完成步驟2)
+                            {
+                                var pictureObject = new
+                                {
+                                    firstPic = firstPicture.path,
+                                    restOfPic = restOfPicsList
+                                };
+                                var data = new
+                                {
+                                    name = houseEnter.name, //名稱
+                                    city = Enum.GetName(typeof(CityType), houseEnter.city), //縣市 Enum
+                                    district = Enum.GetName(typeof(DistrictType), houseEnter.district).Remove(0, 3), //市區鄉鎮 Enum
+                                    road = houseEnter.road, //路街
+                                    lane = houseEnter.lane, //巷
+                                    alley = houseEnter.alley, //弄
+                                    number = houseEnter.number, //號
+                                    floor = houseEnter.floor, //樓層
+                                    floorTotal = houseEnter.floorTotal, //總樓數
+                                    type = Enum.GetName(typeof(type), houseEnter.type), //類型 Enum
+                                    ping = houseEnter.ping, //承租坪數
+                                    roomNumbers = houseEnter.roomNumbers, //房
+                                    livingRoomNumbers = houseEnter.livingRoomNumbers, //廳
+                                    bathRoomNumbers = houseEnter.bathRoomNumbers, //衛浴
+                                    balconyNumbers = houseEnter.balconyNumbers, //陽台
+                                    parkingSpaceNumbers = houseEnter.parkingSpaceNumbers, //車位
+
+                                    pictures = pictureObject
+                                };
+                                var result = new
+                                {
+                                    statusCode = 200,
+                                    status = "success",
+                                    message = "page: 設備設施",
+                                    data = data
+                                };
+                                return Content(HttpStatusCode.OK, result);
+                            }
+                            else if (houseEnter.status == statusType.完成步驟3)
+                            {
+                                var pictureObject = new
+                                {
+                                    firstPic = firstPicture.path,
+                                    restOfPic = restOfPicsList
+                                };
+                                var data = new
+                                {
+                                    name = houseEnter.name, //名稱
+                                    city = Enum.GetName(typeof(CityType), houseEnter.city), //縣市 Enum
+                                    district = Enum.GetName(typeof(DistrictType), houseEnter.district).Remove(0, 3), //市區鄉鎮 Enum
+                                    road = houseEnter.road, //路街
+                                    lane = houseEnter.lane, //巷
+                                    alley = houseEnter.alley, //弄
+                                    number = houseEnter.number, //號
+                                    floor = houseEnter.floor, //樓層
+                                    floorTotal = houseEnter.floorTotal, //總樓數
+                                    type = Enum.GetName(typeof(type), houseEnter.type), //類型 Enum
+                                    ping = houseEnter.ping, //承租坪數
+                                    roomNumbers = houseEnter.roomNumbers, //房
+                                    livingRoomNumbers = houseEnter.livingRoomNumbers, //廳
+                                    bathRoomNumbers = houseEnter.bathRoomNumbers, //衛浴
+                                    balconyNumbers = houseEnter.balconyNumbers, //陽台
+                                    parkingSpaceNumbers = houseEnter.parkingSpaceNumbers, //車位
+                                    isRentSubsidy = houseEnter.isRentSubsidy, //可申請租屋補助
+                                    isPetAllowed = houseEnter.isPetAllowed, //寵物友善
+                                    isCookAllowed = houseEnter.isCookAllowed, //可開伙
+                                    isSTRAllowed = houseEnter.isSTRAllowed, //可短租
+                                    isNearByDepartmentStore = houseEnter.isNearByDepartmentStore, //附近機能: 百貨商場
+                                    isNearBySchool = houseEnter.isNearBySchool, //附近機能: 學校
+                                    isNearByMorningMarket = houseEnter.isNearByMorningMarket, //附近機能: 早市
+                                    isNearByNightMarket = houseEnter.isNearByNightMarket, //附近機能: 夜市
+                                    isNearByConvenientStore = houseEnter.isNearByConvenientStore, //附近機能: 超商
+                                    isNearByPark = houseEnter.isNearByPark, //附近機能: 公園綠地
+                                    hasGarbageDisposal = houseEnter.hasGarbageDisposal, //屋源特色: 垃圾集中處理
+                                    hasWindowInBathroom = houseEnter.hasWindowInBathroom, //屋源特色: 浴室開窗
+                                    hasElevator = houseEnter.hasElevator, //有電梯
+                                    hasAirConditioner = houseEnter.hasAirConditioner, //設備: 冷氣
+                                    hasWashingMachine = houseEnter.hasWashingMachine, //設備: 洗衣機
+                                    hasRefrigerator = houseEnter.hasRefrigerator, //設備: 冰箱
+                                    hasCloset = houseEnter.hasCloset, //設備: 衣櫃
+                                    hasTableAndChair = houseEnter.hasTableAndChair, //設備: 桌椅
+                                    hasWaterHeater = houseEnter.hasWaterHeater, //設備: 熱水器
+                                    hasInternet = houseEnter.hasInternet, //設備: 網路
+                                    hasBed = houseEnter.hasBed, //設備: 床
+                                    hasTV = houseEnter.hasTV, //設備: 電視
+                                    isNearMRT = houseEnter.isNearMRT, //交通: 捷運
+                                    kmAwayMRT = houseEnter.kmAwayMRT, //距離捷運公里
+                                    isNearLRT = houseEnter.isNearLRT, //交通: 輕軌
+                                    kmAwayLRT = houseEnter.kmAwayLRT, //距離輕軌公里
+                                    isNearBusStation = houseEnter.isNearBusStation, //交通: 公車
+                                    kmAwayBusStation = houseEnter.kmAwayBusStation, //距離公車公里
+                                    isNearHSR = houseEnter.isNearHSR, //交通: 高鐵
+                                    kmAwayHSR = houseEnter.kmAwayHSR, //距離高鐵公里
+                                    isNearTrainStation = houseEnter.isNearTrainStation, //交通: 火車
+                                    kmAwayTrainStation = houseEnter.kmAwayTrainStation, //距離火車公里
+
+                                    pictures = pictureObject
+                                };
+                                var result = new
+                                {
+                                    statusCode = 200,
+                                    status = "success",
+                                    message = "page: 費用",
+                                    data = data
+                                };
+                                return Content(HttpStatusCode.OK, result);
+                            }
+                            else if (houseEnter.status == statusType.完成步驟4)
+                            {
+                                var pictureObject = new
+                                {
+                                    firstPic = firstPicture.path,
+                                    restOfPic = restOfPicsList
+                                };
+                                var data = new
+                                {
+                                    name = houseEnter.name, //名稱
+                                    city = Enum.GetName(typeof(CityType), houseEnter.city), //縣市 Enum
+                                    district = Enum.GetName(typeof(DistrictType), houseEnter.district).Remove(0, 3), //市區鄉鎮 Enum
+                                    road = houseEnter.road, //路街
+                                    lane = houseEnter.lane, //巷
+                                    alley = houseEnter.alley, //弄
+                                    number = houseEnter.number, //號
+                                    floor = houseEnter.floor, //樓層
+                                    floorTotal = houseEnter.floorTotal, //總樓數
+                                    type = Enum.GetName(typeof(type), houseEnter.type), //類型 Enum
+                                    ping = houseEnter.ping, //承租坪數
+                                    roomNumbers = houseEnter.roomNumbers, //房
+                                    livingRoomNumbers = houseEnter.livingRoomNumbers, //廳
+                                    bathRoomNumbers = houseEnter.bathRoomNumbers, //衛浴
+                                    balconyNumbers = houseEnter.balconyNumbers, //陽台
+                                    parkingSpaceNumbers = houseEnter.parkingSpaceNumbers, //車位
+                                    isRentSubsidy = houseEnter.isRentSubsidy, //可申請租屋補助
+                                    isPetAllowed = houseEnter.isPetAllowed, //寵物友善
+                                    isCookAllowed = houseEnter.isCookAllowed, //可開伙
+                                    isSTRAllowed = houseEnter.isSTRAllowed, //可短租
+                                    isNearByDepartmentStore = houseEnter.isNearByDepartmentStore, //附近機能: 百貨商場
+                                    isNearBySchool = houseEnter.isNearBySchool, //附近機能: 學校
+                                    isNearByMorningMarket = houseEnter.isNearByMorningMarket, //附近機能: 早市
+                                    isNearByNightMarket = houseEnter.isNearByNightMarket, //附近機能: 夜市
+                                    isNearByConvenientStore = houseEnter.isNearByConvenientStore, //附近機能: 超商
+                                    isNearByPark = houseEnter.isNearByPark, //附近機能: 公園綠地
+                                    hasGarbageDisposal = houseEnter.hasGarbageDisposal, //屋源特色: 垃圾集中處理
+                                    hasWindowInBathroom = houseEnter.hasWindowInBathroom, //屋源特色: 浴室開窗
+                                    hasElevator = houseEnter.hasElevator, //有電梯
+                                    hasAirConditioner = houseEnter.hasAirConditioner, //設備: 冷氣
+                                    hasWashingMachine = houseEnter.hasWashingMachine, //設備: 洗衣機
+                                    hasRefrigerator = houseEnter.hasRefrigerator, //設備: 冰箱
+                                    hasCloset = houseEnter.hasCloset, //設備: 衣櫃
+                                    hasTableAndChair = houseEnter.hasTableAndChair, //設備: 桌椅
+                                    hasWaterHeater = houseEnter.hasWaterHeater, //設備: 熱水器
+                                    hasInternet = houseEnter.hasInternet, //設備: 網路
+                                    hasBed = houseEnter.hasBed, //設備: 床
+                                    hasTV = houseEnter.hasTV, //設備: 電視
+                                    isNearMRT = houseEnter.isNearMRT, //交通: 捷運
+                                    kmAwayMRT = houseEnter.kmAwayMRT, //距離捷運公里
+                                    isNearLRT = houseEnter.isNearLRT, //交通: 輕軌
+                                    kmAwayLRT = houseEnter.kmAwayLRT, //距離輕軌公里
+                                    isNearBusStation = houseEnter.isNearBusStation, //交通: 公車
+                                    kmAwayBusStation = houseEnter.kmAwayBusStation, //距離公車公里
+                                    isNearHSR = houseEnter.isNearHSR, //交通: 高鐵
+                                    kmAwayHSR = houseEnter.kmAwayHSR, //距離高鐵公里
+                                    isNearTrainStation = houseEnter.isNearTrainStation, //交通: 火車
+                                    kmAwayTrainStation = houseEnter.kmAwayTrainStation, //距離火車公里
+                                    rent = houseEnter.rent, //每月租金
+                                    securityDeposit = Enum.GetName(typeof(securityDepositType), houseEnter.securityDeposit), //押金幾個月 Enum
+                                    paymentMethodOfWaterBill = Enum.GetName(typeof(paymentTypeOfWaterBill), houseEnter.paymentMethodOfWaterBill), //水費繳納方式 Enum
+                                    waterBillPerMonth = houseEnter.waterBillPerMonth, //水費每月價錢
+                                    electricBill = Enum.GetName(typeof(paymentTypeOfElectricBill), houseEnter.electricBill), //電費計價方式 Enum
+                                    paymentMethodOfElectricBill = Enum.GetName(typeof(paymentMethodOfElectricBill), houseEnter.paymentMethodOfElectricBill), //電費繳納方式 Enum
+                                    paymentMethodOfManagementFee = Enum.GetName(typeof(paymentMethodOfManagementFee), houseEnter.paymentMethodOfManagementFee), //管理費方式 Enum
+                                    managementFeePerMonth = houseEnter.managementFeePerMonth, //管理費每月價錢
+
+                                    pictures = pictureObject
+                                };
+                                var result = new
+                                {
+                                    statusCode = 200,
+                                    status = "success",
+                                    message = "page: 介紹",
+                                    data = data
+                                };
+                                return Content(HttpStatusCode.OK, result);
+                            }
+                            else if (houseEnter.status == statusType.完成步驟5)
+                            {
+                                var pictureObject = new
+                                {
+                                    firstPic = firstPicture.path,
+                                    restOfPic = restOfPicsList
+                                };
+                                var data = new
+                                {
+                                    name = houseEnter.name, //名稱
+                                    city = Enum.GetName(typeof(CityType), houseEnter.city), //縣市 Enum
+                                    district = Enum.GetName(typeof(DistrictType), houseEnter.district).Remove(0, 3), //市區鄉鎮 Enum
+                                    road = houseEnter.road, //路街
+                                    lane = houseEnter.lane, //巷
+                                    alley = houseEnter.alley, //弄
+                                    number = houseEnter.number, //號
+                                    floor = houseEnter.floor, //樓層
+                                    floorTotal = houseEnter.floorTotal, //總樓數
+                                    type = Enum.GetName(typeof(type), houseEnter.type), //類型 Enum
+                                    ping = houseEnter.ping, //承租坪數
+                                    roomNumbers = houseEnter.roomNumbers, //房
+                                    livingRoomNumbers = houseEnter.livingRoomNumbers, //廳
+                                    bathRoomNumbers = houseEnter.bathRoomNumbers, //衛浴
+                                    balconyNumbers = houseEnter.balconyNumbers, //陽台
+                                    parkingSpaceNumbers = houseEnter.parkingSpaceNumbers, //車位
+                                    isRentSubsidy = houseEnter.isRentSubsidy, //可申請租屋補助
+                                    isPetAllowed = houseEnter.isPetAllowed, //寵物友善
+                                    isCookAllowed = houseEnter.isCookAllowed, //可開伙
+                                    isSTRAllowed = houseEnter.isSTRAllowed, //可短租
+                                    isNearByDepartmentStore = houseEnter.isNearByDepartmentStore, //附近機能: 百貨商場
+                                    isNearBySchool = houseEnter.isNearBySchool, //附近機能: 學校
+                                    isNearByMorningMarket = houseEnter.isNearByMorningMarket, //附近機能: 早市
+                                    isNearByNightMarket = houseEnter.isNearByNightMarket, //附近機能: 夜市
+                                    isNearByConvenientStore = houseEnter.isNearByConvenientStore, //附近機能: 超商
+                                    isNearByPark = houseEnter.isNearByPark, //附近機能: 公園綠地
+                                    hasGarbageDisposal = houseEnter.hasGarbageDisposal, //屋源特色: 垃圾集中處理
+                                    hasWindowInBathroom = houseEnter.hasWindowInBathroom, //屋源特色: 浴室開窗
+                                    hasElevator = houseEnter.hasElevator, //有電梯
+                                    hasAirConditioner = houseEnter.hasAirConditioner, //設備: 冷氣
+                                    hasWashingMachine = houseEnter.hasWashingMachine, //設備: 洗衣機
+                                    hasRefrigerator = houseEnter.hasRefrigerator, //設備: 冰箱
+                                    hasCloset = houseEnter.hasCloset, //設備: 衣櫃
+                                    hasTableAndChair = houseEnter.hasTableAndChair, //設備: 桌椅
+                                    hasWaterHeater = houseEnter.hasWaterHeater, //設備: 熱水器
+                                    hasInternet = houseEnter.hasInternet, //設備: 網路
+                                    hasBed = houseEnter.hasBed, //設備: 床
+                                    hasTV = houseEnter.hasTV, //設備: 電視
+                                    isNearMRT = houseEnter.isNearMRT, //交通: 捷運
+                                    kmAwayMRT = houseEnter.kmAwayMRT, //距離捷運公里
+                                    isNearLRT = houseEnter.isNearLRT, //交通: 輕軌
+                                    kmAwayLRT = houseEnter.kmAwayLRT, //距離輕軌公里
+                                    isNearBusStation = houseEnter.isNearBusStation, //交通: 公車
+                                    kmAwayBusStation = houseEnter.kmAwayBusStation, //距離公車公里
+                                    isNearHSR = houseEnter.isNearHSR, //交通: 高鐵
+                                    kmAwayHSR = houseEnter.kmAwayHSR, //距離高鐵公里
+                                    isNearTrainStation = houseEnter.isNearTrainStation, //交通: 火車
+                                    kmAwayTrainStation = houseEnter.kmAwayTrainStation, //距離火車公里
+                                    rent = houseEnter.rent, //每月租金
+                                    securityDeposit = Enum.GetName(typeof(securityDepositType), houseEnter.securityDeposit), //押金幾個月 Enum
+                                    paymentMethodOfWaterBill = Enum.GetName(typeof(paymentTypeOfWaterBill), houseEnter.paymentMethodOfWaterBill), //水費繳納方式 Enum
+                                    waterBillPerMonth = houseEnter.waterBillPerMonth, //水費每月價錢
+                                    electricBill = Enum.GetName(typeof(paymentTypeOfElectricBill), houseEnter.electricBill), //電費計價方式 Enum
+                                    paymentMethodOfElectricBill = Enum.GetName(typeof(paymentMethodOfElectricBill), houseEnter.paymentMethodOfElectricBill), //電費繳納方式 Enum
+                                    paymentMethodOfManagementFee = Enum.GetName(typeof(paymentMethodOfManagementFee), houseEnter.paymentMethodOfManagementFee), //管理費方式 Enum
+                                    managementFeePerMonth = houseEnter.managementFeePerMonth, //管理費每月價錢
+                                    description = houseEnter.description, //房源介紹
+
+                                    pictures = pictureObject
+                                };
+                                var result = new
+                                {
+                                    statusCode = 200,
+                                    status = "success",
+                                    message = "page: 限制",
+                                    data = data
+                                };
+                                return Content(HttpStatusCode.OK, result);
+                            }
+                            else
+                            {
+                                string jobRestriction = "";
+                                string[] jobRestrictions = houseEnter.jobRestriction.Split(',');
+                                for (int i = 0; i < jobRestrictions.Length; i++)
+                                {
+                                    jobRestrictions[i] = jobRestrictions[i].Trim();
+                                    jobRestriction += Enum.GetName(typeof(UserJob), Convert.ToInt32(jobRestrictions[i])) + ", ";
+                                }
+                                char[] trimArr = { ',', ' ' };
+                                jobRestriction = jobRestriction.Trim(trimArr);
+                                var pictureObject = new
+                                {
+                                    firstPic = firstPicture.path,
+                                    restOfPic = restOfPicsList
+                                };
+                                var data = new
+                                {
+                                    name = houseEnter.name, //名稱
+                                    city = Enum.GetName(typeof(CityType), houseEnter.city), //縣市 Enum
+                                    district = Enum.GetName(typeof(DistrictType), houseEnter.district).Remove(0, 3), //市區鄉鎮 Enum
+                                    road = houseEnter.road, //路街
+                                    lane = houseEnter.lane, //巷
+                                    alley = houseEnter.alley, //弄
+                                    number = houseEnter.number, //號
+                                    floor = houseEnter.floor, //樓層
+                                    floorTotal = houseEnter.floorTotal, //總樓數
+                                    type = Enum.GetName(typeof(type), houseEnter.type), //類型 Enum
+                                    ping = houseEnter.ping, //承租坪數
+                                    roomNumbers = houseEnter.roomNumbers, //房
+                                    livingRoomNumbers = houseEnter.livingRoomNumbers, //廳
+                                    bathRoomNumbers = houseEnter.bathRoomNumbers, //衛浴
+                                    balconyNumbers = houseEnter.balconyNumbers, //陽台
+                                    parkingSpaceNumbers = houseEnter.parkingSpaceNumbers, //車位
+                                    isRentSubsidy = houseEnter.isRentSubsidy, //可申請租屋補助
+                                    isPetAllowed = houseEnter.isPetAllowed, //寵物友善
+                                    isCookAllowed = houseEnter.isCookAllowed, //可開伙
+                                    isSTRAllowed = houseEnter.isSTRAllowed, //可短租
+                                    isNearByDepartmentStore = houseEnter.isNearByDepartmentStore, //附近機能: 百貨商場
+                                    isNearBySchool = houseEnter.isNearBySchool, //附近機能: 學校
+                                    isNearByMorningMarket = houseEnter.isNearByMorningMarket, //附近機能: 早市
+                                    isNearByNightMarket = houseEnter.isNearByNightMarket, //附近機能: 夜市
+                                    isNearByConvenientStore = houseEnter.isNearByConvenientStore, //附近機能: 超商
+                                    isNearByPark = houseEnter.isNearByPark, //附近機能: 公園綠地
+                                    hasGarbageDisposal = houseEnter.hasGarbageDisposal, //屋源特色: 垃圾集中處理
+                                    hasWindowInBathroom = houseEnter.hasWindowInBathroom, //屋源特色: 浴室開窗
+                                    hasElevator = houseEnter.hasElevator, //有電梯
+                                    hasAirConditioner = houseEnter.hasAirConditioner, //設備: 冷氣
+                                    hasWashingMachine = houseEnter.hasWashingMachine, //設備: 洗衣機
+                                    hasRefrigerator = houseEnter.hasRefrigerator, //設備: 冰箱
+                                    hasCloset = houseEnter.hasCloset, //設備: 衣櫃
+                                    hasTableAndChair = houseEnter.hasTableAndChair, //設備: 桌椅
+                                    hasWaterHeater = houseEnter.hasWaterHeater, //設備: 熱水器
+                                    hasInternet = houseEnter.hasInternet, //設備: 網路
+                                    hasBed = houseEnter.hasBed, //設備: 床
+                                    hasTV = houseEnter.hasTV, //設備: 電視
+                                    isNearMRT = houseEnter.isNearMRT, //交通: 捷運
+                                    kmAwayMRT = houseEnter.kmAwayMRT, //距離捷運公里
+                                    isNearLRT = houseEnter.isNearLRT, //交通: 輕軌
+                                    kmAwayLRT = houseEnter.kmAwayLRT, //距離輕軌公里
+                                    isNearBusStation = houseEnter.isNearBusStation, //交通: 公車
+                                    kmAwayBusStation = houseEnter.kmAwayBusStation, //距離公車公里
+                                    isNearHSR = houseEnter.isNearHSR, //交通: 高鐵
+                                    kmAwayHSR = houseEnter.kmAwayHSR, //距離高鐵公里
+                                    isNearTrainStation = houseEnter.isNearTrainStation, //交通: 火車
+                                    kmAwayTrainStation = houseEnter.kmAwayTrainStation, //距離火車公里
+                                    rent = houseEnter.rent, //每月租金
+                                    securityDeposit = Enum.GetName(typeof(securityDepositType), houseEnter.securityDeposit), //押金幾個月 Enum
+                                    paymentMethodOfWaterBill = Enum.GetName(typeof(paymentTypeOfWaterBill), houseEnter.paymentMethodOfWaterBill), //水費繳納方式 Enum
+                                    waterBillPerMonth = houseEnter.waterBillPerMonth, //水費每月價錢
+                                    electricBill = Enum.GetName(typeof(paymentTypeOfElectricBill), houseEnter.electricBill), //電費計價方式 Enum
+                                    paymentMethodOfElectricBill = Enum.GetName(typeof(paymentMethodOfElectricBill), houseEnter.paymentMethodOfElectricBill), //電費繳納方式 Enum
+                                    paymentMethodOfManagementFee = Enum.GetName(typeof(paymentMethodOfManagementFee), houseEnter.paymentMethodOfManagementFee), //管理費方式 Enum
+                                    managementFeePerMonth = houseEnter.managementFeePerMonth, //管理費每月價錢
+                                    description = houseEnter.description, //房源介紹
+                                    hasTenantRestrictions = true, //是否有租客限制
+                                    genderRestriction = Enum.GetName(typeof(genderRestrictionType), houseEnter.genderRestriction), //男or女or性別友善
+                                    jobRestriction = jobRestriction, //排除職業
+
+                                    pictures = pictureObject
+                                };
+                                var result = new
+                                {
+                                    statusCode = 200,
+                                    status = "success",
+                                    message = "page: 完成",
+                                    data = data
+                                };
+                                return Content(HttpStatusCode.OK, result);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception("該房源擁有者非使用者");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return Content(HttpStatusCode.BadRequest, ex);
+            }
+        }
     }
+
+    // GET: api/House
+    //public IEnumerable<string> Get()
+    //{
+    //    return new string[] { "value1", "value2" };
+    //}
+
+    //// GET: api/House/5
+    //public string Get(int id)
+    //{
+    //    return "value";
+    //}
+
+    //// POST: api/House
+    //public void Post([FromBody]string value)
+    //{
+    //}
+
+    //// PUT: api/House/5
+    //public void Put(int id, [FromBody]string value)
+    //{
+    //}
+
+    //// DELETE: api/House/5
+    //public void Delete(int id)
+    //{
+    //}
 }
