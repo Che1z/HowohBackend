@@ -35,6 +35,7 @@ namespace UserAuth.Models
 
         [Required(ErrorMessage = "{0}必填")]
         [MaxLength(int.MaxValue)]
+        [MinLength(8, ErrorMessage = "{0}的長度不能少於8")]
         public string password { get; set; }
 
         [Required(ErrorMessage = "{0}必填")]

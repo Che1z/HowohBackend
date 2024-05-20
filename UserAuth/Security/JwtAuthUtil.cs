@@ -28,6 +28,7 @@ namespace UserAuth.Security
             var payload = new Dictionary<string, object>
             {
                 { "Id", user.Id },
+                { "UserIntro", user.userIntro},
                 { "FirstName", user.firstName },
                 { "LastName", user.lastName },
                 { "Email",user.email},

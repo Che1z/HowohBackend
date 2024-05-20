@@ -49,7 +49,7 @@ namespace UserAuth.Controllers
                             string userSalt = Convert.ToBase64String(salt); //將 byte 改回字串存回資料表
                             var hash = HashPassword(password, salt);
                             string hashPassword = Convert.ToBase64String(hash);
-
+                            string userIntro = $"我是 {userLastName} {userFirstName}, 職業是 {user.job}";
                             string userPassword = user.password;
                             string userPhoto = user.photo;
                             // new一個User物件
@@ -66,6 +66,7 @@ namespace UserAuth.Controllers
                             InsertNewAccount.gender = user.gender;
                             InsertNewAccount.role = user.role;
                             InsertNewAccount.userIntro = user.userIntro;
+                            InsertNewAccount.userIntro = userIntro;
 
                             db.UserEntities.Add(InsertNewAccount);
                             db.SaveChanges();
@@ -122,6 +123,7 @@ namespace UserAuth.Controllers
                                         lastName = existData.lastName,
                                         firstName = existData.firstName,
                                         telphone = existData.telphone,
+                                        photo = existData.photo,
                                     }
                                 };
 
@@ -138,6 +140,31 @@ namespace UserAuth.Controllers
                         return Content(HttpStatusCode.BadRequest, ex);
                     }
             }
+        }
+
+        [HttpPost]
+        [Route("api/phoneNumberVerification")]
+        public IHttpActionResult VerifyPhone(string phoneNumber)
+        {
+            using (DBModel db = new DBModel())
+                try
+                {
+                    //檢查是否重複手機號碼
+
+                    var existData = db.UserEntities.Where(x => x.telphone == phoneNumber).FirstOrDefault();
+                    if (existData == null)
+                    {
+                        return Content(HttpStatusCode.OK, "尚未註冊手機號碼");
+                    }
+                    else
+                    {
+                        return Content(HttpStatusCode.BadRequest, "已註冊手機號碼");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return Content(HttpStatusCode.BadRequest, ex);
+                }
         }
 
         private byte[] CreateSalt()
