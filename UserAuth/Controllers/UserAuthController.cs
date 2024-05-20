@@ -81,6 +81,38 @@ namespace UserAuth.Controllers
         }
 
         [HttpPost]
+        [Route("api/phoneNumberVerifi")]
+        public IHttpActionResult VerifyPhone([FromBody]string phoneNumber)
+        {
+            if (phoneNumber == null)
+            {
+                return Content(HttpStatusCode.BadRequest, "錯誤資訊不符合規範");
+            }
+            else
+            {
+                try
+                {
+                    // 檢查是否重複手機號碼
+                    var existData = db.UserEntities.FirstOrDefault(x => x.telphone == phoneNumber);
+                    if (existData == null)
+                    {
+                        return Content(HttpStatusCode.OK, "尚未註冊手機號碼");
+                    }
+                    else
+                    {
+                        return Content(HttpStatusCode.BadRequest, "已註冊手機號碼");
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    return Content(HttpStatusCode.BadRequest, ex.Message);
+                }
+            }
+        }
+
+
+        [HttpPost]
         [Route("api/login")]
         public IHttpActionResult LogIn(LogInInput loginput)
         {
@@ -142,30 +174,7 @@ namespace UserAuth.Controllers
             }
         }
 
-        [HttpPost]
-        [Route("api/phoneNumberVerification")]
-        public IHttpActionResult VerifyPhone(string phoneNumber)
-        {
-            using (DBModel db = new DBModel())
-                try
-                {
-                    //檢查是否重複手機號碼
 
-                    var existData = db.UserEntities.Where(x => x.telphone == phoneNumber).FirstOrDefault();
-                    if (existData == null)
-                    {
-                        return Content(HttpStatusCode.OK, "尚未註冊手機號碼");
-                    }
-                    else
-                    {
-                        return Content(HttpStatusCode.BadRequest, "已註冊手機號碼");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    return Content(HttpStatusCode.BadRequest, ex);
-                }
-        }
 
         private byte[] CreateSalt()
         {

@@ -634,7 +634,6 @@ namespace UserAuth.Controllers
             else
             {
                 return Ok(filteredHouses);
-
             }
         }
 
