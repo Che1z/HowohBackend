@@ -48,7 +48,7 @@ namespace UserAuth.Models.ViewModel
 
         //[Required(ErrorMessage = "{0}必填")]
         [Display(Name = "類型")]
-        public type type { get; set; }
+        public type? type { get; set; }
 
         //[Required(ErrorMessage = "{0}必填")]
         [Display(Name = "坪數")]
@@ -171,19 +171,19 @@ namespace UserAuth.Models.ViewModel
         public bool? hasTV { get; set; }
 
         [Display(Name = "水費繳納方式")]
-        public paymentTypeOfWaterBill paymentMethodOfWaterBill { get; set; }
+        public paymentTypeOfWaterBill? paymentMethodOfWaterBill { get; set; }
 
         [Display(Name = "每月水費價錢")]
         public string waterBillPerMonth { get; set; }
 
         [Display(Name = "電費計價方式")]
-        public paymentTypeOfElectricBill electricBill { get; set; }
+        public paymentTypeOfElectricBill? electricBill { get; set; }
 
         [Display(Name = "電費繳納方式")]
-        public paymentMethodOfElectricBill paymentMethodOfElectricBill { get; set; }
+        public paymentMethodOfElectricBill? paymentMethodOfElectricBill { get; set; }
 
         [Display(Name = "管理費繳納方式")]
-        public paymentMethodOfManagementFee paymentMethodOfManagementFee { get; set; }
+        public paymentMethodOfManagementFee? paymentMethodOfManagementFee { get; set; }
 
         [Display(Name = "每月管理費價錢")]
         public string managementFeePerMonth { get; set; }
@@ -192,7 +192,7 @@ namespace UserAuth.Models.ViewModel
         public string rent { get; set; }
 
         [Display(Name = "押金")]
-        public securityDepositType securityDeposit { get; set; }
+        public securityDepositType? securityDeposit { get; set; }
 
         [Display(Name = "房源介紹")]
         public string description { get; set; }
@@ -201,12 +201,12 @@ namespace UserAuth.Models.ViewModel
         public bool? hasTenantRestrictions { get; set; }
 
         [Display(Name = "設定租客性別限制")]
-        public genderRestrictionType genderRestriction { get; set; }
+        public genderRestrictionType? genderRestriction { get; set; }
 
         [Display(Name = "設定租客工作限制")]
         public string jobRestriction { get; set; }
 
         [Display(Name = "房源狀態")]
-        public statusType status { get; set; }
+        public statusType? status { get; set; }
     }
 }
