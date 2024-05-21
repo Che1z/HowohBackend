@@ -12,7 +12,7 @@ namespace UserAuth.Controllers
     public class HouseListController : ApiController
     {
         [HttpGet]
-        [Route("api/myHouse/getHomePageHouse")]
+        [Route("api/house/list")]
         public IHttpActionResult getHomePageHouse()
         {
             DBModel db = new DBModel();
@@ -86,7 +86,7 @@ namespace UserAuth.Controllers
                 {
                     return Ok(combinedHouses);
                 }
-
+                
                 else
                 {
                     return Content(HttpStatusCode.BadRequest, combinedHouses);
@@ -99,7 +99,7 @@ namespace UserAuth.Controllers
         }
 
         [HttpGet]
-        [Route("api/myHouse/searchHouse")]
+        [Route("api/house/list")]
         public IHttpActionResult searchHouse(int city, string districts = null, int pageNumber = 1)
         {
             DBModel db = new DBModel();
