@@ -133,8 +133,8 @@ namespace UserAuth.Controllers
                         {
                             return Content(HttpStatusCode.BadRequest, "尚未註冊手機號碼");
                         }
-                        var roleVerify = db.UserEntities.Where(x => x.role == role).FirstOrDefault();
-                        if (roleVerify == null) {
+                        bool roleVerify = existData.role == role;
+                        if (!roleVerify) {
                             return Content(HttpStatusCode.BadRequest, "錯誤身分");
                         }
                         else
