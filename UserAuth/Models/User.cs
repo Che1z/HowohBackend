@@ -35,6 +35,7 @@ namespace UserAuth.Models
 
         [Required(ErrorMessage = "{0}必填")]
         [MaxLength(int.MaxValue)]
+        [MinLength(8, ErrorMessage = "{0}的長度不能少於8")]
         public string password { get; set; }
 
         [Required(ErrorMessage = "{0}必填")]
@@ -57,14 +58,14 @@ namespace UserAuth.Models
         [Required(ErrorMessage = "{0}必填")]
         public UserRoleType role { get; set; }
 
-        [Display(Name = "平均分數")]
-        public float averageRating { get; set; }
+        //[Display(Name = "平均分數")]
+        //public float averageRating { get; set; }
 
         [Display(Name = "自我介紹")]
         public string userIntro { get; set; }
 
-        [Display(Name = "評分筆數")]
-        public int ratingCount { get; set; }
+        //[Display(Name = "評分筆數")]
+        //public int ratingCount { get; set; }
 
         [JsonIgnore]
         [ForeignKey("userId")]

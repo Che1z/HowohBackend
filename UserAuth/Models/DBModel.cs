@@ -28,6 +28,8 @@ namespace UserAuth.Models
 
         public virtual DbSet<Appointment> AppointmentsEntities { get; set; }
         public virtual DbSet<Order> OrdersEntities { get; set; }
+        public virtual DbSet<OrderRating> OrdersRatingEntities { get; set; }
+        public virtual DbSet<ReplyRating> ReplyRatingEntities { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -36,7 +38,10 @@ namespace UserAuth.Models
             modelBuilder.Entity<House>()
                 .HasRequired(c => c.userIdFK)
                 .WithMany()
-                .WillCascadeOnDelete(false);                
+                .WillCascadeOnDelete(false);
+
+            modelBuilder.Entity<OrderRating>().HasRequired(c => c.User).WithMany().WillCascadeOnDelete(false);
+            modelBuilder.Entity<ReplyRating>().HasRequired(c => c.User).WithMany().WillCascadeOnDelete(false);
         }
     }
 
