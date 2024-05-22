@@ -12,7 +12,7 @@ namespace UserAuth.Controllers
     public class HouseListController : ApiController
     {
         [HttpGet]
-        [Route("api/house/list")]
+        [Route("api/house/common/list")]
         public IHttpActionResult getHomePageHouse()
         {
             DBModel db = new DBModel();
@@ -86,7 +86,7 @@ namespace UserAuth.Controllers
                 {
                     return Ok(combinedHouses);
                 }
-                
+
                 else
                 {
                     return Content(HttpStatusCode.BadRequest, combinedHouses);
@@ -99,17 +99,20 @@ namespace UserAuth.Controllers
         }
 
         [HttpGet]
-        [Route("api/house/list")]
-        public IHttpActionResult searchHouse(int city, string districts = null, int pageNumber = 1)
+        [Route("api/house/common/list")]
+        public IHttpActionResult searchHouse(int city, string districts = null,
+            int pageNumber = 1, string price = null, string type = null, string feature = null, string content = "")
         {
             DBModel db = new DBModel();
             var query = db.HouseEntities.AsQueryable();
+
+            // 篩選城市 (必填)
             var cityType = (CityType)city;
 
-            // 刊登中 = 10
+            // 刊登中 => 10
             query = query.Where(h => h.city == cityType && h.status == (statusType)10);
 
-            // -----開始條件判斷----
+            // -----非必填條件，判斷篩選----
 
             // 1.區域 (Districts)
             if (!string.IsNullOrEmpty(districts))
@@ -124,7 +127,92 @@ namespace UserAuth.Controllers
                 query = query.Where(h => districtList.Contains(h.district));
             }
 
-            // 2.
+            // 2.房間類別
+            if (!string.IsNullOrEmpty(type))
+            {
+                var typeList = type.Split(',').Select(int.Parse).Select(d => (type)d).ToList();
+                query = query.Where(h => typeList.Contains(h.type));
+
+            }
+
+            // 3. 價格(Price) Note: 最大值需輸入-1
+            if (!string.IsNullOrEmpty(price))
+            {
+                var range = price.Split(',');
+                var minValue = new List<int>();
+                var maxValue = new List<int>();
+
+                foreach (var rangePiece in range)
+                {
+                    var bound = rangePiece.Split('_');
+                    if (bound.Length == 2)
+                    {
+                        if (int.TryParse(bound[0], out int min))
+                        {
+
+                            minValue.Add(min);
+                        }
+                        int max;
+                        if (bound[1] == "-1")
+                        {
+                            max = int.MaxValue;
+                        }
+                        else if (int.TryParse(bound[1], out max))
+                        {
+                            maxValue.Add(max);
+                        }
+
+                    }
+
+                }
+                if (minValue.Count > 0 && maxValue.Count > 0)
+                {
+                    int overallMin = minValue.Min();
+                    int overallMax = maxValue.Max();
+
+                    var houseList = query.ToList().Where(h =>
+                    {
+                        if (!string.IsNullOrEmpty(h.rent) && int.TryParse(h.rent, out int rent))
+                        {
+                            return rent >= overallMin && rent <= overallMax;
+                        }
+                        return false;
+                    }).ToList();
+                    query = houseList.AsQueryable();
+                }
+            }
+
+            // 4.房間特色
+            if (!string.IsNullOrEmpty(feature))
+            {
+                string[] featureList = feature.Split(',');
+                int featureListLength = featureList.Length;
+                for (int i = 0; i < featureListLength; i++)
+                {
+                    if (featureList[i] == "rentSubsidy")
+                    {
+                        query = query.Where(h => h.isRentSubsidy == true);
+                    }
+                    if (featureList[i] == "petAllowed")
+                    {
+                        query = query.Where(h => h.isPetAllowed == true);
+                    }
+                    if (featureList[i] == "cookAllowed")
+                    {
+                        query = query.Where(h => h.isCookAllowed == true);
+                    }
+                    if (featureList[i] == "STRAllowd")
+                    {
+                        query = query.Where(h => h.isSTRAllowed == true);
+                    }
+                }
+            };
+
+            // 5. 內容 (Content)
+            if (!string.IsNullOrEmpty(content))
+            {
+                query = query.Where(h => h.name != null && h.name.Contains(content));
+            }
 
             // ----結束條件判斷----
             int totalCount = query.Count();
@@ -232,17 +320,21 @@ namespace UserAuth.Controllers
         }
 
         [HttpGet]
-        [Route("api/myHouse/searchHouseTotal")]
-        public IHttpActionResult searchHouseTotal(int city, string districts = null)
+        [Route("api/house/common/totalNumber")]
+        public IHttpActionResult searchHouseTotal(int city, string districts = null, string price = null, string type = null, string feature = null, string content = "")
         {
             DBModel db = new DBModel();
             var query = db.HouseEntities.AsQueryable();
+
+            // 篩選城市 (必填)
             var cityType = (CityType)city;
 
+            // 刊登中 => 10
+            query = query.Where(h => h.city == cityType && h.status == (statusType)10);
 
-            query = query.Where(h => h.city == cityType);
+            // -----非必填條件，判斷篩選----
 
-
+            // 1.區域 (Districts)
             if (!string.IsNullOrEmpty(districts))
             {
                 // 將逗號分隔的districts字符串轉換為整數列表
@@ -252,11 +344,97 @@ namespace UserAuth.Controllers
                                             .ToList();
 
                 // 使用Contains方法來篩選符合districtList中的區域的房屋 && 篩選刊登中房源(10)
-
-                query = query.Where(h => districtList.Contains(h.district) && h.status == (statusType)10);
+                query = query.Where(h => districtList.Contains(h.district));
             }
 
+            // 2.房間類別
+            if (!string.IsNullOrEmpty(type))
+            {
+                var typeList = type.Split(',').Select(int.Parse).Select(d => (type)d).ToList();
+                query = query.Where(h => typeList.Contains(h.type));
 
+            }
+
+            // 3. 價格(Price) Note: 最大值需輸入-1
+            if (!string.IsNullOrEmpty(price))
+            {
+                var range = price.Split(',');
+                var minValue = new List<int>();
+                var maxValue = new List<int>();
+
+                foreach (var rangePiece in range)
+                {
+                    var bound = rangePiece.Split('_');
+                    if (bound.Length == 2)
+                    {
+                        if (int.TryParse(bound[0], out int min))
+                        {
+
+                            minValue.Add(min);
+                        }
+                        int max;
+                        if (bound[1] == "-1")
+                        {
+                            max = int.MaxValue;
+                        }
+                        else if (int.TryParse(bound[1], out max))
+                        {
+                            maxValue.Add(max);
+                        }
+
+                    }
+
+                }
+                if (minValue.Count > 0 && maxValue.Count > 0)
+                {
+                    int overallMin = minValue.Min();
+                    int overallMax = maxValue.Max();
+
+                    var houseList = query.ToList().Where(h =>
+                    {
+                        if (!string.IsNullOrEmpty(h.rent) && int.TryParse(h.rent, out int rent))
+                        {
+                            return rent >= overallMin && rent <= overallMax;
+                        }
+                        return false;
+                    }).ToList();
+                    query = houseList.AsQueryable();
+                }
+            }
+
+            // 4.房間特色
+            if (!string.IsNullOrEmpty(feature))
+            {
+                string[] featureList = feature.Split(',');
+                int featureListLength = featureList.Length;
+                for (int i = 0; i < featureListLength; i++)
+                {
+                    if (featureList[i] == "rentSubsidy")
+                    {
+                        query = query.Where(h => h.isRentSubsidy == true);
+                    }
+                    if (featureList[i] == "petAllowed")
+                    {
+                        query = query.Where(h => h.isPetAllowed == true);
+                    }
+                    if (featureList[i] == "cookAllowed")
+                    {
+                        query = query.Where(h => h.isCookAllowed == true);
+                    }
+                    if (featureList[i] == "STRAllowd")
+                    {
+                        query = query.Where(h => h.isSTRAllowed == true);
+                    }
+                }
+            };
+
+            // 5. 內容 (Content)
+            if (!string.IsNullOrEmpty(content))
+            {
+                query = query.Where(h => h.name != null && h.name.Contains(content));
+            }
+
+            // ----結束條件判斷----
             int totalCount = query.Count();
             var result = new
             {

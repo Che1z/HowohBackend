@@ -216,6 +216,7 @@
     <Compile Include="Models\ViewModel\HouseImgInput.cs" />
     <Compile Include="Models\ViewModel\HouseInput.cs" />
     <Compile Include="Models\ViewModel\LogInInput.cs" />
+    <Compile Include="Models\ViewModel\PhoneNumberVerifiInput.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Security\JwtAuthFilters.cs" />
     <Compile Include="Security\JwtAuthUtil.cs" />

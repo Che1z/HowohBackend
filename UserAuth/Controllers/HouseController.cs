@@ -22,7 +22,7 @@ namespace UserAuth.Controllers
         //private DBModel db = new DBModel();
 
         [HttpPost]
-        [Route("api/myHouse")]
+        [Route("api/house/landlord")]
         [JwtAuthFilters]
         public IHttpActionResult createListing()
         {
@@ -73,7 +73,7 @@ namespace UserAuth.Controllers
         }
 
         [HttpPatch]
-        [Route("api/myHouse/{id}")]
+        [Route("api/house/landlord/{id}")]
         [JwtAuthFilters]
         public IHttpActionResult updateListing(int id, HouseInput houseInput)
         {
@@ -427,7 +427,7 @@ namespace UserAuth.Controllers
         }
 
         [HttpPost]
-        [Route("api/myHouseImg/{id}")]
+        [Route("api/house/landlord/img/{id}")]
         [JwtAuthFilters]
         public IHttpActionResult creatingHouseImg(int id, HouseImgInput houseImgInput)
         {
@@ -493,7 +493,7 @@ namespace UserAuth.Controllers
         }
 
         [HttpDelete]
-        [Route("api/myHouse/{id}")]
+        [Route("api/house/landlord/{id}")]
         [JwtAuthFilters]
         public IHttpActionResult deleteMyHouse(int id)
         {
@@ -554,7 +554,7 @@ namespace UserAuth.Controllers
 
             //房東取得各狀態的房源內容
             [HttpGet]
-        [Route("api/myHouse/info/{id}")]
+        [Route("api/house/landlord/info/{id}")]
         public IHttpActionResult getMyHouseInfo(int id)
         {
             //取得使用者JWT

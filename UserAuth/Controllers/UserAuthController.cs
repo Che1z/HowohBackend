@@ -19,7 +19,7 @@ namespace UserAuth.Controllers
         private DBModel db = new DBModel();
 
         [HttpPost]
-        [Route("api/signup")]
+        [Route("api/register/common/signup")]
         public IHttpActionResult SignUp(User user)
         {
             if (!ModelState.IsValid || user == null)
@@ -80,8 +80,8 @@ namespace UserAuth.Controllers
         }
 
         [HttpPost]
-        [Route("api/phoneNumberVerifi")]
-        public IHttpActionResult VerifyPhone([FromBody]string phoneNumber)
+        [Route("api/register/common/phoneNumberVerifi")]
+        public IHttpActionResult VerifyPhone([FromBody]PhoneNumberVerifiInput phoneNumber)
         {
             if (phoneNumber == null)
             {
@@ -92,7 +92,7 @@ namespace UserAuth.Controllers
                 try
                 {
                     // 檢查是否重複手機號碼
-                    var existData = db.UserEntities.FirstOrDefault(x => x.telphone == phoneNumber);
+                    var existData = db.UserEntities.FirstOrDefault(x => x.telphone == phoneNumber.telphone);
                     if (existData == null)
                     {
                         return Content(HttpStatusCode.OK, "尚未註冊手機號碼");
@@ -127,10 +127,15 @@ namespace UserAuth.Controllers
                         //檢查是否重複手機號碼
                         string inputTel = loginput.telphone;
                         string password = loginput.password;
+                        var role = loginput.role;
                         var existData = db.UserEntities.Where(x => x.telphone == inputTel).FirstOrDefault();
                         if (existData == null)
                         {
                             return Content(HttpStatusCode.BadRequest, "尚未註冊手機號碼");
+                        }
+                        var roleVerify = db.UserEntities.Where(x => x.role == role).FirstOrDefault();
+                        if (roleVerify == null) {
+                            return Content(HttpStatusCode.BadRequest, "錯誤身分");
                         }
                         else
                         {
@@ -155,6 +160,7 @@ namespace UserAuth.Controllers
                                         firstName = existData.firstName,
                                         telphone = existData.telphone,
                                         photo = existData.photo,
+                                        identity = existData.role.ToString(),
                                     }
                                 };
 

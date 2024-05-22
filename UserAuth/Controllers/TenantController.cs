@@ -78,8 +78,7 @@ namespace UserAuth.Controllers
                             gender = jwtObject["Gender"],
                             job = jwtObject["Job"],
                             photo = jwtObject["Photo"],
-                            ///todo: userIntro加到token裡後記得取消comment
-                            //userIntro = jwtObject["userIntro"],
+                            userIntro = jwtObject["userIntro"],
                             ratingAvg = ratingAvg, //平均星數
                             ratingCount = ratingCount //被評價則數
                         }
@@ -94,7 +93,7 @@ namespace UserAuth.Controllers
         }
 
         [HttpPost]
-        [Route("api/userInfo/{id}")]
+        [Route("api/user/tenant/info/{id}")]
         [JwtAuthFilters]
         public IHttpActionResult PostUserInfo(int id)
         {
