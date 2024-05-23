@@ -300,7 +300,11 @@ namespace UserAuth.Controllers
                       .Count(),
                 },
 
-                image = h.HouseImgs,
+                image = db.HouseImgsEntities.Where(z => z.houseId == h.id && z.isCover == true).Select(s => new
+                {
+                    imgId = s.id,
+                    coverIamgePath = s.path
+                }),
                 title = h.name,
                 city = h.city,
                 district = h.district,
