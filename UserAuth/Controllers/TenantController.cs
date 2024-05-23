@@ -160,11 +160,18 @@ namespace UserAuth.Controllers
                     db.AppointmentsEntities.Add(appointment);
                     db.SaveChanges();
 
+                    var landlord = db.UserEntities.Where(x => x.Id == houseForMatching.userId).FirstOrDefault();
+
                     var result = new
                     {
                         statusCode = 200,
                         status = "success",
                         message = "已成功預約看房",
+                        data = new
+                        {
+                            landlordTel = landlord.telphone,
+                            landlordLineId = landlord.LineId
+                        }
                     };
                     return Content(HttpStatusCode.OK, result);
                 }
