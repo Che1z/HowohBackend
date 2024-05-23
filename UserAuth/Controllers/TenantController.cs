@@ -162,7 +162,7 @@ namespace UserAuth.Controllers
             catch (Exception ex) { return Content(HttpStatusCode.BadRequest, ex); }
         }
 
-        // GET: api/Tenant
+        //GET: api/Tenant
         //public IEnumerable<string> Get()
         //{
         //    return new string[] { "value1", "value2" };

@@ -20,7 +20,10 @@ namespace UserAuth.Controllers
     public class HouseController : ApiController
     {
         //private DBModel db = new DBModel();
-
+        /// <summary>
+        /// 房東新增房源
+        /// </summary>
+        /// <returns></returns>
         [HttpPost]
         [Route("api/house/landlord")]
         [JwtAuthFilters]
