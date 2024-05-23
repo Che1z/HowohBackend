@@ -11,9 +11,13 @@ namespace UserAuth.Controllers
 {
     public class HouseListController : ApiController
     {
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         [Route("api/house/common/list")]
-        public IHttpActionResult getHomePageHouse()
+        public IHttpActionResult GetHomePageHouse()
         {
             DBModel db = new DBModel();
 
@@ -52,7 +56,6 @@ namespace UserAuth.Controllers
 
                     .Where(h => (h.status == (statusType)10 && h.isRentSubsidy && h.isCookAllowed) || (h.status == (statusType)10 && h.isPetAllowed && h.isSTRAllowed) || (h.status == (statusType)10 && h.isRentSubsidy && h.isPetAllowed) || h.status == (statusType)10 && h.isRentSubsidy || h.status == (statusType)10 && h.isCookAllowed || h.status == (statusType)10 && h.isPetAllowed || h.status == (statusType)10 && h.isSTRAllowed)
 
-
                     .Select(h => new
                     {
                         Id = h.id,
@@ -86,7 +89,6 @@ namespace UserAuth.Controllers
                 {
                     return Ok(combinedHouses);
                 }
-
                 else
                 {
                     return Content(HttpStatusCode.BadRequest, combinedHouses);
@@ -99,8 +101,8 @@ namespace UserAuth.Controllers
         }
 
         [HttpGet]
-        [Route("api/house/common/list")]
-        public IHttpActionResult searchHouse(int city, string districts = null,
+        [Route("api/house/common/list/search")]
+        public IHttpActionResult SearchHouse(int city, string districts = null,
             int pageNumber = 1, string price = null, string type = null, string feature = null, string content = "")
         {
             DBModel db = new DBModel();
@@ -132,7 +134,6 @@ namespace UserAuth.Controllers
             {
                 var typeList = type.Split(',').Select(int.Parse).Select(d => (type)d).ToList();
                 query = query.Where(h => typeList.Contains(h.type));
-
             }
 
             // 3. 價格(Price) Note: 最大值需輸入-1
@@ -149,7 +150,6 @@ namespace UserAuth.Controllers
                     {
                         if (int.TryParse(bound[0], out int min))
                         {
-
                             minValue.Add(min);
                         }
                         int max;
@@ -161,9 +161,7 @@ namespace UserAuth.Controllers
                         {
                             maxValue.Add(max);
                         }
-
                     }
-
                 }
                 if (minValue.Count > 0 && maxValue.Count > 0)
                 {
@@ -247,7 +245,7 @@ namespace UserAuth.Controllers
                 {
                     Sum = db.OrdersEntities
                      .Where(o => db.HouseEntities
-                         .Where(house => house.userId == h.userId) //House表格中找屬於房東的所有房子  
+                         .Where(house => house.userId == h.userId) //House表格中找屬於房東的所有房子
                          .Select(house => house.id) //選擇這些house id
                          .Contains(o.houseId)) // 篩選:檢查 OrderEntities中訂單的houseId是否在上述id清單中，若是則保留該訂單
                      .SelectMany(o => o.orderRatings)
@@ -321,7 +319,7 @@ namespace UserAuth.Controllers
 
         [HttpGet]
         [Route("api/house/common/totalNumber")]
-        public IHttpActionResult searchHouseTotal(int city, string districts = null, string price = null, string type = null, string feature = null, string content = "")
+        public IHttpActionResult SearchHouseTotal(int city, string districts = null, string price = null, string type = null, string feature = null, string content = "")
         {
             DBModel db = new DBModel();
             var query = db.HouseEntities.AsQueryable();
@@ -352,7 +350,6 @@ namespace UserAuth.Controllers
             {
                 var typeList = type.Split(',').Select(int.Parse).Select(d => (type)d).ToList();
                 query = query.Where(h => typeList.Contains(h.type));
-
             }
 
             // 3. 價格(Price) Note: 最大值需輸入-1
@@ -369,7 +366,6 @@ namespace UserAuth.Controllers
                     {
                         if (int.TryParse(bound[0], out int min))
                         {
-
                             minValue.Add(min);
                         }
                         int max;
@@ -381,9 +377,7 @@ namespace UserAuth.Controllers
                         {
                             maxValue.Add(max);
                         }
-
                     }
-
                 }
                 if (minValue.Count > 0 && maxValue.Count > 0)
                 {
@@ -442,7 +436,5 @@ namespace UserAuth.Controllers
             };
             return Content(HttpStatusCode.OK, result);
         }
-
-
     }
 }

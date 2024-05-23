@@ -553,10 +553,8 @@ namespace UserAuth.Controllers
             }
         }
 
-       
-
-            //房東取得各狀態的房源內容
-            [HttpGet]
+        //房東取得各狀態的房源內容
+        [HttpGet]
         [Route("api/house/landlord/info/{id}")]
         public IHttpActionResult getMyHouseInfo(int id)
         {

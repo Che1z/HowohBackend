@@ -256,9 +256,12 @@ namespace UserAuth
 
         private static string GetXmlCommentsPath()
         {
+            //return String.Format(
+            //    @"{0}\App_Data\XmlDocument.xml",
+            //    AppDomain.CurrentDomain.BaseDirectory);
             return String.Format(
-                @"{0}\App_Data\XmlDocument.xml",
-                AppDomain.CurrentDomain.BaseDirectory);
+        @"{0}\bin\XmlDocument.xml",
+        AppDomain.CurrentDomain.BaseDirectory);
         }
     }
 }
