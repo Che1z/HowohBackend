@@ -50,6 +50,9 @@ namespace UserAuth.Controllers
                             var hash = HashPassword(password, salt);
                             string hashPassword = Convert.ToBase64String(hash);
                             string userIntro = $"我是 {userLastName} {userFirstName}, 職業是 {user.job}";
+                            Random rnd = new Random();
+                            int randomNumber = rnd.Next(0, 100);
+                            string lineId = userTel + "line" + randomNumber;
                             string userPassword = user.password;
                             string userPhoto = user.photo;
                             // new一個User物件
@@ -66,6 +69,7 @@ namespace UserAuth.Controllers
                             InsertNewAccount.gender = user.gender;
                             InsertNewAccount.role = user.role;
                             InsertNewAccount.userIntro = userIntro;
+                            InsertNewAccount.LineId = lineId;
 
                             db.UserEntities.Add(InsertNewAccount);
                             db.SaveChanges();
@@ -109,7 +113,6 @@ namespace UserAuth.Controllers
                 }
             }
         }
-
 
         [HttpPost]
         [Route("api/login")]

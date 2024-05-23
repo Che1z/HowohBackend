@@ -58,8 +58,8 @@ namespace UserAuth.Models
         [Required(ErrorMessage = "{0}必填")]
         public UserRoleType role { get; set; }
 
-        //[Display(Name = "平均分數")]
-        //public float averageRating { get; set; }
+        [Display(Name = "Line帳號")]
+        public string LineId { get; set; }
 
         [Display(Name = "自我介紹")]
         public string userIntro { get; set; }

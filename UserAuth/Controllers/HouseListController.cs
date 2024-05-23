@@ -11,6 +11,10 @@ namespace UserAuth.Controllers
 {
     public class HouseListController : ApiController
     {
+        /// <summary>
+        /// [FCO-1]取得系統推薦的房源列表
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         [Route("api/house/common/list")]
         public IHttpActionResult getHomePageHouse()
@@ -98,8 +102,20 @@ namespace UserAuth.Controllers
             }
         }
 
+        /// <summary>
+        /// [FCO-2]取得搜尋結果的房源列表
+        /// </summary>
+        /// <param name="city"></param>
+        /// <param name="districts"></param>
+        /// <param name="pageNumber"></param>
+        /// <param name="price"></param>
+        /// <param name="type"></param>
+        /// <param name="feature"></param>
+        /// <param name="content"></param>
+        /// <returns></returns>
+
         [HttpGet]
-        [Route("api/house/common/list")]
+        [Route("api/house/common/list/search")]
         public IHttpActionResult searchHouse(int city, string districts = null,
             int pageNumber = 1, string price = null, string type = null, string feature = null, string content = "")
         {
@@ -218,6 +234,8 @@ namespace UserAuth.Controllers
             int totalCount = query.Count();
 
             //初始點
+
+            // 一頁12筆資料
             int init = (pageNumber - 1) * 12;
 
             //使用skip前，需先排序

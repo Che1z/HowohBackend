@@ -28,10 +28,14 @@ namespace UserAuth.Models
         [Display(Name = "租客")]
         public int userId { get; set; }
 
+        [Display(Name = "隱藏")]
+        public Boolean hidden { get; set; }
+
         [JsonIgnore]
         [ForeignKey("userId")]
         [Display(Name = "租客")]
         public virtual User userIdFK { get; set; }
+
 
         [Display(Name = "建立時間")]
         public DateTime CreateAt { get; set; } = DateTime.Now;

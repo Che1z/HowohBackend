@@ -37,6 +37,7 @@ namespace UserAuth.Security
                 {"Job", user.job },
                 {"Photo", user.photo },
                 {"Role", user.role },
+                { "LineId", user.LineId},
                 { "Exp", DateTime.Now.AddMinutes(1440).ToString() } // JwtToken 時效設定 1440 分
             };
 

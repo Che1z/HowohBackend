@@ -147,6 +147,7 @@ namespace UserAuth.Controllers
                     Appointment appointment = new Appointment();
                     appointment.houseId = id;
                     appointment.userId = UserId;
+                    appointment.hidden = false;
                     db.AppointmentsEntities.Add(appointment);
                     db.SaveChanges();
 
