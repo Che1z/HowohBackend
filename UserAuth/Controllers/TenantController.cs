@@ -19,7 +19,7 @@ namespace UserAuth.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Route("api/userInfo")]
+        [Route("api/user/tenant/info")]
         [JwtAuthFilters]
         public IHttpActionResult GetUserInfo()
         {
@@ -79,14 +79,15 @@ namespace UserAuth.Controllers
                             firstName = jwtObject["FirstName"],
                             lastName = jwtObject["LastName"],
                             telphone = jwtObject["Telphone"],
-                            gender = jwtObject["Gender"],
-                            job = jwtObject["Job"],
+                            gender = Enum.GetName(typeof(UserSexType), jwtObject["Gender"]),
+                            job = Enum.GetName(typeof(UserJob), jwtObject["Job"]),
                             photo = jwtObject["Photo"],
-                            userIntro = jwtObject["userIntro"],
+                            userIntro = jwtObject["UserIntro"],
                             ratingAvg = ratingAvg, //平均星數
                             ratingCount = ratingCount //被評價則數
                         }
                     };
+
                     return Content(HttpStatusCode.OK, result);
                 }
             }
