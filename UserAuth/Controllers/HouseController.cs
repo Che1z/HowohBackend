@@ -20,7 +20,10 @@ namespace UserAuth.Controllers
     public class HouseController : ApiController
     {
         //private DBModel db = new DBModel();
-
+        /// <summary>
+        /// [ALO-2]新增房源
+        /// </summary>
+        /// <returns></returns>
         [HttpPost]
         [Route("api/house/landlord")]
         [JwtAuthFilters]
@@ -72,6 +75,12 @@ namespace UserAuth.Controllers
             }
         }
 
+        /// <summary>
+        /// [ALO-3]修改房源內容
+        /// </summary>
+        /// <param name="id">房源Id</param>
+        /// <param name="houseInput">房源內容</param>
+        /// <returns></returns>
         [HttpPatch]
         [Route("api/house/landlord/{id}")]
         [JwtAuthFilters]
@@ -426,6 +435,12 @@ namespace UserAuth.Controllers
             }
         }
 
+        /// <summary>
+        /// [ALO-4]新增房源照片
+        /// </summary>
+        /// <param name="id">房源Id</param>
+        /// <param name="houseImgInput">房源照片</param>
+        /// <returns></returns>
         [HttpPost]
         [Route("api/house/landlord/img/{id}")]
         [JwtAuthFilters]
@@ -492,6 +507,11 @@ namespace UserAuth.Controllers
             }
         }
 
+        /// <summary>
+        /// [ALO-11]刪除房源
+        /// </summary>
+        /// <param name="id">房源Id</param>
+        /// <returns></returns>
         [HttpDelete]
         [Route("api/house/landlord/{id}")]
         [JwtAuthFilters]
@@ -550,10 +570,12 @@ namespace UserAuth.Controllers
             }
         }
 
-       
-
-            //房東取得各狀態的房源內容
-            [HttpGet]
+        /// <summary>
+        /// [ALO-12, ALO-13, ALO-14, ALO-15]取得各房源狀態的單一房源內容
+        /// </summary>
+        /// <param name="id">房源Id</param>
+        /// <returns></returns>
+        [HttpGet]
         [Route("api/house/landlord/info/{id}")]
         public IHttpActionResult getMyHouseInfo(int id)
         {
