@@ -14,6 +14,10 @@ namespace UserAuth.Controllers
 {
     public class TenantController : ApiController
     {
+        /// <summary>
+        /// [FTU-1]取得登入的租客使用者資訊
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         [Route("api/userInfo")]
         [JwtAuthFilters]
@@ -92,8 +96,13 @@ namespace UserAuth.Controllers
             }
         }
 
-        [HttpPost]
-        [Route("api/user/tenant/info/{id}")]
+        /// <summary>
+        /// [FTU-2]確認提供登入的使用者資訊供系統比對是否符合預約房源條件
+        /// </summary>
+        /// <param name="id">房源Id</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("api/user/tenant/info/match/{id}")]
         [JwtAuthFilters]
         public IHttpActionResult PostUserInfo(int id)
         {
