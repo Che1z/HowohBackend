@@ -4,6 +4,10 @@ using UserAuth;
 using Swashbuckle.Application;
 using System;
 using System.Xml.XPath;
+using Swashbuckle.Swagger;
+using System.Collections.Generic;
+using System.Web.Http.Description;
+using System.Linq;
 
 [assembly: PreApplicationStartMethod(typeof(SwaggerConfig), "Register")]
 
@@ -35,7 +39,6 @@ namespace UserAuth
                         // additional fields by chaining methods off SingleApiVersion.
                         //
                         c.SingleApiVersion("v1", "UserAuth");
-                       
 
                         // If you want the output Swagger docs to be indented properly, enable the "PrettyPrint" option.
                         //
@@ -65,10 +68,12 @@ namespace UserAuth
                         //    .Description("Basic HTTP Authentication");
                         //
                         // NOTE: You must also configure 'EnableApiKeySupport' below in the SwaggerUI section
-                        //c.ApiKey("apiKey")
-                        //    .Description("API Key Authentication")
-                        //    .Name("apiKey")
+                        //c.ApiKey("Bearer")
+                        //    .Description("½Ð¿é¤J JWT token")
+                        //    .Name("Authorization")
                         //    .In("header");
+
+                        //c.OperationFilter<AddAuthorizationHeaderParameterOperationFilter>();
                         //
                         //c.OAuth2("oauth2")
                         //    .Description("OAuth2 Implicit Grant")
@@ -251,7 +256,7 @@ namespace UserAuth
                         // If your API supports ApiKey, you can override the default values.
                         // "apiKeyIn" can either be "query" or "header"
                         //
-                        //c.EnableApiKeySupport("apiKey", "header");
+                        c.EnableApiKeySupport("Authorization", "header");
                     });
         }
 
@@ -265,4 +270,22 @@ namespace UserAuth
         AppDomain.CurrentDomain.BaseDirectory);
         }
     }
+
+    //public class AddAuthorizationHeaderParameterOperationFilter : IOperationFilter
+    //{
+    //    public void Apply(Operation operation, SchemaRegistry schemaRegistry, ApiDescription apiDescription)
+    //    {
+    //        if (operation.parameters == null)
+    //            operation.parameters = new List<Parameter>();
+
+    //        operation.parameters.Add(new Parameter
+    //        {
+    //            name = "Authorization",
+    //            @in = "header",
+    //            description = "JWT Token",
+    //            required = false,
+    //            type = "string",
+    //        });
+    //    }
+    //}
 }
