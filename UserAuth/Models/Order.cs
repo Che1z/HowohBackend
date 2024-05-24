@@ -24,7 +24,6 @@ namespace UserAuth.Models
         [Display(Name = "房子")]
         public virtual House houseIdFK { get; set; }
 
-        [Required(ErrorMessage = "{0}必填")]
         [Display(Name = "租客")]
         public int userId { get; set; }
 
