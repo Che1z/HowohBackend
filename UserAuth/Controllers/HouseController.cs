@@ -5,9 +5,9 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
-
 using UserAuth.Models;
 using UserAuth.Models.HouseEnumList;
+using UserAuth.Models.OrderEnumList;
 using UserAuth.Models.UserEnumList;
 using UserAuth.Models.ViewModel;
 using UserAuth.Security;
@@ -577,6 +577,7 @@ namespace UserAuth.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("api/house/landlord/info/{id}")]
+        [JwtAuthFilters]
         public IHttpActionResult getMyHouseInfo(int id)
         {
             //取得使用者JWT
@@ -1056,6 +1057,59 @@ namespace UserAuth.Controllers
                     {
                         throw new Exception("該房源擁有者非使用者");
                     }
+                }
+            }
+            catch (Exception ex)
+            {
+                return Content(HttpStatusCode.BadRequest, ex);
+            }
+        }
+
+        /// <summary>
+        /// [ALO-9]查詢使用者 (via 手機號碼)
+        /// </summary>
+        /// <param name="tel">手機號碼</param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("api/house/landlord/userInfo")]
+        [JwtAuthFilters]
+        public IHttpActionResult GetTenantUserId([FromBody] string tel)
+        {
+            //取得使用者JWT
+            var jwtObject = JwtAuthFilters.GetToken(Request.Headers.Authorization.Parameter);
+
+            //取得JWT內部資料
+            var role = (UserRoleType)jwtObject["Role"];
+            try
+            {
+                if (role == UserRoleType.租客)
+                {
+                    throw new Exception("使用者角色不符，不得使用此功能");
+                }
+                using (DBModel db = new DBModel())
+                {
+                    var telEnter = db.UserEntities.Where(x => x.telphone == tel).FirstOrDefault();
+                    if (telEnter == null)
+                    {
+                        throw new Exception("該電話號碼用戶非系統用戶");
+                    }
+                    if (telEnter.role == UserRoleType.房東)
+                    {
+                        throw new Exception("該電話號碼用戶角色為房東");
+                    }
+                    var result = new
+                    {
+                        statusCode = 200,
+                        status = "success",
+                        message = "成功找到該系統用戶",
+                        data = new
+                        {
+                            userId = telEnter.Id,
+                            name = telEnter.lastName + telEnter.firstName,
+                            photo = telEnter.photo
+                        }
+                    };
+                    return Content(HttpStatusCode.OK, result);
                 }
             }
             catch (Exception ex)
