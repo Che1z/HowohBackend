@@ -420,7 +420,10 @@ namespace UserAuth.Controllers
                     }
                     if (houseInput.status.HasValue)
                     {
-                        updateHouse.status = houseInput.status.Value;
+                        if (houseInput.status.Value > updateHouse.status)
+                        {
+                            updateHouse.status = houseInput.status.Value;
+                        }
                     }
                     //updateHouse.status = houseStatus;
 
