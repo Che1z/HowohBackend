@@ -36,7 +36,7 @@ namespace UserAuth.Security
                     string messageJson = JsonConvert.SerializeObject(new { Status = false, Message = "請重新登入" }); // JwtToken 遺失，需導引重新登入
                     var errorMessage = new HttpResponseMessage()
                     {
-                        // StatusCode = System.Net.HttpStatusCode.Unauthorized, // 401
+                        StatusCode = System.Net.HttpStatusCode.Unauthorized, // 401
                         ReasonPhrase = "JwtToken Lost",
                         Content = new StringContent(messageJson,
                                     Encoding.UTF8,
@@ -58,7 +58,7 @@ namespace UserAuth.Security
                             string messageJson = JsonConvert.SerializeObject(new { Status = false, Message = "請重新登入" }); // JwtToken 過期，需導引重新登入
                             var errorMessage = new HttpResponseMessage()
                             {
-                                // StatusCode = System.Net.HttpStatusCode.Unauthorized, // 401
+                                StatusCode = System.Net.HttpStatusCode.Unauthorized, // 401
                                 ReasonPhrase = "JwtToken Expired",
                                 Content = new StringContent(messageJson,
                                     Encoding.UTF8,
