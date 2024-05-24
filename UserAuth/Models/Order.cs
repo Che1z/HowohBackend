@@ -26,7 +26,7 @@ namespace UserAuth.Models
 
 
         [Display(Name = "租客")]
-        public int userId { get; set; }
+        public int? userId { get; set; }
 
         [JsonIgnore]
         [ForeignKey("userId")]
