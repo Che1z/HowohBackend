@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Web.Http;
 using UserAuth.Models;
 using UserAuth.Models.HouseEnumList;
+using UserAuth.Models.OrderEnumList;
 using UserAuth.Models.UserEnumList;
 using UserAuth.Models.ViewModel;
 using UserAuth.Security;
@@ -576,6 +577,7 @@ namespace UserAuth.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("api/house/landlord/info/{id}")]
+        [JwtAuthFilters]
         public IHttpActionResult getMyHouseInfo(int id)
         {
             //取得使用者JWT
@@ -1070,7 +1072,8 @@ namespace UserAuth.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("api/house/landlord/userInfo")]
-        public IHttpActionResult GetTenentUserId([FromBody] string tel)
+        [JwtAuthFilters]
+        public IHttpActionResult GetTenantUserId([FromBody] string tel)
         {
             //取得使用者JWT
             var jwtObject = JwtAuthFilters.GetToken(Request.Headers.Authorization.Parameter);
