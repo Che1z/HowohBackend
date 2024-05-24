@@ -14,6 +14,9 @@ namespace UserAuth.Models.ViewModel
         //public int id { get; set; }
 
         //[Required(ErrorMessage = "{0}必填")]
+        /// <summary>
+        /// 房源名稱
+        /// </summary>
         [MaxLength(100)]
         [Display(Name = "名稱")]
         public string name { get; set; }
