@@ -26,7 +26,13 @@ namespace UserAuth.Controllers
                 .Select(h => new
                 {
                     Id = h.id,
-                    image = h.HouseImgs,
+                    image = h.HouseImgs.Where(hi => hi.isCover == true).Select(da => new
+                    {
+                        imageId = da.id,
+                        imagePath = da.path,
+                        isCover = da.isCover,
+
+                    }).FirstOrDefault(),
                     title = h.name,
                     city = h.city,
                     district = h.district,
@@ -47,7 +53,7 @@ namespace UserAuth.Controllers
                     isCookAllowd = h.isCookAllowed,
                     isPetAllowd = h.isPetAllowed,
                     isSTRAllowed = h.isSTRAllowed,
-                });
+                }); ;
             // 隨機性:使用OrderBy Guid
             var filteredHouses = query.ToList().OrderBy(h => Guid.NewGuid()).Take(8).ToList();
             if (filteredHouses.Count != 8)
@@ -59,7 +65,13 @@ namespace UserAuth.Controllers
                     .Select(h => new
                     {
                         Id = h.id,
-                        image = h.HouseImgs,
+                        image = h.HouseImgs.Where(hi => hi.isCover == true).Select(da => new
+                        {
+                            imageId = da.id,
+                            imagePath = da.path,
+                            isCover = da.isCover,
+
+                        }).FirstOrDefault(),
                         title = h.name,
                         city = h.city,
                         district = h.district,
