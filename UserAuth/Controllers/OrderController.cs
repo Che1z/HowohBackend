@@ -21,6 +21,7 @@ namespace UserAuth.Controllers
         /// <param name="orderInfoInput">訂單成立資訊</param>
         /// <returns></returns>
         [HttpPost]
+        [JwtAuthFilters]
         [Route("api/order/landlord/userInfo")]
         public IHttpActionResult PostUserInfoToOrder(OrderInfoInput orderInfoInput)
         {
@@ -34,6 +35,10 @@ namespace UserAuth.Controllers
                 if (role == UserRoleType.租客) //檢查角色
                 {
                     throw new Exception("使用者角色不符，不得使用此功能");
+                }
+                if (!ModelState.IsValid || orderInfoInput == null)
+                {
+                    throw new Exception("錯誤資訊不符合規範");
                 }
                 using (DBModel db = new DBModel())
                 {
