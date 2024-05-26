@@ -31,39 +31,52 @@ namespace UserAuth.Controllers
             var role = (UserRoleType)jwtObject["Role"];
             try
             {
-                if (role == UserRoleType.租客)
+                if (role == UserRoleType.租客) //檢查角色
                 {
                     throw new Exception("使用者角色不符，不得使用此功能");
                 }
                 using (DBModel db = new DBModel())
                 {
+                    var houseToAddOrder = db.HouseEntities.Where(x => x.id == orderInfoInput.houseId).FirstOrDefault();
+                    var userToAdd = db.UserEntities.Where(x => x.Id == orderInfoInput.userId).FirstOrDefault();
+
+                    if (orderInfoInput.userId == null && String.IsNullOrEmpty(orderInfoInput.tenantTelphone))
+                    {
+                        throw new Exception("租客Id及手機號碼均未輸入，無法設定租客資訊");
+                    }
+
+                    if (houseToAddOrder == null) //檢查房源是否存在
+                    {
+                        throw new Exception("此房源不存在，無法設定租客資訊");
+                    }
+                    if (houseToAddOrder.status != statusType.刊登中) //檢查房源狀態
+                    {
+                        throw new Exception("此房源狀態非刊登中，無法設定租客資訊");
+                    }
+                    if (userToAdd == null) //檢查租客是否存在
+                    {
+                        throw new Exception("此租客不存在，無法設定租客資訊");
+                    }
+
                     var order = new Order();
                     if (orderInfoInput.userId != null)
                     {
                         order.userId = orderInfoInput.userId.Value;
                         order.status = OrderStatus.待租客回覆租約;
                     }
-                    else if (!String.IsNullOrEmpty(orderInfoInput.tenantTelphone))
+                    else
                     {
                         order.tenantTelphone = orderInfoInput.tenantTelphone;
                         order.status = OrderStatus.租客非系統用戶;
-                        var houseToChangeStatus = db.HouseEntities.Where(x => x.id == orderInfoInput.houseId).FirstOrDefault();
-                        houseToChangeStatus.status = statusType.已承租;
+                        houseToAddOrder.status = statusType.已承租;
                     }
-                    else
-                    {
-                        throw new Exception("租客Id及手機號碼均未輸入，無法設定租客資訊");
-                    }
+
                     order.houseId = orderInfoInput.houseId;
                     order.leaseStartTime = orderInfoInput.leaseStartTime;
                     order.leaseEndTime = orderInfoInput.leaseEndTime;
                     db.OrdersEntities.Add(order);
                     db.SaveChanges();
-                    //if (!String.IsNullOrEmpty(orderInfoInput.tenantTelphone))
-                    //{
-                    //    var houseToChangeStatus = db.HouseEntities.Where(x => x.id == orderInfoInput.houseId).FirstOrDefault();
-                    //    houseToChangeStatus.status = statusType.已承租;
-                    //}
+
                     var result = new
                     {
                         statusCode = 200,
