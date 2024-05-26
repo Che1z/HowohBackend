@@ -47,15 +47,15 @@ namespace UserAuth.Controllers
 
                     if (houseToAddOrder == null) //檢查房源是否存在
                     {
-                        throw new Exception("此房源不存在，不可設定租客資訊");
+                        throw new Exception("此房源不存在，無法設定租客資訊");
                     }
                     if (houseToAddOrder.status != statusType.刊登中) //檢查房源狀態
                     {
-                        throw new Exception("此房源狀態非刊登中，不可設定租客資訊");
+                        throw new Exception("此房源狀態非刊登中，無法設定租客資訊");
                     }
                     if (userToAdd == null) //檢查租客是否存在
                     {
-                        throw new Exception("此租客不存在，不可設定租客資訊");
+                        throw new Exception("此租客不存在，無法設定租客資訊");
                     }
 
                     var order = new Order();
