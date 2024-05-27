@@ -27,7 +27,7 @@ namespace UserAuth.Controllers
         [HttpPost]
         [Route("api/house/landlord")]
         [JwtAuthFilters]
-        public IHttpActionResult createListing()
+        public IHttpActionResult CreateListing()
         {
             //檢查是否為房東
             //取得使用者JWT
@@ -84,7 +84,7 @@ namespace UserAuth.Controllers
         [HttpPatch]
         [Route("api/house/landlord/{id}")]
         [JwtAuthFilters]
-        public IHttpActionResult updateListing(int id, HouseInput houseInput)
+        public IHttpActionResult UpdateListing(int id, HouseInput houseInput)
         {
             //取得使用者JWT
             var jwtObject = JwtAuthFilters.GetToken(Request.Headers.Authorization.Parameter);
@@ -447,7 +447,7 @@ namespace UserAuth.Controllers
         [HttpPost]
         [Route("api/house/landlord/img/{id}")]
         [JwtAuthFilters]
-        public IHttpActionResult creatingHouseImg(int id, HouseImgInput houseImgInput)
+        public IHttpActionResult CreatingHouseImg(int id, HouseImgInput houseImgInput)
         {
             //取得使用者JWT
             var jwtObject = JwtAuthFilters.GetToken(Request.Headers.Authorization.Parameter);
@@ -518,7 +518,7 @@ namespace UserAuth.Controllers
         [HttpDelete]
         [Route("api/house/landlord/{id}")]
         [JwtAuthFilters]
-        public IHttpActionResult deleteMyHouse(int id)
+        public IHttpActionResult DeleteMyHouse(int id)
         {
             //取得使用者JWT
             var jwtObject = JwtAuthFilters.GetToken(Request.Headers.Authorization.Parameter);
@@ -581,7 +581,7 @@ namespace UserAuth.Controllers
         [HttpGet]
         [Route("api/house/landlord/info/{id}")]
         [JwtAuthFilters]
-        public IHttpActionResult getMyHouseInfo(int id)
+        public IHttpActionResult GetMyHouseInfo(int id)
         {
             //取得使用者JWT
             var jwtObject = JwtAuthFilters.GetToken(Request.Headers.Authorization.Parameter);
@@ -1111,6 +1111,60 @@ namespace UserAuth.Controllers
                             name = telEnter.lastName + telEnter.firstName,
                             photo = telEnter.photo
                         }
+                    };
+                    return Content(HttpStatusCode.OK, result);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Content(HttpStatusCode.BadRequest, ex);
+            }
+        }
+
+        /// <summary>
+        /// [ALO-6]變更房源狀態為已完成
+        /// </summary>
+        /// <param name="id">房源Id</param>
+        /// <returns></returns>
+        [HttpPatch]
+        [Route("api/house/landlord/status/{id}")]
+        [JwtAuthFilters]
+        public IHttpActionResult PatchHouseStatusToDone(int id)
+        {
+            //取得使用者JWT
+            var jwtObject = JwtAuthFilters.GetToken(Request.Headers.Authorization.Parameter);
+
+            //取得JWT內部資料
+            var role = (UserRoleType)jwtObject["Role"];
+            var userId = (int)jwtObject["Id"];
+            try
+            {
+                if (role == UserRoleType.租客)
+                {
+                    throw new Exception("使用者角色不符，不得使用此功能");
+                }
+                using (DBModel db = new DBModel())
+                {
+                    //檢查房源是否存在
+                    var houseEnter = db.HouseEntities.Where(x => x.id == id).FirstOrDefault() ?? throw new Exception("該房源不存在，無法變更房源狀態");
+
+                    if (houseEnter.userId != userId) //檢查房源是否屬於該使用者
+                    {
+                        throw new Exception("該房源不屬於此使用者，無法變更房源狀態");
+                    }
+                    if (houseEnter.status != statusType.刊登中) //檢查房源狀態是否屬於該使用者
+                    {
+                        throw new Exception("該房源狀態非刊登中，無法變更房源狀態");
+                    }
+
+                    houseEnter.status = statusType.已完成;
+                    db.SaveChanges();
+
+                    var result = new
+                    {
+                        statusCode = 200,
+                        status = "success",
+                        message = "成功修改房源狀態為已完成"
                     };
                     return Content(HttpStatusCode.OK, result);
                 }
