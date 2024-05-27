@@ -30,6 +30,8 @@ namespace UserAuth.Controllers
 
             //取得JWT內部資料
             var role = (UserRoleType)jwtObject["Role"];
+            var userId = (int)jwtObject["Id"];
+
             try
             {
                 if (role == UserRoleType.租客) //檢查角色
@@ -44,6 +46,11 @@ namespace UserAuth.Controllers
                 {
                     var houseToAddOrder = db.HouseEntities.Where(x => x.id == orderInfoInput.houseId).FirstOrDefault();
                     var userToAdd = db.UserEntities.Where(x => x.Id == orderInfoInput.userId).FirstOrDefault();
+
+                    if (houseToAddOrder.userId != userId)
+                    {
+                        throw new Exception("該房源不屬於此使用者，無法變更房源狀態");
+                    }
 
                     if (orderInfoInput.userId == null && String.IsNullOrEmpty(orderInfoInput.tenantTelphone))
                     {
