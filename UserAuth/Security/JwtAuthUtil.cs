@@ -91,7 +91,7 @@ namespace UserAuth.Security
             string secretKey = "RevokeToken"; // 故意用不同的 key 生成
             var payload = new Dictionary<string, object>
             {
-                { "Id", 0 },               
+                { "Id", 0 },
                 { "FirstName","None" },
                 { "LastName", "None" },
                 { "Email","None"},
