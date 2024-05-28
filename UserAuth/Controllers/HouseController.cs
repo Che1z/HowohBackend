@@ -701,8 +701,135 @@ namespace UserAuth.Controllers
                             //狀態為已承租
                             else if (houseEnter.status == statusType.已承租)
                             {
-                                ///todo: 房東取得各狀態的房源內容:已承租
-                                throw new Exception("已承租還沒做");
+                                var today = DateTime.Now;
+                                var order = db.OrdersEntities.FirstOrDefault(x => x.leaseStartTime <= today && x.leaseEndTime >= today);
+                                var tenant = db.UserEntities.FirstOrDefault(x => x.Id == order.userId);
+                                //租客過去的order list
+                                var pastOrderOfTenant = db.OrdersEntities.Where(x => x.userId == order.userId).Select(x => x.id).ToList();
+                                //別人對租客的評價list
+                                var ratingsToTenant = db.OrdersRatingEntities.Where(x => pastOrderOfTenant.Contains(x.orderId) && x.UserId != order.userId).ToList();
+                                //平均評價與評價則數
+                                string ratingAvg = "0";
+                                int ratingCount = 0;
+
+                                if (ratingsToTenant.Count != 0)
+                                {
+                                    ratingCount = ratingsToTenant.Count;
+                                    double ratingScore = 0;
+                                    foreach (var rating in ratingsToTenant)
+                                    {
+                                        ratingScore += rating.Rating;
+                                    }
+                                    ratingAvg = Convert.ToString(ratingScore / ratingCount);
+                                }
+
+                                var tenantInfo = new
+                                {
+                                    租期開始時間 = order.leaseStartTime,
+                                    租期結束時間 = order.leaseEndTime,
+                                    租客姓名 = tenant.lastName + tenant.firstName,
+                                    租客性別 = Enum.GetName(typeof(UserSexType), tenant.gender),
+                                    租客職業 = Enum.GetName(typeof(UserJob), tenant.job),
+                                    租客電話 = tenant.telphone,
+                                    租客自介 = tenant.userIntro,
+                                    評價則數 = ratingCount,
+                                    平均評價 = ratingAvg
+                                };
+
+                                var pictureObject = new
+                                {
+                                    firstPic = firstPicture.path,
+                                    restOfPic = restOfPicsList
+                                };
+                                //租客限制
+                                string jobRestriction = "";
+                                string[] jobRestrictions = houseEnter.jobRestriction.Split(',');
+
+                                for (int i = 0; i < jobRestrictions.Length; i++)
+                                {
+                                    jobRestrictions[i] = jobRestrictions[i].Trim();
+                                    jobRestriction += Enum.GetName(typeof(UserJob), Convert.ToInt32(jobRestrictions[i])) + ", ";
+                                }
+                                char[] trimArr = { ',', ' ' };
+                                jobRestriction = jobRestriction.Trim(trimArr);
+                                var houseInfo = new
+                                {
+                                    name = houseEnter.name, //名稱
+                                    city = Enum.GetName(typeof(CityType), houseEnter.city), //縣市 Enum
+                                    district = Enum.GetName(typeof(DistrictType), houseEnter.district).Remove(0, 3), //市區鄉鎮 Enum
+                                    road = houseEnter.road, //路街
+                                    lane = houseEnter.lane, //巷
+                                    alley = houseEnter.alley, //弄
+                                    number = houseEnter.number, //號
+                                    floor = houseEnter.floor, //樓層
+                                    floorTotal = houseEnter.floorTotal, //總樓數
+                                    type = Enum.GetName(typeof(type), houseEnter.type), //類型 Enum
+                                    ping = houseEnter.ping, //承租坪數
+                                    roomNumbers = houseEnter.roomNumbers, //房
+                                    livingRoomNumbers = houseEnter.livingRoomNumbers, //廳
+                                    bathRoomNumbers = houseEnter.bathRoomNumbers, //衛浴
+                                    balconyNumbers = houseEnter.balconyNumbers, //陽台
+                                    parkingSpaceNumbers = houseEnter.parkingSpaceNumbers, //車位
+                                    isRentSubsidy = houseEnter.isRentSubsidy, //可申請租屋補助
+                                    isPetAllowed = houseEnter.isPetAllowed, //寵物友善
+                                    isCookAllowed = houseEnter.isCookAllowed, //可開伙
+                                    isSTRAllowed = houseEnter.isSTRAllowed, //可短租
+                                    isNearByDepartmentStore = houseEnter.isNearByDepartmentStore, //附近機能: 百貨商場
+                                    isNearBySchool = houseEnter.isNearBySchool, //附近機能: 學校
+                                    isNearByMorningMarket = houseEnter.isNearByMorningMarket, //附近機能: 早市
+                                    isNearByNightMarket = houseEnter.isNearByNightMarket, //附近機能: 夜市
+                                    isNearByConvenientStore = houseEnter.isNearByConvenientStore, //附近機能: 超商
+                                    isNearByPark = houseEnter.isNearByPark, //附近機能: 公園綠地
+                                    hasGarbageDisposal = houseEnter.hasGarbageDisposal, //屋源特色: 垃圾集中處理
+                                    hasWindowInBathroom = houseEnter.hasWindowInBathroom, //屋源特色: 浴室開窗
+                                    hasElevator = houseEnter.hasElevator, //有電梯
+                                    hasAirConditioner = houseEnter.hasAirConditioner, //設備: 冷氣
+                                    hasWashingMachine = houseEnter.hasWashingMachine, //設備: 洗衣機
+                                    hasRefrigerator = houseEnter.hasRefrigerator, //設備: 冰箱
+                                    hasCloset = houseEnter.hasCloset, //設備: 衣櫃
+                                    hasTableAndChair = houseEnter.hasTableAndChair, //設備: 桌椅
+                                    hasWaterHeater = houseEnter.hasWaterHeater, //設備: 熱水器
+                                    hasInternet = houseEnter.hasInternet, //設備: 網路
+                                    hasBed = houseEnter.hasBed, //設備: 床
+                                    hasTV = houseEnter.hasTV, //設備: 電視
+                                    isNearMRT = houseEnter.isNearMRT, //交通: 捷運
+                                    kmAwayMRT = houseEnter.kmAwayMRT, //距離捷運公里
+                                    isNearLRT = houseEnter.isNearLRT, //交通: 輕軌
+                                    kmAwayLRT = houseEnter.kmAwayLRT, //距離輕軌公里
+                                    isNearBusStation = houseEnter.isNearBusStation, //交通: 公車
+                                    kmAwayBusStation = houseEnter.kmAwayBusStation, //距離公車公里
+                                    isNearHSR = houseEnter.isNearHSR, //交通: 高鐵
+                                    kmAwayHSR = houseEnter.kmAwayHSR, //距離高鐵公里
+                                    isNearTrainStation = houseEnter.isNearTrainStation, //交通: 火車
+                                    kmAwayTrainStation = houseEnter.kmAwayTrainStation, //距離火車公里
+                                    rent = houseEnter.rent, //每月租金
+                                    securityDeposit = Enum.GetName(typeof(securityDepositType), houseEnter.securityDeposit), //押金幾個月 Enum
+                                    paymentMethodOfWaterBill = Enum.GetName(typeof(paymentTypeOfWaterBill), houseEnter.paymentMethodOfWaterBill), //水費繳納方式 Enum
+                                    waterBillPerMonth = houseEnter.waterBillPerMonth, //水費每月價錢
+                                    electricBill = Enum.GetName(typeof(paymentTypeOfElectricBill), houseEnter.electricBill), //電費計價方式 Enum
+                                    paymentMethodOfElectricBill = Enum.GetName(typeof(paymentMethodOfElectricBill), houseEnter.paymentMethodOfElectricBill), //電費繳納方式 Enum
+                                    paymentMethodOfManagementFee = Enum.GetName(typeof(paymentMethodOfManagementFee), houseEnter.paymentMethodOfManagementFee), //管理費方式 Enum
+                                    managementFeePerMonth = houseEnter.managementFeePerMonth, //管理費每月價錢
+                                    description = houseEnter.description, //房源介紹
+                                    hasTenantRestrictions = true, //是否有租客限制
+                                    genderRestriction = Enum.GetName(typeof(genderRestrictionType), houseEnter.genderRestriction), //男or女or性別友善
+                                    jobRestriction = jobRestriction, //排除職業
+
+                                    pictures = pictureObject
+                                };
+                                var data = new
+                                {
+                                    租客資訊 = tenantInfo,
+                                    房源資訊 = houseInfo
+                                };
+                                var result = new
+                                {
+                                    statusCode = 200,
+                                    status = "success",
+                                    message = "已成功回傳房源內容",
+                                    data = data
+                                };
+                                return Content(HttpStatusCode.OK, result);
                             }
                             else if (houseEnter.status == statusType.完成步驟2)
                             {
@@ -1306,7 +1433,7 @@ namespace UserAuth.Controllers
                     {
                         statusCode = 200,
                         status = "success",
-                        message = "成功找到該系統用戶",
+                        message = "成功找到房源列表",
                         data = houseResult
                     };
                     return Content(HttpStatusCode.OK, result);
