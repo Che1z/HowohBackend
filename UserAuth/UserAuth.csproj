@@ -216,7 +216,6 @@
     <Compile Include="Models\DBModel.cs" />
     <Compile Include="Models\House.cs" />
     <Compile Include="Models\HouseEnumList\HouseEnum.cs" />
-    <Compile Include="Models\HouseEnumList\HouseListOutputEnum.cs" />
     <Compile Include="Models\HouseImg.cs" />
     <Compile Include="Models\Order.cs" />
     <Compile Include="Models\OrderEnumList\OrderEnum.cs" />
