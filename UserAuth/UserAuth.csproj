@@ -216,6 +216,7 @@
     <Compile Include="Models\DBModel.cs" />
     <Compile Include="Models\House.cs" />
     <Compile Include="Models\HouseEnumList\HouseEnum.cs" />
+    <Compile Include="Models\HouseEnumList\HouseListOutputEnum.cs" />
     <Compile Include="Models\HouseImg.cs" />
     <Compile Include="Models\Order.cs" />
     <Compile Include="Models\OrderEnumList\OrderEnum.cs" />
@@ -223,6 +224,7 @@
     <Compile Include="Models\ReplyRating.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="Models\UserEnumList\UserEnum.cs" />
+    <Compile Include="Models\ViewModel\HouseListOutput.cs" />
     <Compile Include="Models\ViewModel\HouseImgInput.cs" />
     <Compile Include="Models\ViewModel\HouseInput.cs" />
     <Compile Include="Models\ViewModel\LogInInput.cs" />

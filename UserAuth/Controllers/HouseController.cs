@@ -1,4 +1,5 @@
 ﻿using Microsoft.Ajax.Utilities;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -1165,6 +1166,148 @@ namespace UserAuth.Controllers
                         statusCode = 200,
                         status = "success",
                         message = "成功修改房源狀態為已完成"
+                    };
+                    return Content(HttpStatusCode.OK, result);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Content(HttpStatusCode.BadRequest, ex);
+            }
+        }
+
+        /// <summary>
+        /// [ALO-1]取得房東所有房源狀態的列表
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("api/house/landlord/list")]
+        [JwtAuthFilters]
+        public IHttpActionResult GetLandlordHouseList()
+        {
+            //取得使用者JWT
+            var jwtObject = JwtAuthFilters.GetToken(Request.Headers.Authorization.Parameter);
+
+            //取得JWT內部資料
+            var role = (UserRoleType)jwtObject["Role"];
+            var userId = (int)jwtObject["Id"];
+
+            try
+            {
+                if (role == UserRoleType.租客)
+                {
+                    throw new Exception("使用者角色不符，不得使用此功能");
+                }
+                using (DBModel db = new DBModel())
+                {
+                    //房東所有的房子
+                    var landlordEnter = db.HouseEntities.Where(x => x.userId == userId).ToList();
+                    //只要id list
+                    var houseIds = landlordEnter.Select(x => x.id).ToList();
+                    //只要id list裡面有的houseId, 只要封面照
+                    var houseImages = db.HouseImgsEntities
+                                        .Where(img => houseIds.Contains(img.houseId) && img.isCover)
+                                        .ToList();
+                    //只要id list裡面有的houseId
+                    var houseOrders = db.OrdersEntities
+                                        .Where(order => houseIds.Contains(order.houseId))
+                                        .ToList();
+
+                    List<EditingHouse> housesEditing = new List<EditingHouse>(); //未完成房源列表
+                    List<ForRentHouse> housesForRent = new List<ForRentHouse>(); //刊登中房源列表
+                    List<LeasingHouse> housesLeasing = new List<LeasingHouse>(); //已承租房源列表
+                    List<DiscontinuedHouse> housesDiscontinued = new List<DiscontinuedHouse>(); //已完成房源列表
+                    foreach (var house in landlordEnter)
+                    {
+                        if (house.status != statusType.未完成步驟1)
+                        {
+                            switch (house.status)
+                            {
+                                case statusType.已完成:
+                                    var discontinuedHouse = new DiscontinuedHouse();
+                                    discontinuedHouse.houseId = house.id;
+                                    discontinuedHouse.name = house.name;
+                                    discontinuedHouse.photo = houseImages.FirstOrDefault(x => x.houseId == house.id)?.path;
+                                    housesDiscontinued.Add(discontinuedHouse);
+                                    break;
+
+                                case statusType.已承租:
+                                    var leasingHouse = new LeasingHouse();
+                                    leasingHouse.houseId = house.id;
+                                    leasingHouse.name = house.name;
+                                    leasingHouse.photo = houseImages.FirstOrDefault(x => x.houseId == house.id)?.path;
+                                    var latestLeasingOrder = houseOrders.Where(x => x.houseId == house.id)
+                                                        .OrderByDescending(x => x.id)
+                                                        .FirstOrDefault();
+                                    leasingHouse.leaseStartTime = latestLeasingOrder?.leaseStartTime ?? DateTime.MinValue;
+                                    leasingHouse.leaseEndTime = latestLeasingOrder?.leaseEndTime ?? DateTime.MinValue;
+                                    housesLeasing.Add(leasingHouse);
+                                    break;
+
+                                case statusType.刊登中:
+                                    //只要id list裡面有的houseId
+                                    var houseAppointments = db.AppointmentsEntities
+                                                        .Where(appointment => houseIds.Contains(appointment.houseId))
+                                                        .ToList();
+                                    var forRentHouse = new ForRentHouse();
+                                    forRentHouse.houseId = house.id;
+                                    forRentHouse.name = house.name;
+                                    forRentHouse.photo = houseImages.FirstOrDefault(x => x.houseId == house.id)?.path;
+                                    var latestPendingOrder = houseOrders.Where(x => x.houseId == house.id && (x.status == OrderStatus.待租客回覆租約 || x.status == OrderStatus.租客已拒絕租約))
+                                                        .OrderByDescending(x => x.id)
+                                                        .FirstOrDefault();
+                                    if (latestPendingOrder == null)
+                                    {
+                                        forRentHouse.status = "申請預約看房";
+                                        forRentHouse.reservationCount = houseAppointments.Where(x => x.houseId == house.id).Count();
+                                    }
+                                    else
+                                    {
+                                        var orderUserName = db.UserEntities.FirstOrDefault(x => x.Id == latestPendingOrder.userId);
+                                        forRentHouse.userName = orderUserName.lastName + orderUserName.firstName;
+                                        if (latestPendingOrder.status == OrderStatus.待租客回覆租約)
+                                        {
+                                            forRentHouse.status = "租約邀請已送出";
+                                        }
+                                        else if (latestPendingOrder.status == OrderStatus.租客已拒絕租約)
+                                        {
+                                            forRentHouse.status = "租約邀請已拒絕";
+                                        }
+                                    }
+
+                                    housesForRent.Add(forRentHouse);
+                                    break;
+
+                                default:
+                                    var editingHouse = new EditingHouse();
+                                    editingHouse.houseId = house.id;
+                                    editingHouse.name = house.name;
+                                    editingHouse.photo = houseImages.FirstOrDefault(x => x.houseId == house.id)?.path;
+                                    housesEditing.Add(editingHouse);
+                                    break;
+                            }
+                        }
+                    }
+                    var houseResult = new
+                    {
+                        未完成 = housesEditing,
+                        刊登中 = housesForRent,
+                        已承租 = housesLeasing,
+                        已完成 = housesDiscontinued
+                    };
+                    // 將 List 物件轉換成 JSON 字串
+                    //string jsonEditing = JsonConvert.SerializeObject(housesEditing, Formatting.Indented);
+                    //string jsonForRent = JsonConvert.SerializeObject(housesForRent, Formatting.Indented);
+                    //string jsonLeasing = JsonConvert.SerializeObject(housesLeasing, Formatting.Indented);
+                    //string jsonDiscontinued = JsonConvert.SerializeObject(housesDiscontinued, Formatting.Indented);
+                    //string output = JsonConvert.SerializeObject(Object變數)
+
+                    var result = new
+                    {
+                        statusCode = 200,
+                        status = "success",
+                        message = "成功找到該系統用戶",
+                        data = houseResult
                     };
                     return Content(HttpStatusCode.OK, result);
                 }
