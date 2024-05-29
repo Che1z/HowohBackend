@@ -79,12 +79,13 @@ namespace UserAuth.Controllers
                             {
                                 query = query.Where(h => h.hidden == true).OrderBy(h => h.CreateAt);
                             }
-                           
+
 
 
                             query = query.Skip(init).Take(12);
                             var result = query.Select(r => new
                             {
+                                appointmentId = r.id,
                                 userId = r.userId,
                                 appointmentTime = r.CreateAt,
                                 descrption = new
@@ -99,7 +100,7 @@ namespace UserAuth.Controllers
                                                   email = u.email,
                                                   gender = u.gender.ToString(),
                                                   job = u.job.ToString(),
-                                                  phoneNumber = u.telphone,                                                 
+                                                  phoneNumber = u.telphone,
                                               }).FirstOrDefault(),
                                     orderInfo = db.OrdersEntities.Where(o => o.houseId == houseIdInt && o.userId == r.userId).Select(o => new
                                     {
@@ -270,14 +271,128 @@ namespace UserAuth.Controllers
                 {
                     query = query.OrderBy(a => a.CreateAt).Where(a => a.userId == UserId && db.HouseEntities.Any(h => h.id == a.houseId && h.status == (statusType)houseStatus));
 
-                    
+
                     int dataTotalNumber = query.Count();
                     var finalresult = new
                     {
                         totalNumber = dataTotalNumber
                     };
                     return Content(HttpStatusCode.OK, finalresult);
-                }              
+                }
+            }
+        }
+        /// <summary>
+        /// [ALA-1] 取得預約看房的租客資訊
+        /// </summary>
+        /// <param name="appointmentId"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [JwtAuthFilters]
+        [Route("api/appointment/landlord/{appointmentId}")]
+        public IHttpActionResult landloardGetAppointmentDetail(string appointmentId)
+        {
+            // 檢查 appointmentId 是否可以轉換為整數
+            int appointmentIdInt = 0;
+            bool isAppointmentIdValid = int.TryParse(appointmentId, out appointmentIdInt);
+            // 取得使用者JWT
+            var jwtObject = JwtAuthFilters.GetToken(Request.Headers.Authorization.Parameter);
+
+            // 取得JWT內部資料
+            int UserId = (int)jwtObject["Id"];
+            int role = (int)jwtObject["Role"];
+            using (DBModel db = new DBModel())
+            {
+                // 可轉換成int後，確認JWT是否為房東
+                if (isAppointmentIdValid)
+                {
+                    if (role == 1)
+                    {
+                        return Content(HttpStatusCode.BadRequest, "角色錯誤");
+                    }
+                    else
+                    {
+                        var query = db.AppointmentsEntities.AsQueryable();
+
+                        var firstQuery = query.Where(a => a.id == appointmentIdInt).FirstOrDefault();
+                        if (firstQuery == null)
+                        {
+                            return Content(HttpStatusCode.BadRequest, "輸入ID錯誤");
+                        }
+                        else
+                        {
+                            var result = query.Where(a => a.id == appointmentIdInt).Select(q => new
+                            {
+                                tenantId = q.userId,
+                                tenantInfo = db.UserEntities.Where(u => u.Id == q.userId).Select(r => new
+                                {
+                                    lastName = r.lastName,
+                                    firstName = r.firstName,
+                                    job = r.job.ToString(),
+                                    gender = r.gender.ToString(),
+                                    phonenumber = r.telphone,
+                                    intro = r.userIntro,
+                                    photo = r.photo
+                                }),
+                                orderList = new
+                                {
+                                    orderInfo = db.OrdersEntities.Where(o => o.userId == q.userId).Select(a => new
+                                    {
+                                        orderId = a.id,
+                                        ratingList = db.OrdersRatingEntities.Where(or => or.orderId == a.id && or.UserId != q.userId).Select(e => new
+                                        {
+                                            orderRatingId = e.id,
+                                            ratingRole = e.UserId == q.userId ? "租客評分" : "房東評分",
+                                            orderRating = e.Rating,
+                                            ratingDate = e.RatingDate,
+                                            replyInfo = db.ReplyRatingEntities.Where(rp => rp.orderRatingId == e.id).Select(ri => new
+                                            {
+                                                orderRatingId = ri.orderRatingId,
+                                                //userid = ri.UserId,                                            
+                                                commentUserRole = ri.UserId == q.userId ? "租客評語" : "房東評語",
+                                                userInfo = ri.UserId == q.userId ? null : db.UserEntities.Where(u => u.Id == ri.UserId).Select(g => new
+                                                {
+                                                    lastName = g.lastName,
+                                                    firstName = g.firstName,
+                                                    gender = g.gender.ToString(),
+                                                }).FirstOrDefault(),
+                                                replyComment = ri.ReplyComment,
+                                                date = ri.ReplyDate,
+                                            })
+                                        }).ToList()
+                                    })
+                                },
+                                tenantRatingInfo = new
+                                {
+                                    Sum = db.OrdersEntities.Where(o => o.userId == q.userId).SelectMany(o => o.orderRatings).Where(o => o.UserId != q.userId)
+                                    .Select(r => r.Rating)
+                                    .DefaultIfEmpty(0)
+                                    .Sum(),
+
+                                    Count = db.OrdersEntities.Where(o => o.userId == q.userId)
+                                    .SelectMany(o => o.orderRatings)
+                                    .Where(o => o.UserId != q.userId)
+                                    .Count(),
+
+                                    Average = db.OrdersEntities.Where(o => o.userId == q.userId)
+                                     .SelectMany(o => o.orderRatings)
+                                    .Where(o => o.UserId != q.userId)
+                                    .Count() == 0 ? 0 : db.OrdersEntities.Where(o => o.userId == q.userId).SelectMany(o => o.orderRatings).Where(o => o.UserId != q.userId)
+                                    .Select(r => r.Rating)
+                                    .DefaultIfEmpty(0)
+                                    .Sum() / db.OrdersEntities.Where(o => o.userId == q.userId)
+                                     .SelectMany(o => o.orderRatings)
+                                    .Where(o => o.UserId != q.userId)
+                                    .Count()
+                                },
+                            }).ToList();
+                            return Content(HttpStatusCode.OK, result);
+                        }
+                    }
+                }
+                else
+                {
+                    return Content(HttpStatusCode.BadRequest, "錯誤參數");
+                }
             }
         }
     }
