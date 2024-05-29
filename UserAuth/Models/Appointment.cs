@@ -36,9 +36,12 @@ namespace UserAuth.Models
         [Display(Name = "租客")]
         public virtual User userIdFK { get; set; }
 
+        // 0 : 預約房屋已變成為出租中(歷史預約)
+        // 1 : 上架中房屋的預約資料
+        [Display(Name = "是否有效")]
+        public Boolean isValid { get; set; }
 
         [Display(Name = "建立時間")]
         public DateTime CreateAt { get; set; } = DateTime.Now;
-
     }
 }
