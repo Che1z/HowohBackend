@@ -664,6 +664,7 @@ namespace UserAuth.Controllers
                             //狀態為已完成或刊登中
                             if (houseEnter.status == statusType.已完成 || houseEnter.status == statusType.刊登中)
                             {
+                                ///todo: 刊登中的房源回傳預約人數
                                 var pictureObject = new
                                 {
                                     firstPic = firstPicture.path,
@@ -709,7 +710,7 @@ namespace UserAuth.Controllers
                                 //別人對租客的評價list
                                 var ratingsToTenant = db.OrdersRatingEntities.Where(x => pastOrderOfTenant.Contains(x.orderId) && x.UserId != order.userId).ToList();
                                 //平均評價與評價則數
-                                string ratingAvg = "0";
+                                string ratingAvg = "新租客";
                                 int ratingCount = 0;
 
                                 if (ratingsToTenant.Count != 0)
