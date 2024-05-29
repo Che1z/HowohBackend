@@ -664,6 +664,7 @@ namespace UserAuth.Controllers
                             //狀態為已完成或刊登中
                             if (houseEnter.status == statusType.已完成 || houseEnter.status == statusType.刊登中)
                             {
+                                var appointmentCount = db.AppointmentsEntities.Count(x => x.houseId == houseEnter.id);
                                 var pictureObject = new
                                 {
                                     firstPic = firstPicture.path,
@@ -671,6 +672,7 @@ namespace UserAuth.Controllers
                                 };
                                 var data = new
                                 {
+                                    appointmentCount = appointmentCount,
                                     name = houseEnter.name, //名稱
                                     city = Enum.GetName(typeof(CityType), houseEnter.city), //縣市 Enum
                                     district = Enum.GetName(typeof(DistrictType), houseEnter.district).Remove(0, 3), //市區鄉鎮 Enum
@@ -709,7 +711,7 @@ namespace UserAuth.Controllers
                                 //別人對租客的評價list
                                 var ratingsToTenant = db.OrdersRatingEntities.Where(x => pastOrderOfTenant.Contains(x.orderId) && x.UserId != order.userId).ToList();
                                 //平均評價與評價則數
-                                string ratingAvg = "0";
+                                string ratingAvg = "新租客";
                                 int ratingCount = 0;
 
                                 if (ratingsToTenant.Count != 0)

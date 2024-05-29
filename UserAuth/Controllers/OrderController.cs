@@ -81,6 +81,9 @@ namespace UserAuth.Controllers
                         order.tenantTelphone = orderInfoInput.tenantTelphone;
                         order.status = OrderStatus.租客非系統用戶;
                         houseToAddOrder.status = statusType.已承租;
+                        ///todo: 刪除預約
+                        //var appointments = db.AppointmentsEntities.Where(x => x.houseId == houseToAddOrder.id).ToList();
+                        //db.AppointmentsEntities.RemoveRange(appointments);
                     }
 
                     order.houseId = orderInfoInput.houseId;
