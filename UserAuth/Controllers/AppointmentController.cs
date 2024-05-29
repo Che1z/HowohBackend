@@ -333,34 +333,6 @@ namespace UserAuth.Controllers
                                     intro = r.userIntro,
                                     photo = r.photo
                                 }),
-                                orderList = new
-                                {
-                                    orderInfo = db.OrdersEntities.Where(o => o.userId == q.userId).Select(a => new
-                                    {
-                                        orderId = a.id,
-                                        ratingList = db.OrdersRatingEntities.Where(or => or.orderId == a.id && or.UserId != q.userId).Select(e => new
-                                        {
-                                            orderRatingId = e.id,
-                                            ratingRole = e.UserId == q.userId ? "租客評分" : "房東評分",
-                                            orderRating = e.Rating,
-                                            ratingDate = e.RatingDate,
-                                            replyInfo = db.ReplyRatingEntities.Where(rp => rp.orderRatingId == e.id).Select(ri => new
-                                            {
-                                                orderRatingId = ri.orderRatingId,
-                                                //userid = ri.UserId,                                            
-                                                commentUserRole = ri.UserId == q.userId ? "租客評語" : "房東評語",
-                                                userInfo = ri.UserId == q.userId ? null : db.UserEntities.Where(u => u.Id == ri.UserId).Select(g => new
-                                                {
-                                                    lastName = g.lastName,
-                                                    firstName = g.firstName,
-                                                    gender = g.gender.ToString(),
-                                                }).FirstOrDefault(),
-                                                replyComment = ri.ReplyComment,
-                                                date = ri.ReplyDate,
-                                            })
-                                        }).ToList()
-                                    })
-                                },
                                 tenantRatingInfo = new
                                 {
                                     Sum = db.OrdersEntities.Where(o => o.userId == q.userId).SelectMany(o => o.orderRatings).Where(o => o.UserId != q.userId)
@@ -384,6 +356,42 @@ namespace UserAuth.Controllers
                                     .Where(o => o.UserId != q.userId)
                                     .Count()
                                 },
+                                orderList = new
+                                {
+                                    orderInfo = db.OrdersEntities.Where(o => o.userId == q.userId).Select(a => new
+                                    {
+                                        orderId = a.id,
+                                        ratingList = db.OrdersRatingEntities.Where(or => or.orderId == a.id && or.UserId != q.userId).Select(e => new
+                                        {
+                                            orderRatingId = e.id,
+                                            ratingRole = e.UserId == q.userId ? "租客評分" : "房東評分",
+                                            orderRating = e.Rating,
+                                            ratingDate = e.RatingDate,
+                                            ratingUserInfo = db.UserEntities.Where(ur => ur.Id == e.UserId).Select(uri => new
+                                            {
+                                                userLastName = uri.lastName,
+                                                userFirstName = uri.firstName,
+                                                userGender = uri.gender.ToString(),
+                                                userJob = uri.job.ToString(),
+                                            }),
+                                            replyInfo = db.ReplyRatingEntities.Where(rp => rp.orderRatingId == e.id).Select(ri => new
+                                            {
+                                                orderRatingId = ri.orderRatingId,
+                                                //userid = ri.UserId,                                            
+                                                commentUserRole = ri.UserId == q.userId ? "租客評語" : "房東評語",
+                                                userInfo = ri.UserId == q.userId ? null : db.UserEntities.Where(u => u.Id == ri.UserId).Select(g => new
+                                                {
+                                                    lastName = g.lastName,
+                                                    firstName = g.firstName,
+                                                    gender = g.gender.ToString(),
+                                                }).FirstOrDefault(),
+                                                replyComment = ri.ReplyComment,
+                                                date = ri.ReplyDate,
+                                            })
+                                        }).ToList()
+                                    })
+                                },
+
                             }).ToList();
                             return Content(HttpStatusCode.OK, result);
                         }
