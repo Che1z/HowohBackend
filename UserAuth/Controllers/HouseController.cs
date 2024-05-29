@@ -664,7 +664,7 @@ namespace UserAuth.Controllers
                             //狀態為已完成或刊登中
                             if (houseEnter.status == statusType.已完成 || houseEnter.status == statusType.刊登中)
                             {
-                                ///todo: 刊登中的房源回傳預約人數
+                                var appointmentCount = db.AppointmentsEntities.Count(x => x.houseId == houseEnter.id);
                                 var pictureObject = new
                                 {
                                     firstPic = firstPicture.path,
@@ -672,6 +672,7 @@ namespace UserAuth.Controllers
                                 };
                                 var data = new
                                 {
+                                    appointmentCount = appointmentCount,
                                     name = houseEnter.name, //名稱
                                     city = Enum.GetName(typeof(CityType), houseEnter.city), //縣市 Enum
                                     district = Enum.GetName(typeof(DistrictType), houseEnter.district).Remove(0, 3), //市區鄉鎮 Enum
