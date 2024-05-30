@@ -65,19 +65,19 @@ namespace UserAuth.Controllers
                         else
                         {
                             houseStatus = 10;
-                            query = query.Where(a => a.houseId == houseIdInt);
+                            query = query.Where(a => a.houseId == houseIdInt && a.isValid == true);
 
                             if (orderMethod == 1)
                             {
-                                query = query.Where(h => h.hidden == false).OrderBy(h => h.CreateAt);
+                                query = query.Where(h => h.hidden == false && h.isValid == true).OrderBy(h => h.CreateAt);
                             }
                             if (orderMethod == 2)
                             {
-                                query = query.Where(h => h.hidden == false).OrderByDescending(h => h.CreateAt);
+                                query = query.Where(h => h.hidden == false && h.isValid == true).OrderByDescending(h => h.CreateAt);
                             }
                             if (orderMethod == 3)
                             {
-                                query = query.Where(h => h.hidden == true).OrderBy(h => h.CreateAt);
+                                query = query.Where(h => h.hidden == true && h.isValid == true).OrderBy(h => h.CreateAt);
                             }
 
 
@@ -119,11 +119,18 @@ namespace UserAuth.Controllers
                             return Content(HttpStatusCode.OK, finalresult);
                         }
                     }
-
                     // 租客查詢
                     else
                     {
-                        query = query.OrderBy(a => a.CreateAt).Where(a => a.userId == UserId && db.HouseEntities.Any(h => h.id == a.houseId && h.status == (statusType)houseStatus)).Skip(init).Take(12);
+                        if (houseStatus == 10)
+                        {
+                            query = query.OrderBy(a => a.CreateAt).Where(a => a.userId == UserId && db.HouseEntities.Any(h => h.id == a.houseId && h.status == (statusType)houseStatus)).Skip(init).Take(12);
+                        }
+                        // Appointment的isValid若為False，則判定房子為已承租
+                        if (houseStatus == 20)
+                        {
+                            query = query.OrderBy(a => a.CreateAt).Where(a => a.userId == UserId && db.HouseEntities.Any(h => h.id == a.houseId && a.isValid == false)).Skip(init).Take(12);
+                        }
 
                         var result = query.Select(r => new
                         {
@@ -269,7 +276,15 @@ namespace UserAuth.Controllers
                 // 租客查詢
                 else
                 {
-                    query = query.OrderBy(a => a.CreateAt).Where(a => a.userId == UserId && db.HouseEntities.Any(h => h.id == a.houseId && h.status == (statusType)houseStatus));
+                    if (houseStatus == 10)
+                    {
+                        query = query.OrderBy(a => a.CreateAt).Where(a => a.userId == UserId && db.HouseEntities.Any(h => h.id == a.houseId && h.status == (statusType)houseStatus));
+                    }
+                    // Appointment的isValid若為False，則判定房子為已承租
+                    if (houseStatus == 20)
+                    {
+                        query = query.OrderBy(a => a.CreateAt).Where(a => a.userId == UserId && db.HouseEntities.Any(h => h.id == a.houseId && a.isValid == false));
+                    }
 
 
                     int dataTotalNumber = query.Count();
@@ -379,6 +394,7 @@ namespace UserAuth.Controllers
                                                 orderRatingId = ri.orderRatingId,
                                                 //userid = ri.UserId,                                            
                                                 commentUserRole = ri.UserId == q.userId ? "租客評語" : "房東評語",
+                                                // 房東評語才需回傳，詳細房東資料 (租客評語只需渲染租客回覆)
                                                 userInfo = ri.UserId == q.userId ? null : db.UserEntities.Where(u => u.Id == ri.UserId).Select(g => new
                                                 {
                                                     lastName = g.lastName,
