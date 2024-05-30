@@ -328,7 +328,7 @@ namespace UserAuth.Controllers
                     {
                         var query = db.AppointmentsEntities.AsQueryable();
 
-                        var firstQuery = query.Where(a => a.id == appointmentIdInt).FirstOrDefault();
+                        var firstQuery = query.Where(a => a.id == appointmentIdInt && a.houseIdFK.userId == UserId).FirstOrDefault();
                         if (firstQuery == null)
                         {
                             return Content(HttpStatusCode.BadRequest, "輸入ID錯誤");
@@ -350,26 +350,25 @@ namespace UserAuth.Controllers
                                 }),
                                 tenantRatingInfo = new
                                 {
+
+
                                     Sum = db.OrdersEntities.Where(o => o.userId == q.userId).SelectMany(o => o.orderRatings).Where(o => o.UserId != q.userId)
                                     .Select(r => r.Rating)
                                     .DefaultIfEmpty(0)
                                     .Sum(),
 
                                     Count = db.OrdersEntities.Where(o => o.userId == q.userId)
-                                    .SelectMany(o => o.orderRatings)
+                                    .SelectMany(o => o.orderRatings.Where(r => r.orderId == o.id))
                                     .Where(o => o.UserId != q.userId)
-                                    .Count(),
+                                    .Count(),                                 
 
-                                    Average = db.OrdersEntities.Where(o => o.userId == q.userId)
-                                     .SelectMany(o => o.orderRatings)
+                                    Average = db.OrdersEntities
+                                    .Where(o => o.userId == q.userId)
+                                     .SelectMany(o => o.orderRatings.Where(r => r.orderId == o.id))
                                     .Where(o => o.UserId != q.userId)
-                                    .Count() == 0 ? 0 : db.OrdersEntities.Where(o => o.userId == q.userId).SelectMany(o => o.orderRatings).Where(o => o.UserId != q.userId)
-                                    .Select(r => r.Rating)
+                                    .Select(r => (double)r.Rating) //需轉成double類型
                                     .DefaultIfEmpty(0)
-                                    .Sum() / db.OrdersEntities.Where(o => o.userId == q.userId)
-                                     .SelectMany(o => o.orderRatings)
-                                    .Where(o => o.UserId != q.userId)
-                                    .Count()
+                                    .Average()
                                 },
                                 orderList = new
                                 {
@@ -382,6 +381,7 @@ namespace UserAuth.Controllers
                                             ratingRole = e.UserId == q.userId ? "租客評分" : "房東評分",
                                             orderRating = e.Rating,
                                             ratingDate = e.RatingDate,
+                                            ratingComment = e.Comment,
                                             ratingUserInfo = db.UserEntities.Where(ur => ur.Id == e.UserId).Select(uri => new
                                             {
                                                 userLastName = uri.lastName,
@@ -417,6 +417,219 @@ namespace UserAuth.Controllers
                 {
                     return Content(HttpStatusCode.BadRequest, "錯誤參數");
                 }
+            }
+        }
+
+        /// <summary>
+        /// [ATA-3] 取得預約看房的房東資訊
+        /// </summary>
+        /// <param name="appointmentId"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [JwtAuthFilters]
+        [Route("api/appointment/tenant/{appointmentId}")]
+        public IHttpActionResult tenantGetAppointment(string appointmentId)
+        {
+            // 檢查 appointmentId 是否可以轉換為整數
+            int appointmentIdInt = 0;
+            bool isAppointmentIdValid = int.TryParse(appointmentId, out appointmentIdInt);
+            // 取得使用者JWT
+            var jwtObject = JwtAuthFilters.GetToken(Request.Headers.Authorization.Parameter);
+
+            // 取得JWT內部資料
+            int UserId = (int)jwtObject["Id"];
+            int role = (int)jwtObject["Role"];
+
+            using (DBModel db = new DBModel())
+            {
+                // 可轉換成int後，再確認JWT是否為租客
+                if (isAppointmentIdValid)
+                {
+                    if (role == 0)
+                    {
+                        return Content(HttpStatusCode.BadRequest, "角色錯誤");
+                    }
+                    else
+                    {
+                        var query = db.AppointmentsEntities.AsQueryable();
+
+                        var firstQuery = query.Where(a => a.id == appointmentIdInt && a.userId == UserId).FirstOrDefault();
+                        if (firstQuery == null)
+                        {
+                            return Content(HttpStatusCode.BadRequest, "輸入ID錯誤");
+                        }
+                        else
+                        {
+
+                            var result = query.Where(a => a.id == appointmentIdInt).Select(q => new
+                            {
+                                appointmentId = q.id,
+                                houseId = q.houseId,
+                                info = db.HouseEntities.Where(h => h.id == q.houseId).Select(a => new
+                                {
+                                    userId = a.userId,
+                                    info = db.UserEntities.Where(u => u.Id == a.userId).Select(b => new
+                                    {
+                                        lastName = b.lastName,
+                                        firstName = b.firstName,
+                                        intro = b.userIntro,
+                                        gender = b.gender,
+                                    }),
+                                    landlordRatingInfo = new
+                                    {
+                                        Sum = db.OrdersEntities.Where(o => db.HouseEntities
+                                    .Where(h => h.userId == a.userId)
+                                    .Select(h => h.id)
+                                    .Contains(o.houseId)).SelectMany(o => o.orderRatings.Where(r => r.orderId == o.id))
+                                    .Where(o => o.UserId != a.userId)
+                                    .Select(r => r.Rating)
+                                    .DefaultIfEmpty(0)
+                                    .Sum(),
+
+                                        Count = db.OrdersEntities.Where(o => db.HouseEntities
+                                    .Where(h => h.userId == a.userId)
+                                    .Select(h => h.id)
+                                    .Contains(o.houseId)).SelectMany(o => o.orderRatings.Where(r => r.orderId == o.id))
+                                    .Where(o => o.UserId != a.userId)
+                                    .Count(),
+
+                                        Average = db.OrdersEntities
+                                         .Where(o => db.HouseEntities
+                                         .Where(h => h.userId == a.userId)
+                                         .Select(h => h.id)
+                                         .Contains(o.houseId))
+                                         .SelectMany(o => o.orderRatings.Where(r => r.orderId == o.id))
+                                         .Where(o => o.UserId != a.userId)
+                                         .Select(r => (double)r.Rating)
+                                         .DefaultIfEmpty(0)
+                                         .Average()
+                                    },
+
+                                    tagList = new
+                                    {
+                                        rentSubsity = a.isRentSubsidy,
+                                        petAllowed = a.isPetAllowed,
+                                        cookAllowed = a.isCookAllowed,
+                                        STRAllowed = a.isSTRAllowed,
+                                    },
+                                    basicInfo = new
+                                    {
+                                        city = a.city,
+                                        district = a.district.ToString(),
+                                        road = a.road,
+                                        lane = a.lane,
+                                        alley = a.alley,
+                                        number = a.number,
+                                        ping = a.ping,
+                                        floor = a.floor,
+                                        floorTotal = a.floorTotal,
+                                        type = a.type.ToString(),
+                                        roomNumbers = a.roomNumbers,
+                                        livingRoomNumbers = a.livingRoomNumbers,
+                                        bathroomNumbers = a.bathRoomNumbers,
+                                        balconyNumbers = a.balconyNumbers,
+                                        parkingSpaceNumbers = a.parkingSpaceNumbers,
+                                        description = a.description,
+                                    },
+                                    facility = new
+                                    {
+                                        nearFacilty = new
+                                        {
+                                            nearDepartmentStore = a.isNearByDepartmentStore,
+                                            nearSchool = a.isNearBySchool,
+                                            nearMorningMarket = a.isNearByMorningMarket,
+                                            nearNightMarket = a.isNearByNightMarket,
+                                            nearConvenientStore = a.isNearByConvenientStore,
+                                            nearPark = a.isNearByPark,
+                                        },
+                                        houseFeature = new
+                                        {
+                                            hasGarbageDisposal = a.hasGarbageDisposal,
+                                            hasWindowBathroom = a.hasWindowInBathroom,
+                                            hasElevator = a.hasElevator,
+                                        },
+                                        equipment = new
+                                        {
+                                            hasAirConditioner = a.hasAirConditioner,
+                                            hasWashingMachine = a.hasWashingMachine,
+                                            hasRefrigerator = a.hasRefrigerator,
+                                            hasCloset = a.hasCloset,
+                                            hasTableAndChair = a.hasTableAndChair,
+                                            hasWaterHeater = a.hasWaterHeater,
+                                            hasInternet = a.hasInternet,
+                                            hasBed = a.hasBed,
+                                            hasTV = a.hasTV,
+                                        },
+                                        commute = new
+                                        {
+                                            nearMRT = a.isNearMRT,
+                                            kmAwayMRT = a.kmAwayMRT,
+                                            nearLRT = a.isNearLRT,
+                                            kmAwayLRT = a.kmAwayLRT,
+                                            nearBusStation = a.isNearBusStation,
+                                            kmAwayBusStation = a.kmAwayBusStation,
+                                            nearTrainStation = a.isNearTrainStation,
+                                            kmAwayTrainStation = a.kmAwayTrainStation,
+                                            nearHSR = a.isNearHSR,
+                                            kmAwayHSR = a.kmAwayHSR,
+                                        },
+                                        payment = new
+                                        {
+                                            waterBillPayment = a.paymentMethodOfWaterBill.ToString(),
+                                            waterBillPerMonth = a.waterBillPerMonth,
+                                            electricBillPayment = a.paymentMethodOfElectricBill.ToString(),
+                                            electricBillPerMonth = a.electricBillPerDegree,
+                                            managementFeePayment = a.paymentMethodOfManagementFee.ToString(),
+                                            managementFeePerMonth = a.managementFeePerMonth,
+                                        },
+                                        replyComment = new
+                                        {
+                                            detail = db.OrdersEntities.Where(o => db.HouseEntities
+                                        .Where(h => h.userId == a.userId)
+                                        .Select(h => h.id)
+                                        .Contains(o.houseId)).Select(de => new
+                                        {
+                                            orderId = de.id,
+                                            //
+                                            ratingList = db.OrdersRatingEntities.Where(or => or.orderId == de.id && or.UserId != a.userId).Select(e => new
+                                            {
+                                                orderRatingId = e.id,
+                                                ratingRole = e.UserId == a.userId ? "房東評分" : "租客評分",
+                                                orderRating = e.Rating,
+                                                ratingDate = e.RatingDate,
+                                                ratingComment = e.Comment,
+                                                ratingUserInfo = db.UserEntities.Where(ur => ur.Id == e.UserId).Select(uri => new
+                                                {
+                                                    userLastName = uri.lastName,
+                                                    userFirstName = uri.firstName,
+                                                    userGender = uri.gender.ToString(),
+                                                    userJob = uri.job.ToString(),
+                                                }),
+                                                replyInfo = db.ReplyRatingEntities.Where(rp => rp.orderRatingId == e.id).Select(ri => new
+                                                {
+                                                    orderRatingId = ri.orderRatingId,
+                                                    //userid = ri.UserId,                                            
+                                                    commentUserRole = ri.UserId == a.userId ? "房東回應" : "租客回應",
+                                                    userInfo = ri.UserId == a.userId ? null : db.UserEntities.Where(u => u.Id == ri.UserId).Select(g => new
+                                                    {
+                                                        lastName = g.lastName,
+                                                        firstName = g.firstName,
+                                                        gender = g.gender.ToString(),
+                                                    }).FirstOrDefault(),
+                                                    replyComment = ri.ReplyComment,
+                                                    date = ri.ReplyDate,
+                                                })
+                                            }).ToList()
+                                        })
+                                        }
+                                    }
+                                }).FirstOrDefault()
+                            }).ToList();
+                            return Content(HttpStatusCode.OK, result);
+                        }
+                    }
+                }
+                return Content(HttpStatusCode.BadRequest, "輸入ID錯誤");
             }
         }
     }

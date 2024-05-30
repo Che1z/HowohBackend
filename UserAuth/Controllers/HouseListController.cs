@@ -288,28 +288,13 @@ namespace UserAuth.Controllers
                       .Count(),
 
                     AverageRating = db.OrdersEntities
-                      .Where(o => db.HouseEntities
-                          .Where(house => house.userId == h.userId)
-                          .Select(house => house.id)
-                          .Contains(o.houseId))
-                      .SelectMany(o => o.orderRatings)
-                      .Count() == 0 ? 0 :
-                        db.OrdersEntities
                      .Where(o => db.HouseEntities
-                         .Where(house => house.userId == h.userId)
-                         .Select(house => house.id)
-                         .Contains(o.houseId))
+                         .Where(house => house.userId == h.userId) //House表格中找屬於房東的所有房子
+                         .Select(house => house.id) //選擇這些house id
+                         .Contains(o.houseId)) // 篩選:檢查 OrderEntities中訂單的houseId是否在上述id清單中，若是則保留該訂單
                      .SelectMany(o => o.orderRatings)
-                     .Select(r => r.Rating)
-                     .DefaultIfEmpty(0)
-                     .Sum() /
-                        db.OrdersEntities
-                      .Where(o => db.HouseEntities
-                          .Where(house => house.userId == h.userId)
-                          .Select(house => house.id)
-                          .Contains(o.houseId))
-                      .SelectMany(o => o.orderRatings)
-                      .Count(),
+                     .Select(r => (double)r.Rating)
+                     .DefaultIfEmpty(0).Average()
                 },
 
                 image = db.HouseImgsEntities.Where(z => z.houseId == h.id && z.isCover == true).Select(s => new
