@@ -1179,7 +1179,7 @@ namespace UserAuth.Controllers
                                 {
                                     statusCode = 200,
                                     status = "success",
-                                    message = "page: 完成",
+                                    message = "page: 確認",
                                     data = data
                                 };
                                 return Content(HttpStatusCode.OK, result);
