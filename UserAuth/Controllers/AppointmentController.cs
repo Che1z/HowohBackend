@@ -360,7 +360,7 @@ namespace UserAuth.Controllers
                                     Count = db.OrdersEntities.Where(o => o.userId == q.userId)
                                     .SelectMany(o => o.orderRatings.Where(r => r.orderId == o.id))
                                     .Where(o => o.UserId != q.userId)
-                                    .Count(),                                 
+                                    .Count(),
 
                                     Average = db.OrdersEntities
                                     .Where(o => o.userId == q.userId)
@@ -631,6 +631,21 @@ namespace UserAuth.Controllers
                 }
                 return Content(HttpStatusCode.BadRequest, "輸入ID錯誤");
             }
+        }
+
+        [HttpGet]
+        [JwtAuthFilters]
+        [Route("api/appointment/tenant/list/invited")]
+        public IHttpActionResult getInvitedList()
+        {
+            // 取得使用者JWT
+            var jwtObject = JwtAuthFilters.GetToken(Request.Headers.Authorization.Parameter);
+
+            // 取得JWT內部資料
+            int UserId = (int)jwtObject["Id"];
+            int role = (int)jwtObject["Role"];
+
+            return Content(HttpStatusCode.OK, "OK");
         }
     }
 }
