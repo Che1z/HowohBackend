@@ -129,7 +129,7 @@ namespace UserAuth.Controllers
         [HttpGet]
         [Route("api/house/common/list/search")]
         public IHttpActionResult searchHouse(int city, string districts = null,
-            int pageNumber = 1, string price = null, string type = null, string feature = null, string content = "")
+            int pageNumber = 1, string price = null, string type = null, string feature = null, string content = "", string rating = "")
         {
             DBModel db = new DBModel();
             var query = db.HouseEntities.AsQueryable();
@@ -238,6 +238,40 @@ namespace UserAuth.Controllers
                 query = query.Where(h => h.name != null && h.name.Contains(content));
             }
 
+            // 6. 評分 (Rating)
+            if (!string.IsNullOrEmpty(rating)) {
+                int rate = Convert.ToInt32(rating);
+
+                // 篩選房東
+                var role1Users = db.UserEntities.Where(u => u.role.ToString() == "房東").Select(u => u.Id);
+
+                // 獲取這些用戶的房子
+                var houses = db.HouseEntities.Where(h => role1Users.Contains(h.userId));
+                
+                // 獲取房子的訂單及其評分
+                var houseRatings = from h in houses
+                                   join o in db.OrdersEntities on h.id equals o.houseId
+                                   join r in db.OrdersRatingEntities on o.id equals r.orderId
+                                   where !role1Users.Contains(r.UserId)
+                                   select new { h.userId, r.Rating };
+
+                // 計算每個房東的平均評分
+                var userAverageRatings = from hr in houseRatings
+                                         group hr by hr.userId into userGroup
+                                         select new
+                                         {
+                                             userId = userGroup.Key,
+                                             AverageRating = userGroup.Average(x => x.Rating)
+                                         };
+
+                // 篩取平均評分
+                var filteredUserIds = userAverageRatings.Where(u => u.AverageRating >= rate).Select(u => u.userId);
+
+                // 獲取符合條件的房子
+                query = query.Where(h => filteredUserIds.Contains(h.userId));
+
+            }
+
             // ----結束條件判斷----
             int totalCount = query.Count();
 
@@ -276,7 +310,8 @@ namespace UserAuth.Controllers
                          .Where(house => house.userId == h.userId) //House表格中找屬於房東的所有房子
                          .Select(house => house.id) //選擇這些house id
                          .Contains(o.houseId)) // 篩選:檢查 OrderEntities中訂單的houseId是否在上述id清單中，若是則保留該訂單
-                     .SelectMany(o => o.orderRatings)
+                     .SelectMany(o => o.orderRatings)                   
+                     .Where(z => z.UserId != h.userId)
                      .Select(r => r.Rating)
                      .DefaultIfEmpty(0)
                      .Sum(),
@@ -287,6 +322,7 @@ namespace UserAuth.Controllers
                           .Select(house => house.id)
                           .Contains(o.houseId))
                       .SelectMany(o => o.orderRatings)
+                      .Where(z => z.UserId != h.userId)
                       .Count(),
 
                     AverageRating = db.OrdersEntities
@@ -295,6 +331,7 @@ namespace UserAuth.Controllers
                          .Select(house => house.id) //選擇這些house id
                          .Contains(o.houseId)) // 篩選:檢查 OrderEntities中訂單的houseId是否在上述id清單中，若是則保留該訂單
                      .SelectMany(o => o.orderRatings)
+                    .Where(z => z.UserId != h.userId)
                      .Select(r => (double)r.Rating)
                      .DefaultIfEmpty(0).Average()
                 },
