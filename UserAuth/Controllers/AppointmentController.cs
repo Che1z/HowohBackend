@@ -633,19 +633,178 @@ namespace UserAuth.Controllers
             }
         }
 
+        /// <summary>
+        /// [ATA-1] 取得租約邀請的列表
+        /// </summary>
+        /// <param name="pageNumber"></param>
+        /// <returns></returns>
         [HttpGet]
         [JwtAuthFilters]
         [Route("api/appointment/tenant/list/invited")]
-        public IHttpActionResult getInvitedList()
+        public IHttpActionResult getInvitedList(string pageNumber = "1")
         {
-            // 取得使用者JWT
-            var jwtObject = JwtAuthFilters.GetToken(Request.Headers.Authorization.Parameter);
+            try
+            {
+                // 取得使用者JWT
+                var jwtObject = JwtAuthFilters.GetToken(Request.Headers.Authorization.Parameter);
 
-            // 取得JWT內部資料
-            int UserId = (int)jwtObject["Id"];
-            int role = (int)jwtObject["Role"];
+                // 取得JWT內部資料
+                int UserId = (int)jwtObject["Id"];
+                int role = (int)jwtObject["Role"];
 
-            return Content(HttpStatusCode.OK, "OK");
+                if (role != 1)
+                {
+                    return Content(HttpStatusCode.BadRequest, "身分錯誤");
+                }
+                else
+                {
+                    using (DBModel db = new DBModel())
+                    {
+                        var query = db.OrdersEntities.AsQueryable();
+                        var firstQuery = query.Where(o => o.status.ToString() == "待租客回覆租約" && o.userId == UserId);
+                        int skip = (Convert.ToInt32(pageNumber) - 1) * 12;
+                        firstQuery = firstQuery.OrderBy(z => z.CreateAt).Skip(skip).Take(12);
+                        var result = firstQuery.Select(a => new
+                        {
+                            orderId = a.id,
+                            orderCreateTime = a.CreateAt,
+                            leaseStartTime = a.leaseStartTime,
+                            leaseEndTime = a.leaseEndTime,
+
+                            houseId = a.houseId,
+                            houseInfo = new
+                            {
+                                houseDetail = db.HouseEntities.Where(h => h.id == a.houseId).Select(b => new
+                                {
+                                    landlordId = b.userId,
+                                    housePhoto = b.HouseImgs.Where(z => z.isCover == true).Select(i => new
+                                    {
+                                        photoPath = i.path,
+                                    }),
+                                    landlordInfo = db.UserEntities.Where(d => d.Id == b.userId).Select(e => new
+                                    {
+                                        lastName = e.lastName,
+                                        firstName = e.firstName,
+                                        gender = e.gender.ToString(),
+                                        intro = e.userIntro,
+                                        phoneNumber = e.telphone,
+                                    }).FirstOrDefault(),
+                                    title = b.name,
+                                    rent = b.rent,
+                                }).FirstOrDefault()
+                            }
+                        }).ToList();
+                        return Content(HttpStatusCode.OK, result);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return Content(HttpStatusCode.BadRequest, ex);
+            }
+        }
+
+        /// <summary>
+        /// [ATA-2] 取得租約邀請的房源資訊
+        /// </summary>
+        /// <param name="orderId"></param>
+        /// <returns></returns>
+
+        [HttpGet]
+        [JwtAuthFilters]
+        [Route("api/appointment/tenant/invited/{orderId}")]
+        public IHttpActionResult getInvitedOrder(string orderId)
+        {
+            try
+            {
+                // 取得使用者JWT
+                var jwtObject = JwtAuthFilters.GetToken(Request.Headers.Authorization.Parameter);
+
+                // 取得JWT內部資料
+                int UserId = (int)jwtObject["Id"];
+                int role = (int)jwtObject["Role"];
+
+                if (role != 1)
+                {
+                    return Content(HttpStatusCode.BadRequest, "身分錯誤");
+                }
+                else
+                {
+                    using (DBModel db = new DBModel())
+                    {
+                        var query = db.OrdersEntities.AsQueryable();
+                        int orderNumber = Convert.ToInt32(orderId);
+                        var tryQuery = query.Where(o => o.userId == UserId && o.id == orderNumber).FirstOrDefault();
+                        if (tryQuery == null)
+                        {
+                            return Content(HttpStatusCode.BadRequest, "ID錯誤");
+                        }
+                        else
+                        {
+                            var firstQuery = query.Where(o => o.userId == UserId && o.id == orderNumber);
+
+                            var result = firstQuery.Select(a => new
+                            {
+                                orderId = a.id,
+                                orderCreateTime = a.CreateAt,
+                                leaseStartTime = a.leaseStartTime,
+                                leaseEndTime = a.leaseEndTime,
+                                houseId = a.houseId,
+                                landlord = db.HouseEntities.Where(b => b.id == a.houseId).Select(c => new
+                                {
+                                    landlordId = c.userId,
+                                    rent = c.rent,
+                                    depositType = c.securityDeposit.ToString(),
+                                    landlordInfo = db.UserEntities.Where(d => d.Id == c.userId).Select(e => new
+                                    {
+                                        lastName = e.lastName,
+                                        firstName = e.firstName,
+                                        gender = e.gender.ToString(),
+                                        intro = e.userIntro,
+                                        photo = e.photo,
+                                    }).FirstOrDefault(),
+                                    landlordRatingInfo = new
+                                    {
+                                        Sum = db.OrdersEntities.Where(o => db.HouseEntities
+                                    .Where(h => h.userId == c.userId)
+                                    .Select(h => h.id)
+                                    .Contains(o.houseId)).SelectMany(o => o.orderRatings.Where(r => r.orderId == o.id))
+                                        .Where(o => o.UserId != c.userId)
+                                        .Select(r => r.Rating)
+                                        .DefaultIfEmpty(0)
+                                        .Sum(),
+
+                                        Count = db.OrdersEntities.Where(o => db.HouseEntities
+                                    .Where(h => h.userId == c.userId)
+                                    .Select(h => h.id)
+                                    .Contains(o.houseId)).SelectMany(o => o.orderRatings.Where(r => r.orderId == o.id))
+                                        .Where(o => o.UserId != c.userId)
+                                        .Count(),
+
+                                        Average = db.OrdersEntities
+                                             .Where(o => db.HouseEntities
+                                             .Where(h => h.userId == c.userId)
+                                             .Select(h => h.id)
+                                             .Contains(o.houseId))
+                                             .SelectMany(o => o.orderRatings.Where(r => r.orderId == o.id))
+                                             .Where(o => o.UserId != c.userId)
+                                             .Select(r => (double)r.Rating)
+                                             .DefaultIfEmpty(0)
+                                             .Average()
+                                    },
+                                }).FirstOrDefault(),
+                            }).ToList();
+                            return Content(HttpStatusCode.OK, result);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return Content(HttpStatusCode.BadRequest, ex.Message);
+            }
+
+
         }
     }
 }

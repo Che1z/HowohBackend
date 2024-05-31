@@ -240,7 +240,11 @@ namespace UserAuth.Controllers
 
             // 6. 評分 (Rating)
             if (!string.IsNullOrEmpty(rating)) {
-                int rate = Convert.ToInt32(rating);
+                // 將逗號分隔的rating字符串轉換為整數列表
+                var ratings = rating.Split(',').Select(int.Parse).ToList();
+
+                // 取出最小的評分值
+                int rate = ratings.Min();
 
                 // 篩選房東
                 var role1Users = db.UserEntities.Where(u => u.role.ToString() == "房東").Select(u => u.Id);
