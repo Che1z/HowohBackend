@@ -752,7 +752,7 @@ namespace UserAuth.Controllers
                                 for (int i = 0; i < jobRestrictions.Length; i++)
                                 {
                                     jobRestrictions[i] = jobRestrictions[i].Trim();
-                                    jobRestriction += Enum.GetName(typeof(UserJob), Convert.ToInt32(jobRestrictions[i])) + ", ";
+                                    jobRestriction += Enum.GetName(typeof(UserJob), Convert.ToInt32(jobRestrictions[i])) + ",";
                                 }
                                 char[] trimArr = { ',', ' ' };
                                 jobRestriction = jobRestriction.Trim(trimArr);
@@ -1108,7 +1108,7 @@ namespace UserAuth.Controllers
                                     for (int i = 0; i < jobRestrictions.Length; i++)
                                     {
                                         jobRestrictions[i] = jobRestrictions[i].Trim();
-                                        jobRestriction += Enum.GetName(typeof(UserJob), Convert.ToInt32(jobRestrictions[i])) + ", ";
+                                        jobRestriction += Enum.GetName(typeof(UserJob), Convert.ToInt32(jobRestrictions[i])) + ",";
                                     }
                                     char[] trimArr = { ',', ' ' };
                                     jobRestriction = jobRestriction.Trim(trimArr);
@@ -1203,7 +1203,7 @@ namespace UserAuth.Controllers
                                     for (int i = 0; i < jobRestrictions.Length; i++)
                                     {
                                         jobRestrictions[i] = jobRestrictions[i].Trim();
-                                        jobRestriction += Enum.GetName(typeof(UserJob), Convert.ToInt32(jobRestrictions[i])) + ", ";
+                                        jobRestriction += Enum.GetName(typeof(UserJob), Convert.ToInt32(jobRestrictions[i])) + ",";
                                     }
                                     char[] trimArr = { ',', ' ' };
                                     jobRestriction = jobRestriction.Trim(trimArr);
