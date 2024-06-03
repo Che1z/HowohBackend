@@ -1553,6 +1553,79 @@ namespace UserAuth.Controllers
                 return Content(HttpStatusCode.BadRequest, ex);
             }
         }
+
+        /// <summary>
+        /// [ALO-10]房東取得待評價的房源筆數
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("api/house/landlord/count/unrated")]
+        [JwtAuthFilters]
+        public IHttpActionResult GetLandlordUnratedHouseCount()
+        {
+            //取得使用者JWT
+            var jwtObject = JwtAuthFilters.GetToken(Request.Headers.Authorization.Parameter);
+
+            //取得JWT內部資料
+            int UserId = (int)jwtObject["Id"];
+            UserRoleType UserRole = (UserRoleType)jwtObject["Role"];
+            try
+            {
+                //驗證角色
+                if (UserRole != UserRoleType.房東)
+                {
+                    return Content(HttpStatusCode.Forbidden, "使用者角色非房東");
+                }
+                using (DBModel db = new DBModel())
+                {
+                    var query = from order in db.OrdersEntities.AsQueryable()
+                                where order.leaseEndTime < DateTime.Today //過期的order
+                                join house in db.HouseEntities on order.houseId equals house.id
+                                where house.userId == UserId //使用者的房子
+                                join user in db.UserEntities on order.userId equals user.Id
+                                join orderRating in db.OrdersRatingEntities on order.id equals orderRating.orderId into orderRatingGroup
+                                from orderRating in orderRatingGroup.DefaultIfEmpty()
+                                select new
+                                {
+                                    order,
+                                    house,
+                                    tenant = user,
+                                    ratingByLandlord = orderRatingGroup.FirstOrDefault(o => o.UserId == UserId) != null ? orderRatingGroup.FirstOrDefault(o => o.UserId == UserId) : null,
+                                    ratingByTenant = orderRatingGroup.FirstOrDefault(o => o.UserId != UserId) != null ? orderRatingGroup.FirstOrDefault(o => o.UserId != UserId) : null
+                                };
+                    var queryResult = query.ToList();
+                    int canCommentCount = 0;
+                    if (queryResult.Count > 0)
+                    {
+                        foreach (var item in queryResult)
+                        {
+                            //可評價的狀況
+
+                            if (DateTime.Now < item.order.leaseEndTime.AddDays(14) && item.ratingByLandlord == null)
+                            {
+                                canCommentCount++;
+                            }
+                        }
+                    }
+
+                    var result = new
+                    {
+                        statusCode = 200,
+                        status = "success",
+                        message = "已成功回傳房東待評價的房源筆數",
+                        data = new
+                        {
+                            count = canCommentCount
+                        }
+                    };
+                    return Content(HttpStatusCode.OK, result);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Content(HttpStatusCode.BadRequest, ex);
+            }
+        }
     }
 
     // GET: api/House
