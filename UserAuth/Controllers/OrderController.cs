@@ -10,9 +10,8 @@ using UserAuth.Models.UserEnumList;
 using UserAuth.Models.ViewModel;
 using UserAuth.Models;
 using UserAuth.Security;
-using iTextSharp.text.pdf;
-using Org.BouncyCastle.Asn1.X509;
 using System.IO;
+using iTextSharp.text.pdf;
 
 namespace UserAuth.Controllers
 {
@@ -112,6 +111,109 @@ namespace UserAuth.Controllers
                 return Content(HttpStatusCode.BadRequest, ex);
             }
         }
+
+
+        // TODO 待修正Contract填入內容與個別欄位判別
+        [HttpPost]
+        [JwtAuthFilters]
+        [Route("api/order/landloard/createContract")]
+        public IHttpActionResult CreateContract(string id)
+        {
+            // 取得使用者JWT
+            var jwtObject = JwtAuthFilters.GetToken(Request.Headers.Authorization.Parameter);
+
+            // 取得JWT內部資料
+            var role = (UserRoleType)jwtObject["Role"];
+            var userId = (int)jwtObject["Id"];
+
+            try
+            {
+                if (role == UserRoleType.租客) // 檢查角色
+                {
+                    return Content(HttpStatusCode.BadRequest, "身分錯誤");
+                }
+                else
+                {
+                    //string filePath = @"C:\Users\KHUser\Desktop\20240603 好窩房屋租賃合約.pdf";
+                    string filePath = @"C:\Users\Howoh\Desktop\20240603_.pdf";
+                    //string tempPDF = @"C:\Users\KHUser\Desktop\輸出契約.pdf";
+                    string tempPDF = @"C:\Users\Howoh\Desktop\Contract\NewContract.pdf";
+
+                    using (PdfReader reader = new PdfReader(filePath))
+                    {
+                        using (FileStream fileStream = new FileStream(tempPDF, FileMode.Create, FileAccess.Write))
+                        {
+                            using (PdfStamper stamper = new PdfStamper(reader, fileStream))
+                            {
+                                AcroFields form = stamper.AcroFields;
+
+                                using (var db = new DBModel())
+                                {
+
+                                    int orderId = Convert.ToInt32(id);
+                                    var query = from order in db.OrdersEntities.AsQueryable()
+                                                join house in db.HouseEntities on order.houseId equals house.id
+                                                where order.id == orderId
+                                                join user in db.UserEntities on house.userId equals user.Id
+                                                select new
+                                                {
+                                                    house,
+                                                    order,
+                                                    landlordId = house.userId,
+                                                    tenant = user
+                                                };
+                                    var orderContent = query.FirstOrDefault();
+
+                                    if (query == null)
+                                    {
+                                        return Content(HttpStatusCode.NotFound, "房屋未找到");
+                                    }
+
+                                    // 驗證數據是否正確
+                                    string userName = orderContent.house.userIdFK.firstName + orderContent.house.userIdFK.lastName;
+                                    string userCity = orderContent.house.city.ToString();
+
+                                    // 寫入表單欄位
+                                    form.SetField("fill_1", userName);
+                                    form.SetField("fill_2", userCity);
+                                }
+                                stamper.FormFlattening = true;
+                            }
+                        }
+                    }
+
+                    byte[] fileBytes = System.IO.File.ReadAllBytes(tempPDF);
+                    System.IO.File.Delete(tempPDF); // 清理臨時文件
+
+                    var response = new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new ByteArrayContent(fileBytes)
+                    };
+
+                    response.Content.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment")
+                    {
+                        FileName = "Contract.pdf"
+                    };
+
+                    response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/pdf");
+
+                    return ResponseMessage(response);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Content(HttpStatusCode.BadRequest, ex.Message);
+            }
+        }
+
+       
+
+
+
+
+
+
+
 
         // GET: api/Order
         //public IEnumerable<string> Get()
