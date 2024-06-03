@@ -32,7 +32,7 @@ namespace UserAuth.Controllers
 
             //取得JWT內部資料
             var role = (UserRoleType)jwtObject["Role"];
-            var userId = (int)jwtObject["Id"];
+            var UserId = (int)jwtObject["Id"];
 
             try
             {
@@ -49,7 +49,7 @@ namespace UserAuth.Controllers
                     var houseToAddOrder = db.HouseEntities.Where(x => x.id == orderInfoInput.houseId).FirstOrDefault();
                     var userToAdd = db.UserEntities.Where(x => x.Id == orderInfoInput.userId).FirstOrDefault();
 
-                    if (houseToAddOrder.userId != userId)
+                    if (houseToAddOrder.userId != UserId)
                     {
                         throw new Exception("該房源不屬於此使用者，無法變更房源狀態");
                     }
@@ -75,7 +75,7 @@ namespace UserAuth.Controllers
                     var order = new Order();
                     if (orderInfoInput.userId != null)
                     {
-                        order.userId = orderInfoInput.userId.Value;
+                        order.userId = orderInfoInput.userId;
                         order.status = OrderStatus.待租客回覆租約;
                     }
                     else
@@ -111,6 +111,7 @@ namespace UserAuth.Controllers
                 return Content(HttpStatusCode.BadRequest, ex);
             }
         }
+
 
         // TODO 待修正Contract填入內容與個別欄位判別
         [HttpPost]
@@ -206,6 +207,7 @@ namespace UserAuth.Controllers
         }
 
        
+
 
 
 
