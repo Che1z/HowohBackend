@@ -27,7 +27,6 @@ namespace UserAuth.Models
         public virtual User userIdFK { get; set; }
 
         [JsonIgnore]
-        [ForeignKey("userId")]
         [Display(Name = "訂單")]
         public virtual ICollection<Order> orderIdFK { get; set; }
 

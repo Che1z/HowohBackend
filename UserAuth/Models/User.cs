@@ -68,7 +68,7 @@ namespace UserAuth.Models
         //public int ratingCount { get; set; }
 
         [JsonIgnore]
-        [ForeignKey("userId")]
+        //[ForeignKey("userId")]
         [Display(Name = "訂單")]
         public virtual ICollection<Order> orderIdFK { get; set; }
 
