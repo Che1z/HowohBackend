@@ -10,6 +10,9 @@ using UserAuth.Models.UserEnumList;
 using UserAuth.Models.ViewModel;
 using UserAuth.Models;
 using UserAuth.Security;
+using iTextSharp.text.pdf;
+using Org.BouncyCastle.Asn1.X509;
+using System.IO;
 
 namespace UserAuth.Controllers
 {
@@ -30,7 +33,7 @@ namespace UserAuth.Controllers
 
             //取得JWT內部資料
             var role = (UserRoleType)jwtObject["Role"];
-            var userId = (int)jwtObject["Id"];
+            var UserId = (int)jwtObject["Id"];
 
             try
             {
@@ -47,7 +50,7 @@ namespace UserAuth.Controllers
                     var houseToAddOrder = db.HouseEntities.Where(x => x.id == orderInfoInput.houseId).FirstOrDefault();
                     var userToAdd = db.UserEntities.Where(x => x.Id == orderInfoInput.userId).FirstOrDefault();
 
-                    if (houseToAddOrder.userId != userId)
+                    if (houseToAddOrder.userId != UserId)
                     {
                         throw new Exception("該房源不屬於此使用者，無法變更房源狀態");
                     }
@@ -73,7 +76,7 @@ namespace UserAuth.Controllers
                     var order = new Order();
                     if (orderInfoInput.userId != null)
                     {
-                        order.userId = orderInfoInput.userId.Value;
+                        order.userId = orderInfoInput.userId;
                         order.status = OrderStatus.待租客回覆租約;
                     }
                     else
@@ -109,9 +112,6 @@ namespace UserAuth.Controllers
                 return Content(HttpStatusCode.BadRequest, ex);
             }
         }
-
-
-      
 
         // GET: api/Order
         //public IEnumerable<string> Get()
