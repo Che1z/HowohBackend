@@ -206,6 +206,7 @@
     <Compile Include="Controllers\HouseController.cs" />
     <Compile Include="Controllers\HouseListController.cs" />
     <Compile Include="Controllers\OrderController.cs" />
+    <Compile Include="Controllers\OrderListController.cs" />
     <Compile Include="Controllers\TenantController.cs" />
     <Compile Include="Controllers\UserAuthController.cs" />
     <Compile Include="Global.asax.cs">
