@@ -297,6 +297,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Contracts\NewContracts\" />
     <Folder Include="Views\HouseList\" />
   </ItemGroup>
   <ItemGroup>

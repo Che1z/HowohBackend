@@ -135,10 +135,8 @@ namespace UserAuth.Controllers
                 }
                 else
                 {
-                    string filePath = @"C:\Users\KHUser\Desktop\20240604 好窩房屋租賃合約.pdf";
-                    //string filePath = @"C:\Users\Howoh\Desktop\20240603_.pdf";
-                    string tempPDF = @"C:\Users\KHUser\Desktop\Contract\輸出契約.pdf";
-                    //string tempPDF = @"C:\Users\Howoh\Desktop\Contract\NewContract.pdf";
+                    string filePath = Path.Combine((HttpContext.Current.Server.MapPath("~/Contracts")), "20240604 好窩房屋租賃合約.pdf");                   
+                    string tempPDF = Path.Combine((HttpContext.Current.Server.MapPath("~/Contracts/NewContracts")), "輸出契約.pdf"); ;
 
                     using (PdfReader reader = new PdfReader(filePath))
                     {
