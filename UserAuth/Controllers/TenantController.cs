@@ -146,10 +146,22 @@ namespace UserAuth.Controllers
                             for (int i = 0; i < jobRestriction.Length; i++)
                             {
                                 jobRestriction[i] = jobRestriction[i].Trim();
-                                if (jobRestriction[i] == UserJob.ToString())
+
+                                if (Enum.TryParse<UserJob>(jobRestriction[i], out var jobValue))
                                 {
-                                    throw new Exception("使用者不符此房源之租客限制");
+                                    if (jobValue == UserJob)
+                                    {
+                                        throw new Exception("使用者不符此房源之租客限制");
+                                    }
                                 }
+                                else
+                                {
+                                    throw new Exception("無效的職業限制值：" + jobRestriction[i]);
+                                }
+                                //if (Enum.GetName(typeof(UserJob), jobRestriction[i]) == UserJob.ToString())
+                                //{
+                                //    throw new Exception("使用者不符此房源之租客限制");
+                                //}
                             }
                         }
                     }
@@ -158,6 +170,7 @@ namespace UserAuth.Controllers
                     appointment.houseId = id;
                     appointment.userId = UserId;
                     appointment.hidden = false;
+                    appointment.isValid = true;
                     db.AppointmentsEntities.Add(appointment);
                     db.SaveChanges();
 
