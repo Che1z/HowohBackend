@@ -41,6 +41,8 @@ namespace UserAuth.Controllers
                                 where order.leaseEndTime < DateTime.Today //過期的order
                                 join house in db.HouseEntities on order.houseId equals house.id
                                 where house.userId == UserId //使用者的房子
+                                join houseImg in db.HouseImgsEntities on house.id equals houseImg.houseId
+                                where houseImg.isCover == true
                                 join user in db.UserEntities on order.userId equals user.Id
                                 join orderRating in db.OrdersRatingEntities on order.id equals orderRating.orderId into orderRatingGroup
                                 from orderRating in orderRatingGroup.DefaultIfEmpty()
@@ -48,6 +50,7 @@ namespace UserAuth.Controllers
                                 {
                                     order,
                                     house,
+                                    photo = houseImg.path,
                                     tenant = user,
                                     ratingByLandlord = orderRatingGroup.FirstOrDefault(o => o.UserId == UserId) != null ? orderRatingGroup.FirstOrDefault(o => o.UserId == UserId) : null,
                                     ratingByTenant = orderRatingGroup.FirstOrDefault(o => o.UserId != UserId) != null ? orderRatingGroup.FirstOrDefault(o => o.UserId != UserId) : null
@@ -67,6 +70,7 @@ namespace UserAuth.Controllers
                             var data = new
                             {
                                 orderId = item.order.id,
+                                photo = item.photo,
                                 tenant = item.tenant.lastName + item.tenant.firstName,
                                 tenantTel = item.tenant.telphone,
                                 leaseStartTime = item.order.leaseStartTime,

@@ -114,7 +114,6 @@ namespace UserAuth.Controllers
             }
         }
 
-
         // TODO 待修正Contract填入內容與個別欄位判別
         [HttpPost]
         [JwtAuthFilters]
@@ -159,7 +158,6 @@ namespace UserAuth.Controllers
 
                                 using (var db = new DBModel())
                                 {
-
                                     int orderId = Convert.ToInt32(id);
                                     var query = from order in db.OrdersEntities.AsQueryable()
                                                 join house in db.HouseEntities on order.houseId equals house.id
@@ -452,16 +450,6 @@ namespace UserAuth.Controllers
                 return Content(HttpStatusCode.BadRequest, ex.Message);
             }
         }
-
-     
-
-
-
-
-
-
-
-
 
         // GET: api/Order
         //public IEnumerable<string> Get()
