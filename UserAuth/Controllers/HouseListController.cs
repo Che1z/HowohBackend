@@ -632,6 +632,19 @@ namespace UserAuth.Controllers
                                 hasInternet = queryResult.house.hasInternet, //設備: 網路
                                 hasBed = queryResult.house.hasBed, //設備: 床
                                 hasTV = queryResult.house.hasTV, //設備: 電視
+                            },
+                            transportation = new
+                            {
+                                isNearMRT = queryResult.house.isNearMRT, //是否鄰近捷運
+                                kmAwayMRT = queryResult.house.kmAwayMRT, //鄰近捷運公里
+                                isNearLRT = queryResult.house.isNearLRT, //是否鄰近輕軌
+                                kmAwayLRT = queryResult.house.kmAwayLRT, //鄰近輕軌公里
+                                isNearBusStation = queryResult.house.isNearBusStation, //是否鄰近公車站
+                                kmAwayBusStation = queryResult.house.kmAwayBusStation, //鄰近公車站公里
+                                isNearHSR = queryResult.house.isNearHSR, //是否鄰近高鐵
+                                kmAwayHSR = queryResult.house.kmAwayHSR, //鄰近高鐵公里
+                                isNearTrainStation = queryResult.house.isNearTrainStation, //是否鄰近火車
+                                kmAwayTrainStation = queryResult.house.kmAwayTrainStation //鄰近火車公里
                             }
                         },
                         cost = new
