@@ -40,7 +40,7 @@ namespace UserAuth.Controllers
             {
                 if (role == UserRoleType.租客) //檢查角色
                 {
-                    throw new Exception("使用者角色不符，不得使用此功能");
+                    return Content(HttpStatusCode.Forbidden, "使用者角色不符，不得使用此功能");
                 }
                 if (!ModelState.IsValid || orderInfoInput == null)
                 {
@@ -49,34 +49,34 @@ namespace UserAuth.Controllers
                 using (DBModel db = new DBModel())
                 {
                     var houseToAddOrder = db.HouseEntities.Where(x => x.id == orderInfoInput.houseId).FirstOrDefault();
-                    var userToAdd = db.UserEntities.Where(x => x.Id == orderInfoInput.userId).FirstOrDefault();
 
-                    if (houseToAddOrder.userId != UserId)
-                    {
-                        throw new Exception("該房源不屬於此使用者，無法變更房源狀態");
-                    }
-
-                    if (orderInfoInput.userId == null && String.IsNullOrEmpty(orderInfoInput.tenantTelphone))
-                    {
-                        throw new Exception("租客Id及手機號碼均未輸入，無法設定租客資訊");
-                    }
-
+                    //進行房源相關檢查
                     if (houseToAddOrder == null) //檢查房源是否存在
                     {
                         throw new Exception("此房源不存在，無法設定租客資訊");
                     }
+                    if (houseToAddOrder.userId != UserId)
+                    {
+                        return Content(HttpStatusCode.Forbidden, "該房源不屬於此使用者，無法變更房源狀態");
+                    }
                     if (houseToAddOrder.status != statusType.刊登中) //檢查房源狀態
                     {
-                        throw new Exception("此房源狀態非刊登中，無法設定租客資訊");
-                    }
-                    if (userToAdd == null) //檢查租客是否存在
-                    {
-                        throw new Exception("此租客不存在，無法設定租客資訊");
+                        return Content(HttpStatusCode.Forbidden, "此房源狀態非刊登中，無法設定租客資訊");
                     }
 
+                    //進行租客相關檢查
+                    if (orderInfoInput.userId == null && String.IsNullOrEmpty(orderInfoInput.tenantTelphone))
+                    {
+                        throw new Exception("租客Id及手機號碼均未輸入，無法設定租客資訊");
+                    }
                     var order = new Order();
                     if (orderInfoInput.userId != null)
                     {
+                        var userToAdd = db.UserEntities.Where(x => x.Id == orderInfoInput.userId).FirstOrDefault();
+                        if (userToAdd == null) //檢查租客是否存在
+                        {
+                            throw new Exception("此租客不存在，無法設定租客資訊");
+                        }
                         order.userId = orderInfoInput.userId;
                         order.status = OrderStatus.待租客回覆租約;
                     }
@@ -85,9 +85,11 @@ namespace UserAuth.Controllers
                         order.tenantTelphone = orderInfoInput.tenantTelphone;
                         order.status = OrderStatus.租客非系統用戶;
                         houseToAddOrder.status = statusType.已承租;
-                        ///todo: 刪除預約
-                        //var appointments = db.AppointmentsEntities.Where(x => x.houseId == houseToAddOrder.id).ToList();
-                        //db.AppointmentsEntities.RemoveRange(appointments);
+                        var appointments = db.AppointmentsEntities.Where(x => x.houseId == houseToAddOrder.id && x.isValid == true).ToList();
+                        foreach (var appointment in appointments)
+                        {
+                            appointment.isValid = false;
+                        }
                     }
 
                     order.houseId = orderInfoInput.houseId;
@@ -101,9 +103,6 @@ namespace UserAuth.Controllers
                         statusCode = 200,
                         status = "success",
                         message = "成功設定租客資訊"
-                        //data = new
-                        //{
-                        //}
                     };
                     return Content(HttpStatusCode.OK, result);
                 }
@@ -144,7 +143,7 @@ namespace UserAuth.Controllers
                 }
                 else
                 {
-                    string filePath = Path.Combine((HttpContext.Current.Server.MapPath("~/Contracts")), "20240604 好窩房屋租賃合約.pdf");                   
+                    string filePath = Path.Combine((HttpContext.Current.Server.MapPath("~/Contracts")), "20240604 好窩房屋租賃合約.pdf");
                     string tempPDF = Path.Combine((HttpContext.Current.Server.MapPath("~/Contracts/NewContracts")), "輸出契約.pdf"); ;
 
                     using (PdfReader reader = new PdfReader(filePath))
@@ -153,14 +152,14 @@ namespace UserAuth.Controllers
                         {
                             using (PdfStamper stamper = new PdfStamper(reader, fileStream))
                             {
-                                string path = Path.Combine((HttpContext.Current.Server.MapPath("~/fonts")),"msjh.ttc");
+                                string path = Path.Combine((HttpContext.Current.Server.MapPath("~/fonts")), "msjh.ttc");
                                 BaseFont chBaseFont = BaseFont.CreateFont($"{path},0", BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
                                 reader.AcroFields.AddSubstitutionFont(chBaseFont);
 
-
                                 AcroFields form = stamper.AcroFields;
-                                foreach (var ele in form.Fields.Keys) { 
-                                   form.SetFieldProperty(ele, "textfont", chBaseFont, null);
+                                foreach (var ele in form.Fields.Keys)
+                                {
+                                    form.SetFieldProperty(ele, "textfont", chBaseFont, null);
                                 }
 
                                 using (var db = new DBModel())
@@ -264,8 +263,7 @@ namespace UserAuth.Controllers
                                     }
                                     paymentMethod.Add("電費");
 
-                                    string paymentMethods = string.Join(", ", paymentMethod);                                 
-
+                                    string paymentMethods = string.Join(", ", paymentMethod);
 
                                     // 寫入表單欄位
 
@@ -304,37 +302,42 @@ namespace UserAuth.Controllers
                                     //fill_12 : 什麼費用要由 (乙方)負擔
                                     form.SetField("fill_12", paymentMethods.ToString());
 
-                                    //fill_13 : 水費 
+                                    //fill_13 : 水費
                                     //fill_14 : 水費 (繳費方式)
-                                    //fill_15 : 電費 
+                                    //fill_15 : 電費
                                     //fill_16 : 電費 (繳費方式)
                                     //fill_17 : 管理費
                                     //fill_18 : 管理費 (繳費方式)
-                                    
-                                    //只需繳交電費 
-                                    if (paymentMethod.Count == 1) {
+
+                                    //只需繳交電費
+                                    if (paymentMethod.Count == 1)
+                                    {
                                         if (orderContent.house.electricBill == (paymentTypeOfElectricBill)1)
                                         {
                                             //自行繳納
                                             form.SetField("fill_13", "電費依台電計價");
                                             form.SetField("fill_14", orderContent.house.paymentMethodOfElectricBill.ToString());
                                         }
-                                        else {
+                                        else
+                                        {
                                             //隨房租繳納
                                             form.SetField("fill_13", $"電費每度{orderContent.house.electricBillPerDegree}元計價");
                                             form.SetField("fill_14", orderContent.house.paymentMethodOfElectricBill.ToString());
-                                        }                                     
+                                        }
                                     }
 
                                     //若只繳兩種 (電費 + 水費 || 管理費)
-                                    if (paymentMethod.Count == 2) {
-                                        if (paymentMethod.Contains("水費")){
+                                    if (paymentMethod.Count == 2)
+                                    {
+                                        if (paymentMethod.Contains("水費"))
+                                        {
                                             if (orderContent.house.paymentMethodOfWaterBill == (paymentTypeOfWaterBill)1)
                                             {
                                                 form.SetField("fill_13", "水費依台水計價");
                                                 form.SetField("fill_14", "自行繳納");
                                             }
-                                            else if(orderContent.house.paymentMethodOfWaterBill == (paymentTypeOfWaterBill)3) {
+                                            else if (orderContent.house.paymentMethodOfWaterBill == (paymentTypeOfWaterBill)3)
+                                            {
                                                 form.SetField("fill_13", $"水費自訂，每人每月{orderContent.house.waterBillPerMonth}元");
                                                 form.SetField("fill_14", "隨房租繳納");
                                             }
@@ -351,8 +354,8 @@ namespace UserAuth.Controllers
                                                 form.SetField("fill_16", orderContent.house.paymentMethodOfElectricBill.ToString());
                                             }
                                         }
-                                        if (paymentMethod.Contains("管理費")) {
-
+                                        if (paymentMethod.Contains("管理費"))
+                                        {
                                             int managementFee = Convert.ToInt32(orderContent.house.managementFeePerMonth);
                                             form.SetField("fill_13", $"管理費每月{managementFee.ToString("N0")}元");
                                             form.SetField("fill_14", orderContent.house.paymentMethodOfManagementFee.ToString());
@@ -368,15 +371,16 @@ namespace UserAuth.Controllers
                                                 form.SetField("fill_15", $"電費每度{orderContent.house.electricBillPerDegree}元計價");
                                                 form.SetField("fill_16", orderContent.house.paymentMethodOfElectricBill.ToString());
                                             }
-                                        }                                    
+                                        }
                                     }
-                                    if (paymentMethod.Count == 3) {
+                                    if (paymentMethod.Count == 3)
+                                    {
                                         if (orderContent.house.paymentMethodOfWaterBill == (paymentTypeOfWaterBill)1)
                                         {
                                             form.SetField("fill_13", "水費依台水計價");
                                             form.SetField("fill_14", "自行繳納");
                                         }
-                                        else if(orderContent.house.paymentMethodOfWaterBill == (paymentTypeOfWaterBill)3)
+                                        else if (orderContent.house.paymentMethodOfWaterBill == (paymentTypeOfWaterBill)3)
                                         {
                                             form.SetField("fill_13", $"水費自訂，每人每月{orderContent.house.waterBillPerMonth}元");
                                             form.SetField("fill_14", "隨房租繳納");
@@ -411,7 +415,8 @@ namespace UserAuth.Controllers
                                     //fill_6_2 : 生活公約2 (不用填)
                                     //fill_7_2 : 設備包含
                                     List<string> equipments = new List<string> { };
-                                    if (orderContent.house.hasAirConditioner == true) {
+                                    if (orderContent.house.hasAirConditioner == true)
+                                    {
                                         equipments.Add("冷氣");
                                     }
                                     if (orderContent.house.hasWashingMachine == true)

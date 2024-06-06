@@ -1284,7 +1284,12 @@ namespace UserAuth.Controllers
                                     jobRestriction = jobRestriction.Trim(trimArr);
                                 }
                                 var appointmentCount = db.AppointmentsEntities.Count(x => x.houseId == houseEnter.id && x.isValid == true);
-
+                                var orderPending = db.OrdersEntities.FirstOrDefault(o => o.houseId == houseEnter.id && o.status == OrderStatus.待租客回覆租約);
+                                bool canChangeHouseStatus = true;
+                                if (orderPending != null)
+                                {
+                                    canChangeHouseStatus = false;
+                                }
                                 var pictureObject = new
                                 {
                                     firstPic = firstPicture.path,
@@ -1292,6 +1297,7 @@ namespace UserAuth.Controllers
                                 };
                                 var data = new
                                 {
+                                    canChangeHouseStatus = canChangeHouseStatus,
                                     appointmentCount = appointmentCount,
                                     name = houseEnter.name, //名稱
                                     city = Enum.GetName(typeof(CityType), houseEnter.city), //縣市 Enum
