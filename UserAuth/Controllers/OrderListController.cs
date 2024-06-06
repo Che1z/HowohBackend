@@ -63,7 +63,7 @@ namespace UserAuth.Controllers
                         {
                             //可評價的狀況
                             bool canComment = false;
-                            if (DateTime.Now < item.order.leaseEndTime.AddDays(14) && item.ratingByLandlord == null)
+                            if (item.order.userId != null && DateTime.Now < item.order.leaseEndTime.AddDays(14) && item.ratingByLandlord == null)
                             {
                                 canComment = true;
                             }
