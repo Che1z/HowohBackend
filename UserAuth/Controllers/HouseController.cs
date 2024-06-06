@@ -5,7 +5,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.NetworkInformation;
 using System.Web.Http;
+using System.Web.Http.Results;
+using System.Web.Routing;
 using UserAuth.Models;
 using UserAuth.Models.HouseEnumList;
 using UserAuth.Models.OrderEnumList;
@@ -665,9 +668,34 @@ namespace UserAuth.Controllers
                             {
                                 restOfPicsList.Add(h.path);
                             }
-                            //狀態為已完成或刊登中
+                            //狀態為已完成
                             if (houseEnter.status == statusType.已完成)
                             {
+                                //var queryOfRatable = from order in db.OrdersEntities
+                                //                     where order.houseId == id && order.userId != null && DateTime.Now < order.leaseEndTime.AddDays(14)
+                                //                     join orderRating in db.OrdersRatingEntities on order.id equals orderRating.orderId into orderRatingGroup
+                                //                     from orderRating in orderRatingGroup.DefaultIfEmpty()
+                                //                     where orderRating.UserId == UserId
+                                //                     select orderRating;
+                                //int ratingNum = queryOfRatable.Count();
+                                //bool canComment = false;
+                                //if (ratingNum == 0)
+                                //{
+                                //    canComment = true;
+                                //}
+
+                                string jobRestriction = "";
+                                if (!String.IsNullOrEmpty(houseEnter.jobRestriction))
+                                {
+                                    string[] jobRestrictions = houseEnter.jobRestriction.Split(',');
+                                    for (int i = 0; i < jobRestrictions.Length; i++)
+                                    {
+                                        jobRestrictions[i] = jobRestrictions[i].Trim();
+                                        jobRestriction += Enum.GetName(typeof(UserJob), Convert.ToInt32(jobRestrictions[i])) + ",";
+                                    }
+                                    char[] trimArr = { ',', ' ' };
+                                    jobRestriction = jobRestriction.Trim(trimArr);
+                                }
                                 var pictureObject = new
                                 {
                                     firstPic = firstPicture.path,
@@ -675,6 +703,7 @@ namespace UserAuth.Controllers
                                 };
                                 var data = new
                                 {
+                                    //canComment = canComment,
                                     name = houseEnter.name, //名稱
                                     city = Enum.GetName(typeof(CityType), houseEnter.city), //縣市 Enum
                                     district = Enum.GetName(typeof(DistrictType), houseEnter.district).Remove(0, 3), //市區鄉鎮 Enum
@@ -691,6 +720,52 @@ namespace UserAuth.Controllers
                                     bathRoomNumbers = houseEnter.bathRoomNumbers, //衛浴
                                     balconyNumbers = houseEnter.balconyNumbers, //陽台
                                     parkingSpaceNumbers = houseEnter.parkingSpaceNumbers, //車位
+                                    isRentSubsidy = houseEnter.isRentSubsidy, //可申請租屋補助
+                                    isPetAllowed = houseEnter.isPetAllowed, //寵物友善
+                                    isCookAllowed = houseEnter.isCookAllowed, //可開伙
+                                    isSTRAllowed = houseEnter.isSTRAllowed, //可短租
+                                    isNearByDepartmentStore = houseEnter.isNearByDepartmentStore, //附近機能: 百貨商場
+                                    isNearBySchool = houseEnter.isNearBySchool, //附近機能: 學校
+                                    isNearByMorningMarket = houseEnter.isNearByMorningMarket, //附近機能: 早市
+                                    isNearByNightMarket = houseEnter.isNearByNightMarket, //附近機能: 夜市
+                                    isNearByConvenientStore = houseEnter.isNearByConvenientStore, //附近機能: 超商
+                                    isNearByPark = houseEnter.isNearByPark, //附近機能: 公園綠地
+                                    hasGarbageDisposal = houseEnter.hasGarbageDisposal, //屋源特色: 垃圾集中處理
+                                    hasWindowInBathroom = houseEnter.hasWindowInBathroom, //屋源特色: 浴室開窗
+                                    hasElevator = houseEnter.hasElevator, //有電梯
+                                    hasAirConditioner = houseEnter.hasAirConditioner, //設備: 冷氣
+                                    hasWashingMachine = houseEnter.hasWashingMachine, //設備: 洗衣機
+                                    hasRefrigerator = houseEnter.hasRefrigerator, //設備: 冰箱
+                                    hasCloset = houseEnter.hasCloset, //設備: 衣櫃
+                                    hasTableAndChair = houseEnter.hasTableAndChair, //設備: 桌椅
+                                    hasWaterHeater = houseEnter.hasWaterHeater, //設備: 熱水器
+                                    hasInternet = houseEnter.hasInternet, //設備: 網路
+                                    hasBed = houseEnter.hasBed, //設備: 床
+                                    hasTV = houseEnter.hasTV, //設備: 電視
+                                    isNearMRT = houseEnter.isNearMRT, //交通: 捷運
+                                    kmAwayMRT = houseEnter.kmAwayMRT, //距離捷運公里
+                                    isNearLRT = houseEnter.isNearLRT, //交通: 輕軌
+                                    kmAwayLRT = houseEnter.kmAwayLRT, //距離輕軌公里
+                                    isNearBusStation = houseEnter.isNearBusStation, //交通: 公車
+                                    kmAwayBusStation = houseEnter.kmAwayBusStation, //距離公車公里
+                                    isNearHSR = houseEnter.isNearHSR, //交通: 高鐵
+                                    kmAwayHSR = houseEnter.kmAwayHSR, //距離高鐵公里
+                                    isNearTrainStation = houseEnter.isNearTrainStation, //交通: 火車
+                                    kmAwayTrainStation = houseEnter.kmAwayTrainStation, //距離火車公里
+                                    rent = houseEnter.rent, //每月租金
+                                    securityDeposit = Enum.GetName(typeof(securityDepositType), houseEnter.securityDeposit), //押金幾個月 Enum
+                                    paymentMethodOfWaterBill = Enum.GetName(typeof(paymentTypeOfWaterBill), houseEnter.paymentMethodOfWaterBill), //水費繳納方式 Enum
+                                    waterBillPerMonth = houseEnter.waterBillPerMonth, //水費每月價錢
+                                    electricBill = Enum.GetName(typeof(paymentTypeOfElectricBill), houseEnter.electricBill), //電費計價方式 Enum
+                                    electricBillPerDegree = houseEnter.electricBillPerDegree,
+                                    paymentMethodOfElectricBill = Enum.GetName(typeof(paymentMethodOfElectricBill), houseEnter.paymentMethodOfElectricBill), //電費繳納方式 Enum
+                                    paymentMethodOfManagementFee = Enum.GetName(typeof(paymentMethodOfManagementFee), houseEnter.paymentMethodOfManagementFee), //管理費方式 Enum
+                                    managementFeePerMonth = houseEnter.managementFeePerMonth, //管理費每月價錢
+                                    description = houseEnter.description, //房源介紹
+                                    hasTenantRestrictions = houseEnter.hasTenantRestrictions.ToString().ToLower(), //是否有租客限制
+                                    genderRestriction = Enum.GetName(typeof(genderRestrictionType), houseEnter.genderRestriction), //男or女or性別友善
+                                    jobRestriction = jobRestriction, //排除職業
+
                                     pictures = pictureObject
                                 };
                                 var result = new
@@ -1426,100 +1501,130 @@ namespace UserAuth.Controllers
 
             //取得JWT內部資料
             var role = (UserRoleType)jwtObject["Role"];
-            var userId = (int)jwtObject["Id"];
+            var UserId = (int)jwtObject["Id"];
 
             try
             {
                 if (role == UserRoleType.租客)
                 {
-                    throw new Exception("使用者角色不符，不得使用此功能");
+                    return Content(HttpStatusCode.Forbidden, "使用者角色不符，不得使用此功能");
                 }
                 using (DBModel db = new DBModel())
                 {
-                    //房東所有的房子
-                    var landlordEnter = db.HouseEntities.Where(x => x.userId == userId).ToList();
-                    //只要id list
-                    var houseIds = landlordEnter.Select(x => x.id).ToList();
-                    //只要id list裡面有的houseId, 只要封面照
-                    var houseImages = db.HouseImgsEntities
-                                        .Where(img => houseIds.Contains(img.houseId) && img.isCover)
-                                        .ToList();
-                    //只要id list裡面有的houseId
-                    var houseOrders = db.OrdersEntities
-                                        .Where(order => houseIds.Contains(order.houseId))
-                                        .ToList();
+                    var query = from house in db.HouseEntities.AsQueryable()
+                                where house.userId == UserId
+                                join houseImg in db.HouseImgsEntities on house.id equals houseImg.houseId into houseImgGroup
+                                from houseImg in houseImgGroup.DefaultIfEmpty()
+                                where houseImg.isCover == true
+                                join appointment in db.AppointmentsEntities on house.id equals appointment.houseId into appointmentGroup
+                                from appointment in appointmentGroup.DefaultIfEmpty()
+                                join order in db.OrdersEntities on house.id equals order.houseId into orderGroup
+                                from order in orderGroup.DefaultIfEmpty()
+                                join user in db.UserEntities on order.userId equals user.Id into userGroup
+                                from user in userGroup.DefaultIfEmpty()
+                                group new { house, houseImg, appointment, order, user } by new { house.id, houseImg.path, house, order, user } into grouped
+                                select new
+                                {
+                                    house = grouped.Key.house,
+                                    photo = grouped.Key.path,
+                                    appointment = grouped,
+                                    order = grouped.Key.order,
+                                    tenant = grouped.Key.user
+                                };
+                    var queryResult = query.ToList();
 
-                    List<EditingHouse> housesEditing = new List<EditingHouse>(); //未完成房源列表
-                    List<ForRentHouse> housesForRent = new List<ForRentHouse>(); //刊登中房源列表
-                    List<LeasingHouse> housesLeasing = new List<LeasingHouse>(); //已承租房源列表
-                    List<DiscontinuedHouse> housesDiscontinued = new List<DiscontinuedHouse>(); //已完成房源列表
-                    foreach (var house in landlordEnter)
+                    var housesEditing = new List<object>();
+                    var housesForRent = new List<object>();
+                    var housesLeasing = new List<object>();
+                    var housesDiscontinued = new List<object>();
+
+                    foreach (var r in queryResult)
                     {
-                        if (house.status != statusType.未完成步驟1)
+                        if (r.house.status != statusType.未完成步驟1)
                         {
-                            switch (house.status)
+                            switch (r.house.status)
                             {
                                 case statusType.已完成:
-                                    var discontinuedHouse = new DiscontinuedHouse();
-                                    discontinuedHouse.houseId = house.id;
-                                    discontinuedHouse.name = house.name;
-                                    discontinuedHouse.photo = houseImages.FirstOrDefault(x => x.houseId == house.id)?.path;
-                                    housesDiscontinued.Add(discontinuedHouse);
+                                    bool canComment = false;
+                                    if (r.order != null && r.order.userId != null && DateTime.Now < r.order.leaseEndTime.AddDays(14))
+                                    {
+                                        canComment = true;
+                                    }
+                                    var discontinued = new
+                                    {
+                                        houseId = r.house.id,
+                                        name = r.house.name,
+                                        photo = r.photo,
+                                        canComment = canComment
+                                    };
+                                    housesDiscontinued.Add(discontinued);
                                     break;
 
                                 case statusType.已承租:
-                                    var leasingHouse = new LeasingHouse();
-                                    leasingHouse.houseId = house.id;
-                                    leasingHouse.name = house.name;
-                                    leasingHouse.photo = houseImages.FirstOrDefault(x => x.houseId == house.id)?.path;
-                                    var latestLeasingOrder = houseOrders.Where(x => x.houseId == house.id)
-                                                        .OrderByDescending(x => x.id)
-                                                        .FirstOrDefault();
-                                    leasingHouse.leaseStartTime = latestLeasingOrder?.leaseStartTime ?? DateTime.MinValue;
-                                    leasingHouse.leaseEndTime = latestLeasingOrder?.leaseEndTime ?? DateTime.MinValue;
-                                    housesLeasing.Add(leasingHouse);
+                                    if (r.order != null)
+                                    {
+                                        var leasing = new
+                                        {
+                                            houseId = r.house.id,
+                                            name = r.house.name,
+                                            photo = r.photo,
+                                            leaseStartTime = r.order.leaseStartTime,
+                                            leaseEndTime = r.order.leaseEndTime
+                                        };
+                                        housesLeasing.Add(leasing);
+                                    }
                                     break;
 
                                 case statusType.刊登中:
-                                    //只要id list裡面有的houseId
-                                    var houseAppointments = db.AppointmentsEntities
-                                                        .Where(appointment => houseIds.Contains(appointment.houseId))
-                                                        .ToList();
-                                    var forRentHouse = new ForRentHouse();
-                                    forRentHouse.houseId = house.id;
-                                    forRentHouse.name = house.name;
-                                    forRentHouse.photo = houseImages.FirstOrDefault(x => x.houseId == house.id)?.path;
-                                    var latestPendingOrder = houseOrders.Where(x => x.houseId == house.id && (x.status == OrderStatus.待租客回覆租約 || x.status == OrderStatus.租客已拒絕租約))
-                                                        .OrderByDescending(x => x.id)
-                                                        .FirstOrDefault();
-                                    if (latestPendingOrder == null)
+                                    if (r.order == null)
                                     {
-                                        forRentHouse.status = "申請預約看房";
-                                        forRentHouse.reservationCount = houseAppointments.Where(x => x.houseId == house.id).Count();
+                                        var forRent = new
+                                        {
+                                            houseId = r.house.id,
+                                            name = r.house.name,
+                                            photo = r.photo,
+                                            status = "申請預約看房",
+                                            reservationCount = r.appointment.Count(g => g.appointment != null && g.appointment.isValid)
+                                        };
+                                        housesForRent.Add(forRent);
                                     }
                                     else
                                     {
-                                        var orderUserName = db.UserEntities.FirstOrDefault(x => x.Id == latestPendingOrder.userId);
-                                        forRentHouse.userName = orderUserName.lastName + orderUserName.firstName;
-                                        if (latestPendingOrder.status == OrderStatus.待租客回覆租約)
+                                        if (r.order.status == OrderStatus.待租客回覆租約)
                                         {
-                                            forRentHouse.status = "租約邀請已送出";
+                                            var forRent = new
+                                            {
+                                                houseId = r.house.id,
+                                                name = r.house.name,
+                                                photo = r.photo,
+                                                status = "租約邀請已送出",
+                                                userName = r.tenant.lastName + r.tenant.firstName,
+                                            };
+                                            housesForRent.Add(forRent);
                                         }
-                                        else if (latestPendingOrder.status == OrderStatus.租客已拒絕租約)
+                                        else if (r.order.status == OrderStatus.租客已拒絕租約)
                                         {
-                                            forRentHouse.status = "租約邀請已拒絕";
+                                            var forRent = new
+                                            {
+                                                houseId = r.house.id,
+                                                name = r.house.name,
+                                                photo = r.photo,
+                                                status = "租約邀請已拒絕",
+                                                userName = r.tenant.lastName + r.tenant.firstName,
+                                            };
+                                            housesForRent.Add(forRent);
                                         }
                                     }
-
-                                    housesForRent.Add(forRentHouse);
                                     break;
 
                                 default:
-                                    var editingHouse = new EditingHouse();
-                                    editingHouse.houseId = house.id;
-                                    editingHouse.name = house.name;
-                                    editingHouse.photo = houseImages.FirstOrDefault(x => x.houseId == house.id)?.path;
-                                    housesEditing.Add(editingHouse);
+                                    var editing = new
+                                    {
+                                        houseId = r.house.id,
+                                        name = r.house.name,
+                                        photo = r.photo,
+                                    };
+                                    housesEditing.Add(editing);
                                     break;
                             }
                         }
@@ -1531,12 +1636,6 @@ namespace UserAuth.Controllers
                         已承租 = housesLeasing,
                         已完成 = housesDiscontinued
                     };
-                    // 將 List 物件轉換成 JSON 字串
-                    //string jsonEditing = JsonConvert.SerializeObject(housesEditing, Formatting.Indented);
-                    //string jsonForRent = JsonConvert.SerializeObject(housesForRent, Formatting.Indented);
-                    //string jsonLeasing = JsonConvert.SerializeObject(housesLeasing, Formatting.Indented);
-                    //string jsonDiscontinued = JsonConvert.SerializeObject(housesDiscontinued, Formatting.Indented);
-                    //string output = JsonConvert.SerializeObject(Object變數)
 
                     var result = new
                     {
@@ -1579,7 +1678,7 @@ namespace UserAuth.Controllers
                 using (DBModel db = new DBModel())
                 {
                     var query = from order in db.OrdersEntities.AsQueryable()
-                                where order.leaseEndTime < DateTime.Today //過期的order
+                                where order.userId != null && order.leaseEndTime < DateTime.Today //過期的order
                                 join house in db.HouseEntities on order.houseId equals house.id
                                 where house.userId == UserId //使用者的房子
                                 join user in db.UserEntities on order.userId equals user.Id

@@ -657,6 +657,7 @@ namespace UserAuth.Controllers
                             electricBill = new
                             {
                                 electricBill = Enum.GetName(typeof(paymentTypeOfElectricBill), queryResult.house.electricBill), //電費計價方式 Enum
+                                electricBillPerDegree = queryResult.house.electricBillPerDegree, //電費每度元
                                 paymentMethodOfElectricBill = Enum.GetName(typeof(paymentMethodOfElectricBill), queryResult.house.paymentMethodOfElectricBill), //電費繳納方式 Enum
                             },
                             managementFee = new
