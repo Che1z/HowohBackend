@@ -233,6 +233,7 @@
     <Compile Include="Models\ReplyRating.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="Models\UserEnumList\UserEnum.cs" />
+    <Compile Include="Models\ViewModel\ContractInput.cs" />
     <Compile Include="Models\ViewModel\HouseListOutput.cs" />
     <Compile Include="Models\ViewModel\HouseImgInput.cs" />
     <Compile Include="Models\ViewModel\HouseInput.cs" />

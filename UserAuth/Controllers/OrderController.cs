@@ -114,11 +114,15 @@ namespace UserAuth.Controllers
             }
         }
 
-        // TODO 待修正Contract填入內容與個別欄位判別
+        /// <summary>
+        /// [ALO-17] 下載合約 (抓取default值 or 前端傳入參數）
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         [HttpPost]
         [JwtAuthFilters]
-        [Route("api/order/landloard/createContract")]
-        public IHttpActionResult CreateContract(string id)
+        [Route("api/order/landloard/downloadContract")]
+        public IHttpActionResult CreateContract(ContractInput input)
         {
             // 取得使用者JWT
             var jwtObject = JwtAuthFilters.GetToken(Request.Headers.Authorization.Parameter);
@@ -126,6 +130,11 @@ namespace UserAuth.Controllers
             // 取得JWT內部資料
             var role = (UserRoleType)jwtObject["Role"];
             var userId = (int)jwtObject["Id"];
+
+            if (!ModelState.IsValid || input == null)
+            {
+                return Content(HttpStatusCode.BadRequest, "錯誤資訊不符合規範");
+            }
 
             try
             {
@@ -156,7 +165,7 @@ namespace UserAuth.Controllers
 
                                 using (var db = new DBModel())
                                 {
-                                    int orderId = Convert.ToInt32(id);
+                                    int orderId = Convert.ToInt32(input.orderId);
                                     var query = from order in db.OrdersEntities.AsQueryable()
                                                 join house in db.HouseEntities on order.houseId equals house.id
                                                 where order.id == orderId
@@ -180,7 +189,36 @@ namespace UserAuth.Controllers
                                         return Content(HttpStatusCode.NotFound, "房東ID錯誤");
                                     }
 
-                                    // 驗證數據是否正確
+                                    //確定都無誤後，將Input寫入至order資料中
+                                    var orderEntity = db.OrdersEntities.Where(a => a.id == orderId).FirstOrDefault();
+
+                                    if (!string.IsNullOrEmpty(input.landlordName)) {
+                                        orderEntity.contractLandlordName = input.landlordName;
+                                    }
+                                    if (!string.IsNullOrEmpty(input.tenantName))
+                                    {
+                                        orderEntity.contracttenantName = input.tenantName;
+                                    }
+                                    if (!string.IsNullOrEmpty(input.address))
+                                    {
+                                        orderEntity.contractAddress = input.address;
+                                    }
+                                    if (!string.IsNullOrEmpty(input.contractPaymentBeforeDate))
+                                    {
+                                        orderEntity.contractRentPaymentBeforeDate = input.contractPaymentBeforeDate;
+                                    }
+                                    if (!string.IsNullOrEmpty(input.contractTerminationNoticeMonth))
+                                    {
+                                        orderEntity.contractTerminationNoticeMonths = input.contractTerminationNoticeMonth;
+                                    }
+                                    if (!string.IsNullOrEmpty(input.contractTerminationPenaltyMonth))
+                                    {
+                                        orderEntity.contractTerminationPenaltyMonths = input.contractTerminationPenaltyMonth;
+                                    }
+                                    db.SaveChanges();
+
+
+                                    // 驗證寫入PDF數據
                                     string userName = orderContent.order.contractLandlordName;
                                     string tenentName = orderContent.order.contracttenantName;
                                     string houseLocation = orderContent.order.contractAddress;
