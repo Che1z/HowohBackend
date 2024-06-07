@@ -159,6 +159,7 @@ namespace UserAuth.Controllers
                                     token = jwtToken,  // 登入成功時，回傳登入成功順便夾帶 JwtToken
                                     data = new
                                     {
+                                        userId = existData.Id,
                                         lastName = existData.lastName,
                                         firstName = existData.firstName,
                                         telphone = existData.telphone,
