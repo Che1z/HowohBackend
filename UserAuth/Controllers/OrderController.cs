@@ -191,7 +191,8 @@ namespace UserAuth.Controllers
                                     //確定都無誤後，將Input寫入至order資料中
                                     var orderEntity = db.OrdersEntities.Where(a => a.id == orderId).FirstOrDefault();
 
-                                    if (!string.IsNullOrEmpty(input.landlordName)) {
+                                    if (!string.IsNullOrEmpty(input.landlordName))
+                                    {
                                         orderEntity.contractLandlordName = input.landlordName;
                                     }
                                     if (!string.IsNullOrEmpty(input.tenantName))
@@ -215,7 +216,6 @@ namespace UserAuth.Controllers
                                         orderEntity.contractTerminationPenaltyMonths = input.contractTerminationPenaltyMonth;
                                     }
                                     db.SaveChanges();
-
 
                                     // 驗證寫入PDF數據
                                     string userName = orderContent.order.contractLandlordName;
@@ -493,7 +493,7 @@ namespace UserAuth.Controllers
         }
 
         /// <summary>
-        /// [ALO-18] 下載合約 
+        /// [ALO-18] 下載合約
         /// </summary>
         /// <param name="orderId"></param>
         /// <returns></returns>
@@ -568,7 +568,7 @@ namespace UserAuth.Controllers
                                     }
 
                                     //確定都無誤後，將Input寫入至order資料中
-                                    var orderEntity = db.OrdersEntities.Where(a => a.id == orderIdInt).FirstOrDefault();                                   
+                                    var orderEntity = db.OrdersEntities.Where(a => a.id == orderIdInt).FirstOrDefault();
 
                                     // 驗證寫入PDF數據
                                     string userName = orderContent.order.contractLandlordName;
@@ -1198,7 +1198,86 @@ namespace UserAuth.Controllers
             }
         }
 
+        /// <summary>
+        /// [ATH-3]租客確認或拒絕租約
+        /// </summary>
+        /// <param name="orderId">orderId</param>
+        /// <param name="orderStatusInput">是否接受租約邀請</param>
+        /// <returns></returns>
+        [HttpPatch]
+        [JwtAuthFilters]
+        [Route("api/order/tenant/{orderId}")]
+        public IHttpActionResult TenantPatchOrderStatus(int orderId, OrderStatusInput orderStatusInput)
+        {
+            // 取得使用者JWT
+            var jwtObject = JwtAuthFilters.GetToken(Request.Headers.Authorization.Parameter);
 
+            // 取得JWT內部資料
+            var UserRole = (UserRoleType)jwtObject["Role"];
+            var UserId = (int)jwtObject["Id"];
+
+            try
+            {
+                if (UserRole != UserRoleType.租客)
+                {
+                    return Content(HttpStatusCode.Forbidden, "使用者角色非租客，不得使用此功能");
+                }
+                if (!ModelState.IsValid || orderStatusInput == null)
+                {
+                    throw new Exception("錯誤資訊不符合規範");
+                }
+                using (DBModel db = new DBModel())
+                {
+                    var query = from order in db.OrdersEntities.AsQueryable()
+                                where order.id == orderId && order.userId == UserId && order.status == OrderStatus.待租客回覆租約
+                                join house in db.HouseEntities on order.houseId equals house.id
+                                where house.status == statusType.刊登中
+                                //join appointment in db.AppointmentsEntities on house.id equals appointment.houseId into appointmentGroup
+                                //from appointment in appointmentGroup.DefaultIfEmpty()
+                                //where appointment.isValid == true
+                                select new
+                                {
+                                    order,
+                                    house,
+                                    appointments = house.Appointments.Where(a => a.isValid == true).ToList()
+                                };
+                    var Order = query.First();
+                    if (Order != null)
+                    {
+                        switch (orderStatusInput.acceptOrder)
+                        {
+                            case true:
+                                Order.order.status = OrderStatus.租客已確認租約;
+                                Order.house.status = statusType.已承租;
+                                foreach (var appointment in Order.appointments)
+                                {
+                                    appointment.isValid = false;
+                                }
+                                break;
+
+                            case false:
+                                Order.order.status = OrderStatus.租客已拒絕租約;
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        return Content(HttpStatusCode.NotFound, "無相關租約供修改");
+                    }
+                    db.SaveChanges();
+                }
+
+                var result = new
+                {
+                    statusCode = 200,
+                    status = "success",
+                    message = "已成功修改租約邀請內容",
+                    //data = data
+                };
+                return Content(HttpStatusCode.OK, result);
+            }
+            catch (Exception ex) { return Content(HttpStatusCode.BadRequest, ex); }
+        }
 
         // GET: api/Order
         //public IEnumerable<string> Get()
