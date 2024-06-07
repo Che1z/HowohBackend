@@ -158,20 +158,23 @@ namespace UserAuth.Controllers
                                 {
                                     throw new Exception("無效的職業限制值：" + jobRestriction[i]);
                                 }
-                                //if (Enum.GetName(typeof(UserJob), jobRestriction[i]) == UserJob.ToString())
-                                //{
-                                //    throw new Exception("使用者不符此房源之租客限制");
-                                //}
                             }
                         }
                     }
+                    var queryOfAppointment = from appointment in db.AppointmentsEntities.AsQueryable()
+                                             where appointment.houseId == id && appointment.isValid == true && appointment.userId == UserId
+                                             select appointment;
+                    if (queryOfAppointment.Any())
+                    {
+                        return Content(HttpStatusCode.Forbidden, "使用者已預約過此房源");
+                    }
 
-                    Appointment appointment = new Appointment();
-                    appointment.houseId = id;
-                    appointment.userId = UserId;
-                    appointment.hidden = false;
-                    appointment.isValid = true;
-                    db.AppointmentsEntities.Add(appointment);
+                    Appointment newAppointment = new Appointment();
+                    newAppointment.houseId = id;
+                    newAppointment.userId = UserId;
+                    newAppointment.hidden = false;
+                    newAppointment.isValid = true;
+                    db.AppointmentsEntities.Add(newAppointment);
                     db.SaveChanges();
 
                     var landlord = db.UserEntities.Where(x => x.Id == houseForMatching.userId).FirstOrDefault();
