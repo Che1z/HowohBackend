@@ -11,6 +11,7 @@ using System.Xml.Linq;
 using UserAuth.Models;
 using UserAuth.Models.HouseEnumList;
 using UserAuth.Models.UserEnumList;
+using UserAuth.Security;
 
 namespace UserAuth.Controllers
 {
@@ -505,10 +506,36 @@ namespace UserAuth.Controllers
         [Route("api/house/common/info/{id}")]
         public IHttpActionResult GetHouseInfo(int id)
         {
+            // 檢查是否傳入了 Token
+            var authHeader = Request.Headers.Authorization;
+            bool hasToken = authHeader != null && authHeader.Scheme == "Bearer";
+
+            // 定義 UserId 變數
+            int? UserId = null;
+            UserRoleType? UserRole = null;
+            // 如果有 Token，解析 Token 並取得 UserId
+            if (hasToken)
+            {
+                try
+                {
+                    var jwtObject = JwtAuthFilters.GetToken(authHeader.Parameter);
+                    UserId = (int)jwtObject["Id"];
+                    UserRole = (UserRoleType)jwtObject["Role"];
+                }
+                catch
+                {
+                    // Token 解析失敗的處理邏輯
+                    //return Content(HttpStatusCode.Unauthorized, "無效的 Token");
+                }
+            }
             try
             {
                 using (DBModel db = new DBModel())
                 {
+                    //預約
+                    var queryOfAppointment = from appointment in db.AppointmentsEntities.AsQueryable()
+                                             where appointment.houseId == id && appointment.isValid == true && appointment.userId == UserId
+                                             select appointment;
                     // 評價
                     var queryOfRatingAndReplyForLandlord = from orderRating in db.OrdersRatingEntities.AsQueryable()
                                                            join user in db.UserEntities on orderRating.UserId equals user.Id
@@ -547,11 +574,25 @@ namespace UserAuth.Controllers
                                     rating = grouped,
                                 };
                     // 執行查詢並保存結果
+                    //房源
                     var queryResult = query.FirstOrDefault();
                     if (queryResult == null)
                     {
                         return Content(HttpStatusCode.NotFound, "此房源不存在");
                     }
+
+                    //預約
+                    bool? anyAppointment = null;
+                    if (UserId != null)
+                    {
+                        anyAppointment = queryOfAppointment.Any() ? false : true;
+                        if (UserRole == UserRoleType.房東)
+                        {
+                            anyAppointment = false;
+                        }
+                    }
+
+                    //評價
                     var queryOfRatingAndReplyForLandlordResult = queryOfRatingAndReplyForLandlord.ToList();
                     var ratings = new List<object>();
 
@@ -571,6 +612,7 @@ namespace UserAuth.Controllers
                     }
                     var data = new
                     {
+                        appointmentAvailable = anyAppointment,
                         photos = new
                         {
                             firstPic = queryResult.house.HouseImgs
