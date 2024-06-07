@@ -88,7 +88,7 @@ namespace UserAuth.Controllers
                                 appointmentId = r.id,
                                 userId = r.userId,
                                 appointmentTime = r.CreateAt,
-                                descrption = new
+                                description = new
                                 {
                                     tenantInfo = db.UserEntities
                                              .Where(u => u.Id == r.userId)
@@ -135,7 +135,7 @@ namespace UserAuth.Controllers
                         var result = query.Select(r => new
                         {
                             appointmentCreateTime = r.CreateAt,
-                            descrption = new
+                            description = new
                             {
                                 detail = db.HouseEntities
                                          .Where(h => h.id == r.houseId && h.status == (statusType)houseStatus)
@@ -144,6 +144,7 @@ namespace UserAuth.Controllers
                                              houseId = hi.id,
                                              landlordId = hi.userId,
                                              houseTitle = hi.name,
+                                             houseRent = hi.rent,
                                              houseImage = db.HouseImgsEntities.Where(h => h.isCover == true && h.houseId == hi.id).Select(z => new
                                              {
                                                  houseImagePath = z.path
