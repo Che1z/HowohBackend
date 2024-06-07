@@ -781,38 +781,57 @@ namespace UserAuth.Controllers
                             else if (houseEnter.status == statusType.已承租)
                             {
                                 var today = DateTime.Now;
-                                var order = db.OrdersEntities.FirstOrDefault(x => x.leaseStartTime <= today && x.leaseEndTime >= today);
-                                var tenant = db.UserEntities.FirstOrDefault(x => x.Id == order.userId);
+                                var query = from house in db.HouseEntities.AsQueryable()
+                                            where house.id == houseEnter.id
+                                            join order in db.OrdersEntities on house.id equals order.houseId
+                                            where order.leaseEndTime >= today && order.leaseStartTime <= today && (order.status == OrderStatus.租客已確認租約 || order.status == OrderStatus.租客非系統用戶)
+                                            select new
+                                            {
+                                                house,
+                                                order,
+                                                tenant = order.userId == null ? null : db.UserEntities.FirstOrDefault(u => u.Id == order.userId),
+                                                ratingAvg = order.userId == null ? (double?)null : (from o in db.OrdersEntities
+                                                                                                    join or in db.OrdersRatingEntities on o.id equals or.orderId
+                                                                                                    where o.userId == order.userId && or.UserId != order.userId
+                                                                                                    select (double?)or.Rating).Average(),
+                                                ratingCount = order.userId == null ? (int?)null : (from o in db.OrdersEntities
+                                                                                                   join or in db.OrdersRatingEntities on o.id equals or.orderId
+                                                                                                   where o.userId == order.userId && or.UserId != order.userId
+                                                                                                   select or).Count()
+                                            };
+                                var queryResult = query.FirstOrDefault();
+                                //var order = db.OrdersEntities.FirstOrDefault(x => x.leaseStartTime <= today && x.leaseEndTime >= today);
+                                //var tenant = db.UserEntities.FirstOrDefault(x => x.Id == order.userId);
                                 //租客過去的order list
-                                var pastOrderOfTenant = db.OrdersEntities.Where(x => x.userId == order.userId).Select(x => x.id).ToList();
+                                //var pastOrderOfTenant = db.OrdersEntities.Where(x => x.userId == order.userId).Select(x => x.id).ToList();
                                 //別人對租客的評價list
-                                var ratingsToTenant = db.OrdersRatingEntities.Where(x => pastOrderOfTenant.Contains(x.orderId) && x.UserId != order.userId).ToList();
+                                //var ratingsToTenant = db.OrdersRatingEntities.Where(x => pastOrderOfTenant.Contains(x.orderId) && x.UserId != order.userId).ToList();
                                 //平均評價與評價則數
-                                string ratingAvg = "新租客";
-                                int ratingCount = 0;
+                                //string ratingAvg = "新租客";
+                                //int ratingCount = 0;
 
-                                if (ratingsToTenant.Count != 0)
-                                {
-                                    ratingCount = ratingsToTenant.Count;
-                                    double ratingScore = 0;
-                                    foreach (var rating in ratingsToTenant)
-                                    {
-                                        ratingScore += rating.Rating;
-                                    }
-                                    ratingAvg = Convert.ToString(ratingScore / ratingCount);
-                                }
+                                //if (ratingsToTenant.Count != 0)
+                                //{
+                                //    ratingCount = ratingsToTenant.Count;
+                                //    double ratingScore = 0;
+                                //    foreach (var rating in ratingsToTenant)
+                                //    {
+                                //        ratingScore += rating.Rating;
+                                //    }
+                                //    ratingAvg = Convert.ToString(ratingScore / ratingCount);
+                                //}
 
                                 var tenantInfo = new
                                 {
-                                    leaseStartTime = order.leaseStartTime,
-                                    leaseEndTime = order.leaseEndTime,
-                                    name = tenant.lastName + tenant.firstName,
-                                    gender = Enum.GetName(typeof(UserSexType), tenant.gender),
-                                    job = Enum.GetName(typeof(UserJob), tenant.job),
-                                    tel = tenant.telphone,
-                                    description = tenant.userIntro,
-                                    ratingCount = ratingCount,
-                                    ratingAvg = ratingAvg
+                                    leaseStartTime = queryResult.order.leaseStartTime,
+                                    leaseEndTime = queryResult.order.leaseEndTime,
+                                    name = queryResult.tenant == null ? null : (queryResult.tenant.lastName + queryResult.tenant.firstName),
+                                    gender = queryResult.tenant == null ? null : queryResult.tenant.gender.ToString(),
+                                    job = queryResult.tenant == null ? null : queryResult.tenant.job.ToString(),
+                                    tel = queryResult.tenant == null ? queryResult.order.tenantTelphone : queryResult.tenant.telphone,
+                                    description = queryResult.tenant == null ? null : queryResult.tenant.userIntro,
+                                    ratingCount = queryResult.tenant == null ? null : queryResult.ratingCount,
+                                    ratingAvg = queryResult.tenant == null ? null : queryResult.ratingAvg
                                 };
 
                                 var pictureObject = new
@@ -822,15 +841,19 @@ namespace UserAuth.Controllers
                                 };
                                 //租客限制
                                 string jobRestriction = "";
-                                string[] jobRestrictions = houseEnter.jobRestriction.Split(',');
-
-                                for (int i = 0; i < jobRestrictions.Length; i++)
+                                if (!String.IsNullOrEmpty(houseEnter.jobRestriction))
                                 {
-                                    jobRestrictions[i] = jobRestrictions[i].Trim();
-                                    jobRestriction += Enum.GetName(typeof(UserJob), Convert.ToInt32(jobRestrictions[i])) + ",";
+                                    string[] jobRestrictions = houseEnter.jobRestriction.Split(',');
+
+                                    for (int i = 0; i < jobRestrictions.Length; i++)
+                                    {
+                                        jobRestrictions[i] = jobRestrictions[i].Trim();
+                                        jobRestriction += Enum.GetName(typeof(UserJob), Convert.ToInt32(jobRestrictions[i])) + ",";
+                                    }
+                                    char[] trimArr = { ',', ' ' };
+                                    jobRestriction = jobRestriction.Trim(trimArr);
                                 }
-                                char[] trimArr = { ',', ' ' };
-                                jobRestriction = jobRestriction.Trim(trimArr);
+
                                 var houseInfo = new
                                 {
                                     name = houseEnter.name, //名稱

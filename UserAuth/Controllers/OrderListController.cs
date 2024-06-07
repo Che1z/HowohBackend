@@ -71,6 +71,7 @@ namespace UserAuth.Controllers
                             {
                                 orderId = item.order.id,
                                 photo = item.photo,
+                                name = item.house.name,
                                 tenant = item.tenant.lastName + item.tenant.firstName,
                                 tenantTel = item.tenant.telphone,
                                 leaseStartTime = item.order.leaseStartTime,
