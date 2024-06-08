@@ -69,16 +69,16 @@ namespace UserAuth.Controllers
                                 where house.userId == UserId //使用者的房子
                                 join houseImg in db.HouseImgsEntities on house.id equals houseImg.houseId
                                 where houseImg.isCover == true
-                                join orderRating in db.OrdersRatingEntities on order.id equals orderRating.orderId into orderRatingGroup
-                                from orderRating in orderRatingGroup.DefaultIfEmpty()
-                                    //where orderRating.UserId == UserId
+                                //join orderRating in db.OrdersRatingEntities on order.id equals orderRating.orderId into orderRatingGroup
+                                //from orderRating in orderRatingGroup.DefaultIfEmpty()
+                                //where orderRating.UserId == UserId
                                 select new
                                 {
                                     order,
                                     house,
                                     photo = houseImg.path,
                                     tenant = order.userId == null ? null : db.UserEntities.FirstOrDefault(u => u.Id == order.userId),
-                                    ratingByLandlord = orderRatingGroup.FirstOrDefault(or => or.UserId == UserId)
+                                    ratingByLandlord = db.OrdersRatingEntities.FirstOrDefault(or => or.UserId == UserId && or.orderId == order.id) == null ? null : db.OrdersRatingEntities.FirstOrDefault(or => or.UserId == UserId && or.orderId == order.id)
                                 };
                     // 計算資料總筆數
                     int totalRecords = query.Count();
