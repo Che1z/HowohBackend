@@ -469,7 +469,8 @@ namespace UserAuth.Controllers
                                 houseId = q.houseId,
                                 info = db.HouseEntities.Where(h => h.id == q.houseId).Select(a => new
                                 {
-                                    userId = a.userId,                                    
+                                    userId = a.userId,    
+                                    title = a.name,
                                     info = db.UserEntities.Where(u => u.Id == a.userId).Select(b => new
                                     {
                                         lastName = b.lastName,
@@ -510,7 +511,7 @@ namespace UserAuth.Controllers
 
                                     tagList = new
                                     {
-                                        rentSubsity = a.isRentSubsidy,
+                                        rentSubsidy = a.isRentSubsidy,
                                         petAllowed = a.isPetAllowed,
                                         cookAllowed = a.isCookAllowed,
                                         STRAllowed = a.isSTRAllowed,

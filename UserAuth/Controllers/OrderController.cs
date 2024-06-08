@@ -1198,12 +1198,265 @@ namespace UserAuth.Controllers
             }
         }
 
-
+        /// <summary>
+        /// [ALO-19] 查看合約 (傳入houseId)
+        /// </summary>
+        /// <param name="houseId"></param>
+        /// <returns></returns>
         [HttpGet]
         [JwtAuthFilters]
         [Route("api/order/landlord/viewHouseContract/{houseId}")]
-        public IHttpActionResult viewHouseContract(string houseId) {
-            return Content(HttpStatusCode.OK, "OK");
+        public IHttpActionResult viewHouseContract(string houseId)
+        {
+            // 取得使用者JWT
+            var jwtObject = JwtAuthFilters.GetToken(Request.Headers.Authorization.Parameter);
+
+            // 取得JWT內部資料
+            var role = (UserRoleType)jwtObject["Role"];
+            var userId = (int)jwtObject["Id"];
+
+            if (!ModelState.IsValid || houseId == null)
+            {
+                return Content(HttpStatusCode.BadRequest, "錯誤資訊不符合規範");
+            }
+            try
+            {
+                if (role == UserRoleType.租客) // 檢查角色
+                {
+                    return Content(HttpStatusCode.BadRequest, "身分錯誤");
+                }
+                else
+                {
+                    string filePath = Path.Combine((HttpContext.Current.Server.MapPath("~/Contracts")), "20240604 好窩房屋租賃合約.pdf");
+                    string tempPDF = Path.Combine((HttpContext.Current.Server.MapPath("~/Contracts/NewContracts")), "輸出契約.pdf"); ;
+
+                    using (PdfReader reader = new PdfReader(filePath))
+                    {
+                        using (FileStream fileStream = new FileStream(tempPDF, FileMode.Create, FileAccess.Write))
+                        {
+                            using (PdfStamper stamper = new PdfStamper(reader, fileStream))
+                            {
+                                string path = Path.Combine((HttpContext.Current.Server.MapPath("~/fonts")), "msjh.ttc");
+                                BaseFont chBaseFont = BaseFont.CreateFont($"{path},0", BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
+                                reader.AcroFields.AddSubstitutionFont(chBaseFont);
+
+                                AcroFields form = stamper.AcroFields;
+                                foreach (var ele in form.Fields.Keys)
+                                {
+                                    form.SetFieldProperty(ele, "textfont", chBaseFont, null);
+                                }
+
+                                using (var db = new DBModel())
+                                {
+                                    int houseInt = Convert.ToInt32(houseId);
+                                    var query = db.HouseEntities.Where(h => h.id == houseInt && h.userId == userId).FirstOrDefault();
+                                    if (query == null)
+                                    {
+                                        // houseId不存在或該houesId與JWT UserId不相符
+                                        return Content(HttpStatusCode.BadRequest, "錯誤參數");
+                                    }
+                                    //開始寫入合約
+                                    string housePing = query.ping;
+                                    int rentInt = Convert.ToInt32(query.rent);
+                                    //fill_4 : 承租面積
+                                    form.SetField("fill_4", $"{housePing}坪");
+
+                                    //fill_9 : 租金 (新台幣)
+                                    form.SetField("fill_9", rentInt.ToString("N0"));
+
+                                    string securityDeposit = query.securityDeposit.ToString();
+                                    int securityDepositAmount = 0;
+                                    if (securityDeposit == "一個月")
+                                    {
+                                        securityDepositAmount = 1;
+                                    }
+                                    else if (securityDeposit == "二個月")
+                                    {
+                                        securityDepositAmount = 2;
+                                    }
+                                    securityDepositAmount = securityDepositAmount * rentInt;
+                                    //fill_11 : 押金 (新台幣)
+                                    form.SetField("fill_11", securityDepositAmount.ToString("N0"));
+
+                                    //付款方式
+                                    List<string> paymentMethod = new List<string> { };
+                                    if (query.paymentMethodOfWaterBill != (paymentTypeOfWaterBill)2)
+                                    {
+                                        paymentMethod.Add("水費");
+                                    }
+                                    if (query.paymentMethodOfManagementFee == (paymentMethodOfManagementFee)3 || query.paymentMethodOfManagementFee == (paymentMethodOfManagementFee)2)
+                                    {
+                                        paymentMethod.Add("管理費");
+                                    }
+                                    paymentMethod.Add("電費");
+
+                                    string paymentMethods = string.Join(", ", paymentMethod);
+
+                                    //fill_12 : 什麼費用要由 (乙方)負擔
+                                    form.SetField("fill_12", paymentMethods.ToString());
+
+                                    //只需繳交電費
+                                    if (paymentMethod.Count == 1)
+                                    {
+                                        if (query.electricBill == (paymentTypeOfElectricBill)1)
+                                        {
+                                            //自行繳納
+                                            form.SetField("fill_13", "電費依台電計價");
+                                            form.SetField("fill_14", query.paymentMethodOfElectricBill.ToString());
+                                        }
+                                        else
+                                        {
+                                            //隨房租繳納
+                                            form.SetField("fill_13", $"電費每度{query.electricBillPerDegree}元計價");
+                                            form.SetField("fill_14", query.paymentMethodOfElectricBill.ToString());
+                                        }
+                                    }
+
+                                    //若只繳兩種 (電費 + 水費 || 管理費)
+                                    if (paymentMethod.Count == 2)
+                                    {
+                                        if (paymentMethod.Contains("水費"))
+                                        {
+                                            if (query.paymentMethodOfWaterBill == (paymentTypeOfWaterBill)1)
+                                            {
+                                                form.SetField("fill_13", "水費依台水計價");
+                                                form.SetField("fill_14", "自行繳納");
+                                            }
+                                            else if (query.paymentMethodOfWaterBill == (paymentTypeOfWaterBill)3)
+                                            {
+                                                form.SetField("fill_13", $"水費自訂，每人每月{query.waterBillPerMonth}元");
+                                                form.SetField("fill_14", "隨房租繳納");
+                                            }
+                                            if (query.electricBill == (paymentTypeOfElectricBill)1)
+                                            {
+                                                //依台電計價
+                                                form.SetField("fill_15", "電費依台電計價");
+                                                form.SetField("fill_16", query.paymentMethodOfElectricBill.ToString());
+                                            }
+                                            else
+                                            {
+                                                //自訂
+                                                form.SetField("fill_15", $"電費每度{query.electricBillPerDegree}元計價");
+                                                form.SetField("fill_16", query.paymentMethodOfElectricBill.ToString());
+                                            }
+                                        }
+                                        if (paymentMethod.Contains("管理費"))
+                                        {
+                                            int managementFee = Convert.ToInt32(query.managementFeePerMonth);
+                                            form.SetField("fill_13", $"管理費每月{managementFee.ToString("N0")}元");
+                                            form.SetField("fill_14", query.paymentMethodOfManagementFee.ToString());
+                                            if (query.electricBill == (paymentTypeOfElectricBill)1)
+                                            {
+                                                //依台電計價
+                                                form.SetField("fill_15", "電費依台電計價");
+                                                form.SetField("fill_16", query.paymentMethodOfElectricBill.ToString());
+                                            }
+                                            else
+                                            {
+                                                //自訂
+                                                form.SetField("fill_15", $"電費每度{query.electricBillPerDegree}元計價");
+                                                form.SetField("fill_16", query.paymentMethodOfElectricBill.ToString());
+                                            }
+                                        }
+                                    }
+                                    if (paymentMethod.Count == 3)
+                                    {
+                                        if (query.paymentMethodOfWaterBill == (paymentTypeOfWaterBill)1)
+                                        {
+                                            form.SetField("fill_13", "水費依台水計價");
+                                            form.SetField("fill_14", "自行繳納");
+                                        }
+                                        else if (query.paymentMethodOfWaterBill == (paymentTypeOfWaterBill)3)
+                                        {
+                                            form.SetField("fill_13", $"水費自訂，每人每月{query.waterBillPerMonth}元");
+                                            form.SetField("fill_14", "隨房租繳納");
+                                        }
+                                        int managementFee = Convert.ToInt32(query.managementFeePerMonth);
+                                        form.SetField("fill_15", $"管理費每月{managementFee.ToString("N0")}元");
+                                        form.SetField("fill_16", query.paymentMethodOfManagementFee.ToString());
+
+                                        if (query.electricBill == (paymentTypeOfElectricBill)1)
+                                        {
+                                            //自行繳納
+                                            form.SetField("fill_17", "電費依台電計價");
+                                            form.SetField("fill_18", query.paymentMethodOfElectricBill.ToString());
+                                        }
+                                        else
+                                        {
+                                            //隨房租繳納
+                                            form.SetField("fill_17", $"電費每度{query.electricBillPerDegree}元計價");
+                                            form.SetField("fill_18", query.paymentMethodOfElectricBill.ToString());
+                                        }
+                                        List<string> equipments = new List<string> { };
+                                        if (query.hasAirConditioner == true)
+                                        {
+                                            equipments.Add("冷氣");
+                                        }
+                                        if (query.hasWashingMachine == true)
+                                        {
+                                            equipments.Add("洗衣機");
+                                        }
+                                        if (query.hasRefrigerator == true)
+                                        {
+                                            equipments.Add("冰箱");
+                                        }
+                                        if (query.hasCloset == true)
+                                        {
+                                            equipments.Add("衣櫃");
+                                        }
+                                        if (query.hasTableAndChair == true)
+                                        {
+                                            equipments.Add("桌椅");
+                                        }
+                                        if (query.hasWaterHeater == true)
+                                        {
+                                            equipments.Add("熱水器");
+                                        }
+                                        if (query.hasInternet == true)
+                                        {
+                                            equipments.Add("網路");
+                                        }
+                                        if (query.hasBed == true)
+                                        {
+                                            equipments.Add("床");
+                                        }
+                                        if (query.hasTV == true)
+                                        {
+                                            equipments.Add("電視");
+                                        }
+                                        string equipmentString = string.Join(", ", equipments);
+                                        form.SetField("fill_7_2", equipmentString);
+                                    }
+                                    stamper.FormFlattening = true;
+                                }
+                            }
+                        }
+                        byte[] fileBytes = System.IO.File.ReadAllBytes(tempPDF);
+                        System.IO.File.Delete(tempPDF); // 清理臨時文件
+
+                        var response = new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new ByteArrayContent(fileBytes)
+                        };
+
+                        response.Content.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("inline")
+                        {
+                            FileName = "Contract.pdf"
+                        };
+
+                        response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/pdf");
+
+                        return ResponseMessage(response);
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return Content(HttpStatusCode.BadRequest, ex.Message);
+            }
+
+
         }
         /// <summary>
         /// [ATH-3]租客確認或拒絕租約
