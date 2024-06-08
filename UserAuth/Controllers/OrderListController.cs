@@ -20,7 +20,7 @@ namespace UserAuth.Controllers
         [HttpGet]
         [Route("api/order/landlord/list/expired")]
         [JwtAuthFilters]
-        public IHttpActionResult GetLandlordExpiredOrderList()
+        public IHttpActionResult GetLandlordExpiredOrderList(string page = "1")
         {
             //取得使用者JWT
             var jwtObject = JwtAuthFilters.GetToken(Request.Headers.Authorization.Parameter);
@@ -37,29 +37,58 @@ namespace UserAuth.Controllers
                 }
                 using (DBModel db = new DBModel())
                 {
+                    // 假設 page 是傳入的頁碼參數，pageSize 是每頁顯示的筆數
+                    int pageNumber;
+                    // 嘗試將 page 轉換成 int，如果失敗則設置為預設值 1
+                    if (!int.TryParse(page, out pageNumber) || pageNumber < 1)
+                    {
+                        pageNumber = 1;
+                    }
+                    int pageSize = 12; // 每頁顯示的筆數
+                    //var query = from house in db.HouseEntities.AsQueryable()
+                    //            where house.userId == UserId
+                    //            join order in db.OrdersEntities on house.id equals order.houseId into orderGroup
+                    //            from order in orderGroup.DefaultIfEmpty()
+                    //            where order.leaseEndTime < DateTime.Today //過期的order
+                    //            join houseImg in db.HouseImgsEntities on house.id equals houseImg.houseId
+                    //            where houseImg.isCover == true
+                    //            join orderRating in db.OrdersRatingEntities on order.id equals orderRating.orderId into orderRatingGroup
+                    //            from orderRating in orderRatingGroup.DefaultIfEmpty()
+                    //            select new
+                    //            {
+                    //                order,
+                    //                house,
+                    //                photo = houseImg.path,
+                    //                tenant = order.userId == null ? null : db.UserEntities.FirstOrDefault(u => u.Id == order.userId),
+                    //                ratingByLandlord = orderRating == null ? null : orderRatingGroup.FirstOrDefault(o => o.UserId == UserId)
+                    //            };
+
                     var query = from order in db.OrdersEntities.AsQueryable()
                                 where order.leaseEndTime < DateTime.Today //過期的order
                                 join house in db.HouseEntities on order.houseId equals house.id
                                 where house.userId == UserId //使用者的房子
                                 join houseImg in db.HouseImgsEntities on house.id equals houseImg.houseId
                                 where houseImg.isCover == true
-                                join user in db.UserEntities on order.userId equals user.Id
                                 join orderRating in db.OrdersRatingEntities on order.id equals orderRating.orderId into orderRatingGroup
                                 from orderRating in orderRatingGroup.DefaultIfEmpty()
+                                    //where orderRating.UserId == UserId
                                 select new
                                 {
                                     order,
                                     house,
                                     photo = houseImg.path,
-                                    tenant = user,
-                                    ratingByLandlord = orderRatingGroup.FirstOrDefault(o => o.UserId == UserId) != null ? orderRatingGroup.FirstOrDefault(o => o.UserId == UserId) : null,
-                                    ratingByTenant = orderRatingGroup.FirstOrDefault(o => o.UserId != UserId) != null ? orderRatingGroup.FirstOrDefault(o => o.UserId != UserId) : null
+                                    tenant = order.userId == null ? null : db.UserEntities.FirstOrDefault(u => u.Id == order.userId),
+                                    ratingByLandlord = orderRatingGroup.FirstOrDefault(or => or.UserId == UserId)
                                 };
-                    var queryResult = query.ToList();
+                    // 計算資料總筆數
+                    int totalRecords = query.Count();
+                    // 分頁
+                    var paginatedResult = query.OrderByDescending(q => q.order.leaseEndTime).Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+                    //var queryResult = query.ToList();
                     var resultList = new List<object>();
-                    if (queryResult.Count > 0)
+                    if (paginatedResult.Count > 0)
                     {
-                        foreach (var item in queryResult)
+                        foreach (var item in paginatedResult)
                         {
                             //可評價的狀況
                             bool canComment = false;
@@ -72,8 +101,8 @@ namespace UserAuth.Controllers
                                 orderId = item.order.id,
                                 photo = item.photo,
                                 name = item.house.name,
-                                tenant = item.tenant.lastName + item.tenant.firstName,
-                                tenantTel = item.tenant.telphone,
+                                tenant = item.tenant == null ? "" : (item.tenant.lastName + item.tenant.firstName),
+                                tenantTel = item.tenant == null ? item.order.tenantTelphone : item.tenant.telphone,
                                 leaseStartTime = item.order.leaseStartTime,
                                 leaseEndTime = item.order.leaseEndTime,
                                 canComment = canComment
@@ -87,7 +116,12 @@ namespace UserAuth.Controllers
                         statusCode = 200,
                         status = "success",
                         message = "已成功回傳房東租期已結束的租賃列表",
-                        data = resultList
+                        data = new
+                        {
+                            page = pageNumber,
+                            totalCount = totalRecords,
+                            orderList = resultList
+                        }
                     };
                     return Content(HttpStatusCode.OK, result);
                 }
