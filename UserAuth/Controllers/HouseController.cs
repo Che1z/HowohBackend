@@ -780,11 +780,14 @@ namespace UserAuth.Controllers
                             //狀態為已承租
                             else if (houseEnter.status == statusType.已承租)
                             {
-                                var today = DateTime.Now;
-                                var query = from house in db.HouseEntities.AsQueryable()
-                                            where house.id == houseEnter.id
-                                            join order in db.OrdersEntities on house.id equals order.houseId
-                                            where order.leaseEndTime >= today && order.leaseStartTime <= today && (order.status == OrderStatus.租客已確認租約 || order.status == OrderStatus.租客非系統用戶)
+                                var today = DateTime.Now.Date;
+                                var query = from order in db.OrdersEntities.AsQueryable()
+                                            where order.houseId == houseEnter.id && today <= order.leaseEndTime && today >= order.leaseStartTime && (order.status == OrderStatus.租客已確認租約 || order.status == OrderStatus.租客非系統用戶)
+                                            join house in db.HouseEntities on order.houseId equals house.id
+                                            //var query = from house in db.HouseEntities.AsQueryable()
+                                            //            where house.id == houseEnter.id
+                                            //            join order in db.OrdersEntities on house.id equals order.houseId
+                                            //            where today <= order.leaseEndTime && today >= order.leaseStartTime && (order.status == OrderStatus.租客已確認租約 || order.status == OrderStatus.租客非系統用戶)
                                             select new
                                             {
                                                 house,
@@ -829,6 +832,7 @@ namespace UserAuth.Controllers
                                     gender = queryResult.tenant == null ? null : queryResult.tenant.gender.ToString(),
                                     job = queryResult.tenant == null ? null : queryResult.tenant.job.ToString(),
                                     tel = queryResult.tenant == null ? queryResult.order.tenantTelphone : queryResult.tenant.telphone,
+                                    photo = queryResult.tenant == null ? null : queryResult.tenant.photo,
                                     description = queryResult.tenant == null ? null : queryResult.tenant.userIntro,
                                     ratingCount = queryResult.tenant == null ? null : queryResult.ratingCount,
                                     ratingAvg = queryResult.tenant == null ? null : queryResult.ratingAvg
