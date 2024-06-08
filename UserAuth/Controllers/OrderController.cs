@@ -1198,6 +1198,13 @@ namespace UserAuth.Controllers
             }
         }
 
+
+        [HttpGet]
+        [JwtAuthFilters]
+        [Route("api/order/landlord/viewHouseContract/{houseId}")]
+        public IHttpActionResult viewHouseContract(string houseId) {
+            return Content(HttpStatusCode.OK, "OK");
+        }
         /// <summary>
         /// [ATH-3]租客確認或拒絕租約
         /// </summary>

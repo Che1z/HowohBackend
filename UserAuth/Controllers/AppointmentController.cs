@@ -134,7 +134,7 @@ namespace UserAuth.Controllers
 
                         var result = query.Select(r => new
                         {
-                            appintmentId = r.id,
+                            appointmentId = r.id,
                             appointmentCreateTime = r.CreateAt,
                             description = new
                             {
@@ -469,11 +469,12 @@ namespace UserAuth.Controllers
                                 houseId = q.houseId,
                                 info = db.HouseEntities.Where(h => h.id == q.houseId).Select(a => new
                                 {
-                                    userId = a.userId,
+                                    userId = a.userId,                                    
                                     info = db.UserEntities.Where(u => u.Id == a.userId).Select(b => new
                                     {
                                         lastName = b.lastName,
                                         firstName = b.firstName,
+                                        image = b.photo,
                                         intro = b.userIntro,
                                         gender = b.gender,
                                     }),
