@@ -134,6 +134,7 @@ namespace UserAuth.Controllers
 
                         var result = query.Select(r => new
                         {
+                            appintmentId = r.id,
                             appointmentCreateTime = r.CreateAt,
                             description = new
                             {
