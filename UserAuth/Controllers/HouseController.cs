@@ -826,6 +826,7 @@ namespace UserAuth.Controllers
 
                                 var tenantInfo = new
                                 {
+                                    orderId = queryResult.order.id,
                                     leaseStartTime = queryResult.order.leaseStartTime,
                                     leaseEndTime = queryResult.order.leaseEndTime,
                                     name = queryResult.tenant == null ? null : (queryResult.tenant.lastName + queryResult.tenant.firstName),
