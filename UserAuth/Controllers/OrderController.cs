@@ -1449,15 +1449,13 @@ namespace UserAuth.Controllers
                         return ResponseMessage(response);
                     }
                 }
-
             }
             catch (Exception ex)
             {
                 return Content(HttpStatusCode.BadRequest, ex.Message);
             }
-
-
         }
+
         /// <summary>
         /// [ATH-3]租客確認或拒絕租約
         /// </summary>
@@ -1519,22 +1517,97 @@ namespace UserAuth.Controllers
                                 Order.order.status = OrderStatus.租客已拒絕租約;
                                 break;
                         }
+                        db.SaveChanges();
+                        var result = new
+                        {
+                            statusCode = 200,
+                            status = "success",
+                            message = "已成功修改租約邀請內容",
+                            //data = data
+                        };
+                        return Content(HttpStatusCode.OK, result);
                     }
                     else
                     {
                         return Content(HttpStatusCode.NotFound, "無相關租約供修改");
                     }
-                    db.SaveChanges();
+                }
+            }
+            catch (Exception ex) { return Content(HttpStatusCode.BadRequest, ex); }
+        }
+
+        /// <summary>
+        /// [ALH-2]建立契約時取得曾經輸入的契約內容
+        /// </summary>
+        /// <param name="orderId">orderId</param>
+        /// <returns></returns>
+        [HttpGet]
+        [JwtAuthFilters]
+        [Route("api/order/landlord/contractInfo/{orderId}")]
+        public IHttpActionResult LandlordGetContractInfo(int orderId)
+        {
+            // 取得使用者JWT
+            var jwtObject = JwtAuthFilters.GetToken(Request.Headers.Authorization.Parameter);
+
+            // 取得JWT內部資料
+            var UserRole = (UserRoleType)jwtObject["Role"];
+            var UserId = (int)jwtObject["Id"];
+
+            try
+            {
+                if (UserRole != UserRoleType.房東)
+                {
+                    return Content(HttpStatusCode.Forbidden, "使用者角色非房東，不得使用此功能");
                 }
 
-                var result = new
+                using (DBModel db = new DBModel())
                 {
-                    statusCode = 200,
-                    status = "success",
-                    message = "已成功修改租約邀請內容",
-                    //data = data
-                };
-                return Content(HttpStatusCode.OK, result);
+                    var query = from order in db.OrdersEntities.AsQueryable()
+                                where order.id == orderId && (order.status == OrderStatus.租客已確認租約 || order.status == OrderStatus.租客非系統用戶)
+                                && DateTime.Now.Date >= order.leaseStartTime && DateTime.Now.Date <= order.leaseEndTime
+                                join house in db.HouseEntities on order.houseId equals house.id
+                                where house.status == statusType.已承租
+                                select new
+                                {
+                                    order,
+                                    house,
+                                    landlord = db.UserEntities.FirstOrDefault(u => u.Id == house.userId),
+                                    tenant = order.userId == null ? null : db.UserEntities.FirstOrDefault(u => u.Id == order.userId)
+                                };
+                    var queryResult = query.FirstOrDefault();
+                    if (queryResult != null)
+                    {
+                        var data = new
+                        {
+                            orderId = queryResult.order.id,
+                            landlordName = queryResult.order.contractLandlordName == null ? queryResult.landlord.lastName + queryResult.landlord.firstName : queryResult.order.contractLandlordName,
+                            tenantName = queryResult.order.contracttenantName == null ? queryResult.tenant == null ? "" : (queryResult.tenant.lastName + queryResult.tenant.firstName) : queryResult.order.contracttenantName,
+                            address = queryResult.order.contractAddress == null ? queryResult.house.city.ToString()
+                                                                                + queryResult.house.district.ToString().Substring(3)
+                                                                                + queryResult.house.road
+                                                                                + (String.IsNullOrEmpty(queryResult.house.lane) == true ? "" : (queryResult.house.lane + "巷"))
+                                                                                + (String.IsNullOrEmpty(queryResult.house.alley) == true ? "" : (queryResult.house.alley + "弄"))
+                                                                                + queryResult.house.number + "號"
+                                                                                + queryResult.house.floor + "樓"
+                                                                                : queryResult.order.contractAddress,
+                            contractRentPaymentBeforeDate = queryResult.order.contractRentPaymentBeforeDate == null ? null : queryResult.order.contractRentPaymentBeforeDate,
+                            contractTerminationNoticeMonths = queryResult.order.contractTerminationNoticeMonths == null ? null : queryResult.order.contractTerminationNoticeMonths,
+                            contractTerminationPenaltyMonths = queryResult.order.contractTerminationPenaltyMonths == null ? null : queryResult.order.contractTerminationPenaltyMonths
+                        };
+                        var result = new
+                        {
+                            statusCode = 200,
+                            status = "success",
+                            message = "已成功回傳租約資訊",
+                            data = data
+                        };
+                        return Content(HttpStatusCode.OK, result);
+                    }
+                    else
+                    {
+                        return Content(HttpStatusCode.NotFound, "無相關租約資訊");
+                    }
+                }
             }
             catch (Exception ex) { return Content(HttpStatusCode.BadRequest, ex); }
         }
