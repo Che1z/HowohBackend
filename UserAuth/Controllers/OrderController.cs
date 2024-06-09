@@ -1264,17 +1264,10 @@ namespace UserAuth.Controllers
                                     //fill_9 : 租金 (新台幣)
                                     form.SetField("fill_9", rentInt.ToString("N0"));
 
-                                    string securityDeposit = query.securityDeposit.ToString();
-                                    int securityDepositAmount = 0;
-                                    if (securityDeposit == "一個月")
-                                    {
-                                        securityDepositAmount = 1;
-                                    }
-                                    else if (securityDeposit == "二個月")
-                                    {
-                                        securityDepositAmount = 2;
-                                    }
-                                    securityDepositAmount = securityDepositAmount * rentInt;
+                                    //string securityDeposit = query.securityDeposit.ToString();
+                                    var securityDeposit = (securityDepositType)query.securityDeposit;
+                                   
+                                    int securityDepositAmount = Convert.ToInt32(securityDeposit) * rentInt;
                                     //fill_11 : 押金 (新台幣)
                                     form.SetField("fill_11", securityDepositAmount.ToString("N0"));
 
