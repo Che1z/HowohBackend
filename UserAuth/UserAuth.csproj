@@ -216,6 +216,7 @@
     <Compile Include="Controllers\HouseListController.cs" />
     <Compile Include="Controllers\OrderController.cs" />
     <Compile Include="Controllers\OrderListController.cs" />
+    <Compile Include="Controllers\OrderRatingController.cs" />
     <Compile Include="Controllers\TenantController.cs" />
     <Compile Include="Controllers\UserAuthController.cs" />
     <Compile Include="Global.asax.cs">
@@ -238,6 +239,7 @@
     <Compile Include="Models\ViewModel\HouseInput.cs" />
     <Compile Include="Models\ViewModel\LogInInput.cs" />
     <Compile Include="Models\ViewModel\OrderInfoInput.cs" />
+    <Compile Include="Models\ViewModel\OrderRatingInput.cs" />
     <Compile Include="Models\ViewModel\OrderStatusInput.cs" />
     <Compile Include="Models\ViewModel\PhoneNumberVerifiInput.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
