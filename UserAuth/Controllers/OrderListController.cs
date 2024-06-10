@@ -138,7 +138,7 @@ namespace UserAuth.Controllers
         /// <param name="page"></param>
         /// <returns></returns>
         [HttpGet]
-        [Route("api/order/tenant/list")]
+        [Route("api/orderList/tenant/list")]
         [JwtAuthFilters]
         public IHttpActionResult GetTenantOrderList(string page = "1")
         {
@@ -171,8 +171,8 @@ namespace UserAuth.Controllers
                                 join houseImg in db.HouseImgsEntities on house.id equals houseImg.houseId
                                 where houseImg.isCover == true
                                 join user in db.UserEntities on house.userId equals user.Id
-                                join orderRating in db.OrdersRatingEntities on order.id equals orderRating.orderId into orderRatingGroup
-                                from orderRating in orderRatingGroup.DefaultIfEmpty()
+                                //join orderRating in db.OrdersRatingEntities on order.id equals orderRating.orderId into orderRatingGroup
+                                //from orderRating in orderRatingGroup.DefaultIfEmpty()
                                 orderby order.leaseEndTime descending
                                 select new
                                 {
@@ -180,13 +180,13 @@ namespace UserAuth.Controllers
                                     house,
                                     photo = houseImg.path,
                                     landlord = user,
-                                    ratingByUser = orderRatingGroup.FirstOrDefault(o => o.UserId == UserId) != null ? orderRatingGroup.FirstOrDefault(o => o.UserId == UserId) : null,
+                                    ratingByUser = db.OrdersRatingEntities.FirstOrDefault(or => or.UserId == UserId && or.orderId == order.id) == null ? null : db.OrdersRatingEntities.FirstOrDefault(or => or.UserId == UserId && or.orderId == order.id)
                                     //ratingByOthers = orderRatingGroup.FirstOrDefault(o => o.UserId != UserId) != null ? orderRatingGroup.FirstOrDefault(o => o.UserId != UserId) : null
                                 };
                     // 計算資料總筆數
                     int totalRecords = query.Count();
                     // 分頁
-                    var paginatedResult = query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+                    var paginatedResult = query.OrderByDescending(o => o.order.leaseEndTime).Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
                     var queryOfRatingsByOthers = (from order in db.OrdersEntities.AsQueryable()
                                                   where order.userId == UserId
                                                   join orderRating in db.OrdersRatingEntities on order.id equals orderRating.orderId into orderRatingGroup
@@ -249,6 +249,7 @@ namespace UserAuth.Controllers
                                     lastName = item.landlord.lastName,
                                     gender = item.landlord.gender.ToString(),
                                     tel = item.landlord.telphone,
+                                    photo = item.landlord.photo,
                                     description = item.landlord.userIntro,
                                     ratingCount = queryOfRatingsByOthersResult.Count,
                                     ratingAvg = queryOfRatingsByOthersResult.Average
