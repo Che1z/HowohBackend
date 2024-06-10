@@ -35,7 +35,7 @@ namespace UserAuth.Models
 
         [Display(Name = "評分")]
         public int Rating { get; set; }
-        public DateTime RatingDate { get; set; }
+        public DateTime RatingDate { get; set; }= DateTime.Now;
         public ICollection<ReplyRating> Replies { get; set; }
     }
 }
