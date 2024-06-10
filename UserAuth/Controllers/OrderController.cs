@@ -218,9 +218,9 @@ namespace UserAuth.Controllers
                                     db.SaveChanges();
 
                                     // 驗證寫入PDF數據
-                                    string userName = orderContent.order.contractLandlordName;
-                                    string tenentName = orderContent.order.contracttenantName;
-                                    string houseLocation = orderContent.order.contractAddress;
+                                    string userName = orderContent.order.contractLandlordName ?? "";
+                                    string tenentName = orderContent.order.contracttenantName ?? "";
+                                    string houseLocation = orderContent.order.contractAddress ?? "";
                                     string housePing = orderContent.house.ping;
                                     string userCity = orderContent.house.city.ToString();
 
@@ -237,7 +237,7 @@ namespace UserAuth.Controllers
                                     int rentInt = Convert.ToInt32(orderContent.house.rent);
                                     string rent = rentInt.ToString();
 
-                                    string paymentBeforeDate = orderContent.order.contractRentPaymentBeforeDate;
+                                    string paymentBeforeDate = orderContent.order.contractRentPaymentBeforeDate ?? "";
 
                                     string securityDeposit = orderContent.house.securityDeposit.ToString();
                                     int securityDepositAmount = 0;
@@ -404,10 +404,12 @@ namespace UserAuth.Controllers
                                     }
 
                                     //fill_1_2 : 提前幾個月通知他方
-                                    form.SetField("fill_1_2", orderContent.order.contractTerminationNoticeMonths);
+                                    string noticeMonth = orderContent.order.contractTerminationNoticeMonths ?? "";
+                                    form.SetField("fill_1_2", noticeMonth);
 
                                     //fill_2_2 : 賠償幾個月的租金
-                                    form.SetField("fill_2_2", orderContent.order.contractTerminationPenaltyMonths);
+                                    string penaltyMonth = orderContent.order.contractTerminationPenaltyMonths ?? "";
+                                    form.SetField("fill_2_2",penaltyMonth);
 
                                     //fill_3_2 : 特別約定事項2 (不用填)
                                     //fill_4_2 : 特別約定事項3 (不用填)
@@ -579,11 +581,12 @@ namespace UserAuth.Controllers
 
                                     int leaseDuraionYearCal = (orderContent.order.leaseEndTime - orderContent.order.leaseStartTime).Days / 365;
                                     string leaseDurationYear = leaseDuraionYearCal.ToString();
+                                    leaseDurationYear = leaseDurationYear != null ? leaseDurationYear : "";
 
                                     int leaseDuraionMonthCal = (orderContent.order.leaseEndTime - orderContent.order.leaseStartTime).Days / 30;
                                     int leaseDurationMonthMinusYear = leaseDuraionMonthCal - leaseDuraionYearCal * 12;
                                     string leaseDurationMonth = leaseDurationMonthMinusYear.ToString();
-
+                                    leaseDurationMonth = leaseDurationMonth != null ? leaseDurationMonth : "";
                                     string contractStart = orderContent.order.leaseStartTime.ToString("yyyy年M月d日");
                                     string contractEnd = orderContent.order.leaseEndTime.ToString("yyyy年M月d日");
 
@@ -757,10 +760,12 @@ namespace UserAuth.Controllers
                                     }
 
                                     //fill_1_2 : 提前幾個月通知他方
-                                    form.SetField("fill_1_2", orderContent.order.contractTerminationNoticeMonths);
+                                    string noticeBefore = orderContent.order.contractTerminationNoticeMonths != null ? orderContent.order.contractTerminationNoticeMonths : "";
+;                                    form.SetField("fill_1_2", noticeBefore);
 
                                     //fill_2_2 : 賠償幾個月的租金
-                                    form.SetField("fill_2_2", orderContent.order.contractTerminationPenaltyMonths);
+                                    string penaltyRentMonth = orderContent.order.contractTerminationPenaltyMonths != null ? orderContent.order.contractTerminationPenaltyMonths : "";
+                                    form.SetField("fill_2_2", penaltyRentMonth);
 
                                     //fill_3_2 : 特別約定事項2 (不用填)
                                     //fill_4_2 : 特別約定事項3 (不用填)
