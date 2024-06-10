@@ -239,17 +239,11 @@ namespace UserAuth.Controllers
 
                                     string paymentBeforeDate = orderContent.order.contractRentPaymentBeforeDate ?? "";
 
-                                    string securityDeposit = orderContent.house.securityDeposit.ToString();
-                                    int securityDepositAmount = 0;
-                                    if (securityDeposit == "一個月")
-                                    {
-                                        securityDepositAmount = 1;
-                                    }
-                                    else if (securityDeposit == "二個月")
-                                    {
-                                        securityDepositAmount = 2;
-                                    }
-                                    securityDepositAmount = securityDepositAmount * Convert.ToInt32(rent);
+                                    //string securityDeposit = query.securityDeposit.ToString();
+                                    var securityDeposit = (securityDepositType)orderContent.order.houseIdFK.securityDeposit;
+
+                                    int securityDepositAmount = Convert.ToInt32(securityDeposit) * rentInt;
+                                 
 
                                     //付款方式
                                     List<string> paymentMethod = new List<string> { };
@@ -298,7 +292,6 @@ namespace UserAuth.Controllers
 
                                     //fill_11 : 押金 (新台幣)
                                     form.SetField("fill_11", securityDepositAmount.ToString("N0"));
-
                                     //fill_12 : 什麼費用要由 (乙方)負擔
                                     form.SetField("fill_12", paymentMethods.ToString());
 
@@ -1271,7 +1264,7 @@ namespace UserAuth.Controllers
 
                                     //string securityDeposit = query.securityDeposit.ToString();
                                     var securityDeposit = (securityDepositType)query.securityDeposit;
-
+                                   
                                     int securityDepositAmount = Convert.ToInt32(securityDeposit) * rentInt;
                                     //fill_11 : 押金 (新台幣)
                                     form.SetField("fill_11", securityDepositAmount.ToString("N0"));
@@ -1589,9 +1582,9 @@ namespace UserAuth.Controllers
                                                                                 + queryResult.house.number + "號"
                                                                                 + queryResult.house.floor + "樓"
                                                                                 : queryResult.order.contractAddress,
-                            contractPaymentBeforeDate = queryResult.order.contractRentPaymentBeforeDate == null ? null : queryResult.order.contractRentPaymentBeforeDate,
-                            contractTerminationNoticeMonth = queryResult.order.contractTerminationNoticeMonths == null ? null : queryResult.order.contractTerminationNoticeMonths,
-                            contractTerminationPenaltyMonth = queryResult.order.contractTerminationPenaltyMonths == null ? null : queryResult.order.contractTerminationPenaltyMonths
+                            contractRentPaymentBeforeDate = queryResult.order.contractRentPaymentBeforeDate == null ? null : queryResult.order.contractRentPaymentBeforeDate,
+                            contractTerminationNoticeMonths = queryResult.order.contractTerminationNoticeMonths == null ? null : queryResult.order.contractTerminationNoticeMonths,
+                            contractTerminationPenaltyMonths = queryResult.order.contractTerminationPenaltyMonths == null ? null : queryResult.order.contractTerminationPenaltyMonths
                         };
                         var result = new
                         {
