@@ -1584,7 +1584,7 @@ namespace UserAuth.Controllers
                                                                                 + queryResult.house.number + "號"
                                                                                 + queryResult.house.floor + "樓"
                                                                                 : queryResult.order.contractAddress,
-                            contractRentPaymentBeforeDate = queryResult.order.contractRentPaymentBeforeDate == null ? null : queryResult.order.contractRentPaymentBeforeDate,
+                            contractPaymentBeforeDate = queryResult.order.contractRentPaymentBeforeDate == null ? null : queryResult.order.contractRentPaymentBeforeDate,
                             contractTerminationNoticeMonth = queryResult.order.contractTerminationNoticeMonths == null ? null : queryResult.order.contractTerminationNoticeMonths,
                             contractTerminationPenaltyMonth = queryResult.order.contractTerminationPenaltyMonths == null ? null : queryResult.order.contractTerminationPenaltyMonths
                         };

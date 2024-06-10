@@ -51,20 +51,23 @@ namespace UserAuth.Controllers
                                           join orderRating in db.OrdersRatingEntities on order.id equals orderRating.orderId into orderRatingGroup
                                           from orderRating in orderRatingGroup.DefaultIfEmpty()
                                           where orderRating.UserId == UserId
-                                          select orderRating;
+                                          select new
+                                          {
+                                              order,
+                                              orderRating
+                                          };
 
                         var queryResult = tenantQuery.FirstOrDefault();
                         if (queryResult != null)
                         {
-                            if (queryResult == null)
+                            if (queryResult.orderRating == null)
                             {
-                                OrderRating orderRating = new OrderRating
-                                {
-                                    orderId = orderId,
-                                    UserId = UserId,
-                                    Comment = orderRatingInput.comment,
-                                    Rating = orderRatingInput.rating
-                                };
+                                OrderRating orderRating = new OrderRating();
+
+                                orderRating.orderId = orderId;
+                                orderRating.UserId = UserId;
+                                orderRating.Comment = orderRatingInput.comment;
+                                orderRating.Rating = orderRatingInput.rating;
 
                                 db.OrdersRatingEntities.Add(orderRating);
                                 db.SaveChanges();
@@ -94,11 +97,15 @@ namespace UserAuth.Controllers
                                             join orderRating in db.OrdersRatingEntities on order.id equals orderRating.orderId into orderRatingGroup
                                             from orderRating in orderRatingGroup.DefaultIfEmpty()
                                             where orderRating.UserId == UserId
-                                            select orderRating;
+                                            select new
+                                            {
+                                                order,
+                                                orderRating
+                                            };
                         var queryResult = landlordQuery.FirstOrDefault();
                         if (queryResult != null)
                         {
-                            if (queryResult == null)
+                            if (queryResult.orderRating == null)
                             {
                                 OrderRating orderRating = new OrderRating
                                 {
