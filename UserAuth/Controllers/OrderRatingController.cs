@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using UserAuth.Models;
+using UserAuth.Models.OrderEnumList;
 using UserAuth.Models.UserEnumList;
 using UserAuth.Models.ViewModel;
 using UserAuth.Security;
@@ -41,33 +42,33 @@ namespace UserAuth.Controllers
                 using (DBModel db = new DBModel())
                 {
                     var expiredDate = DateTime.Today.AddDays(-14);
-                    var query = from order in db.OrdersEntities.AsQueryable()
-                                where order.id == orderId
-                                select order;
+
                     if (UserRole == UserRoleType.租客)
                     {
-                        var tenantQuery = from order in query
-                                          where order.userId == UserId && expiredDate <= order.leaseEndTime
+                        var tenantQuery = from order in db.OrdersEntities.AsQueryable()
+                                          where order.id == orderId && order.userId == UserId && expiredDate <= order.leaseEndTime && order.status == OrderStatus.租客已確認租約
                                           join orderRating in db.OrdersRatingEntities on order.id equals orderRating.orderId into orderRatingGroup
                                           from orderRating in orderRatingGroup.DefaultIfEmpty()
-                                          where orderRating.UserId == UserId
                                           select new
                                           {
                                               order,
-                                              orderRating
+                                              userComment = orderRatingGroup.FirstOrDefault(or => or.UserId == UserId) ?? null,
                                           };
 
                         var queryResult = tenantQuery.FirstOrDefault();
                         if (queryResult != null)
                         {
-                            if (queryResult.orderRating == null)
+                            if (queryResult.userComment == null)
                             {
-                                OrderRating orderRating = new OrderRating();
-
-                                orderRating.orderId = orderId;
-                                orderRating.UserId = UserId;
-                                orderRating.Comment = orderRatingInput.comment;
-                                orderRating.Rating = orderRatingInput.rating;
+                                if (orderRatingInput.rating > 5) { orderRatingInput.rating = 5; }
+                                if (orderRatingInput.rating < 1) { orderRatingInput.rating = 1; }
+                                OrderRating orderRating = new OrderRating
+                                {
+                                    orderId = orderId,
+                                    UserId = UserId,
+                                    Comment = orderRatingInput.comment,
+                                    Rating = orderRatingInput.rating
+                                };
 
                                 db.OrdersRatingEntities.Add(orderRating);
                                 db.SaveChanges();
@@ -91,21 +92,22 @@ namespace UserAuth.Controllers
                     }
                     else
                     {
-                        var landlordQuery = from order in query
-                                            join house in db.HouseEntities on order.houseId equals house.id
-                                            where house.userId == UserId && expiredDate <= order.leaseEndTime
+                        var landlordQuery = from house in db.HouseEntities.AsQueryable()
+                                            where house.userId == UserId
+                                            join order in db.OrdersEntities on house.id equals order.houseId
+                                            where expiredDate <= order.leaseEndTime && order.id == orderId && order.status == OrderStatus.租客已確認租約
                                             join orderRating in db.OrdersRatingEntities on order.id equals orderRating.orderId into orderRatingGroup
                                             from orderRating in orderRatingGroup.DefaultIfEmpty()
-                                            where orderRating.UserId == UserId
                                             select new
                                             {
                                                 order,
-                                                orderRating
+                                                userComment = orderRatingGroup.FirstOrDefault(or => or.UserId == UserId) ?? null,
                                             };
+
                         var queryResult = landlordQuery.FirstOrDefault();
                         if (queryResult != null)
                         {
-                            if (queryResult.orderRating == null)
+                            if (queryResult.userComment == null)
                             {
                                 OrderRating orderRating = new OrderRating
                                 {
