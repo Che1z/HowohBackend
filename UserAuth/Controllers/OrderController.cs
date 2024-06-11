@@ -120,7 +120,7 @@ namespace UserAuth.Controllers
         /// <returns></returns>
         [HttpPost]
         [JwtAuthFilters]
-        [Route("api/order/landloard/downloadContract")]
+        [Route("api/order/landlord/downloadContract")]
         public IHttpActionResult CreateContract(ContractInput input)
         {
             // 取得使用者JWT
