@@ -396,7 +396,7 @@ namespace UserAuth.Controllers
                                     where house.userId == UserId
                                     join order in db.OrdersEntities on house.id equals order.houseId
                                     where order.status == OrderStatus.租客已確認租約 || order.status == OrderStatus.租客非系統用戶
-                                    join user in db.UserEntities on house.userId equals user.Id into userGroup
+                                    join user in db.UserEntities on order.userId equals user.Id into userGroup
                                     from user in userGroup.DefaultIfEmpty()
                                     join houseImg in db.HouseImgsEntities on house.id equals houseImg.houseId
                                     where houseImg.isCover == true
