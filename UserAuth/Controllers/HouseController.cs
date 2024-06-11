@@ -1560,7 +1560,7 @@ namespace UserAuth.Controllers
                                 select new
                                 {
                                     house = grouped.Key.house,
-                                    photo = db.HouseImgsEntities.FirstOrDefault(p => p.houseId == grouped.Key.house.id && p.isCover == true) ?? null,
+                                    photo = db.HouseImgsEntities.Where(p => p.houseId == grouped.Key.house.id && p.isCover == true).Select(p => p.path) ?? null,
                                     appointment = grouped,
                                     order = grouped.Key.order,
                                     tenant = grouped.Key.user
