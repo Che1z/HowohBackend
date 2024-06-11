@@ -181,7 +181,7 @@ namespace UserAuth.Controllers
                                     select new
                                     {
                                         orderRating,
-                                        reply = db.ReplyRatingEntities.FirstOrDefault(rr => rr.UserId == UserId) ?? null
+                                        reply = db.ReplyRatingEntities.FirstOrDefault(rr => rr.UserId == UserId && rr.orderRatingId == orderRating.id) ?? null
                                     };
                         var queryResult = query.FirstOrDefault();
                         if (queryResult != null)
@@ -224,7 +224,7 @@ namespace UserAuth.Controllers
                                     select new
                                     {
                                         orderRating,
-                                        reply = db.ReplyRatingEntities.FirstOrDefault(rr => rr.UserId == UserId) ?? null
+                                        reply = db.ReplyRatingEntities.FirstOrDefault(rr => rr.UserId == UserId && rr.orderRatingId == orderRating.id) ?? null
                                     };
                         var queryResult = query.FirstOrDefault();
                         if (queryResult != null)
