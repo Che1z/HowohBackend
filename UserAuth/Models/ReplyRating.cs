@@ -32,6 +32,7 @@ namespace UserAuth.Models
 
         [Display(Name = "評論內容")]
         public string ReplyComment { get; set; }
-        public DateTime ReplyDate { get; set; }
+
+        public DateTime ReplyDate { get; set; } = DateTime.Now;
     }
 }
