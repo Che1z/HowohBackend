@@ -242,6 +242,7 @@
     <Compile Include="Models\ViewModel\OrderRatingInput.cs" />
     <Compile Include="Models\ViewModel\OrderStatusInput.cs" />
     <Compile Include="Models\ViewModel\PhoneNumberVerifiInput.cs" />
+    <Compile Include="Models\ViewModel\ReplyRatingInput.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Security\JwtAuthFilters.cs" />
     <Compile Include="Security\JwtAuthUtil.cs" />
