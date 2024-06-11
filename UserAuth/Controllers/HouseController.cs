@@ -1560,7 +1560,7 @@ namespace UserAuth.Controllers
                                 select new
                                 {
                                     house = grouped.Key.house,
-                                    photo = db.HouseImgsEntities.Where(p => p.houseId == grouped.Key.house.id && p.isCover == true).Select(p => p.path),
+                                    photo = db.HouseImgsEntities.FirstOrDefault(p => p.houseId == grouped.Key.house.id && p.isCover == true) ?? null,
                                     appointment = grouped,
                                     order = grouped.Key.order,
                                     tenant = grouped.Key.user
@@ -1588,7 +1588,7 @@ namespace UserAuth.Controllers
                                     {
                                         houseId = r.house.id,
                                         name = r.house.name,
-                                        photo = r.photo.FirstOrDefault() ?? null,
+                                        photo = r.photo.path,
                                         canComment = canComment
                                     };
                                     housesDiscontinued.Add(discontinued);
@@ -1601,7 +1601,7 @@ namespace UserAuth.Controllers
                                         {
                                             houseId = r.house.id,
                                             name = r.house.name,
-                                            photo = r.photo.FirstOrDefault() ?? null,
+                                            photo = r.photo.path,
                                             leaseStartTime = r.order.leaseStartTime,
                                             leaseEndTime = r.order.leaseEndTime
                                         };
@@ -1616,7 +1616,7 @@ namespace UserAuth.Controllers
                                         {
                                             houseId = r.house.id,
                                             name = r.house.name,
-                                            photo = r.photo.FirstOrDefault() ?? null,
+                                            photo = r.photo.path,
                                             status = "申請預約看房",
                                             reservationCount = r.appointment.Count(g => g.appointment != null && g.appointment.isValid)
                                         };
@@ -1656,7 +1656,7 @@ namespace UserAuth.Controllers
                                     {
                                         houseId = r.house.id,
                                         name = r.house.name,
-                                        photo = r.photo.FirstOrDefault() ?? null,
+                                        photo = r.photo.path,
                                     };
                                     housesEditing.Add(editing);
                                     break;
