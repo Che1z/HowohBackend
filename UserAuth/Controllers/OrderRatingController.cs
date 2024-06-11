@@ -144,6 +144,12 @@ namespace UserAuth.Controllers
             }
         }
 
+        /// <summary>
+        /// [ACC-6]回覆對方的評價
+        /// </summary>
+        /// <param name="orderRatingId">orderRatingId</param>
+        /// <param name="replyRatingInput">回覆內容</param>
+        /// <returns></returns>
         [HttpPost]
         [Route("api/comment/common/reply/{orderRatingId}")]
         [JwtAuthFilters]
