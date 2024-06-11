@@ -1547,20 +1547,20 @@ namespace UserAuth.Controllers
                 {
                     var query = from house in db.HouseEntities.AsQueryable()
                                 where house.userId == UserId
-                                join houseImg in db.HouseImgsEntities on house.id equals houseImg.houseId into houseImgGroup
-                                from houseImg in houseImgGroup.DefaultIfEmpty()
-                                where houseImg.isCover == true
+                                //join houseImg in db.HouseImgsEntities on house.id equals houseImg.houseId into houseImgGroup
+                                //from houseImg in houseImgGroup.DefaultIfEmpty()
+                                //where houseImg.isCover == true
                                 join appointment in db.AppointmentsEntities on house.id equals appointment.houseId into appointmentGroup
                                 from appointment in appointmentGroup.DefaultIfEmpty()
                                 join order in db.OrdersEntities on house.id equals order.houseId into orderGroup
                                 from order in orderGroup.DefaultIfEmpty()
                                 join user in db.UserEntities on order.userId equals user.Id into userGroup
                                 from user in userGroup.DefaultIfEmpty()
-                                group new { house, houseImg, appointment, order, user } by new { house.id, houseImg.path, house, order, user } into grouped
+                                group new { house, appointment, order, user } by new { house.id, house, order, user } into grouped
                                 select new
                                 {
                                     house = grouped.Key.house,
-                                    photo = grouped.Key.path,
+                                    photo = db.HouseImgsEntities.Where(p => p.houseId == grouped.Key.house.id && p.isCover == true).Select(p => p.path) ?? null,
                                     appointment = grouped,
                                     order = grouped.Key.order,
                                     tenant = grouped.Key.user
