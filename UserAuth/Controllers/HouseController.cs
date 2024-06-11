@@ -1588,7 +1588,7 @@ namespace UserAuth.Controllers
                                     {
                                         houseId = r.house.id,
                                         name = r.house.name,
-                                        photo = r.photo.path,
+                                        photo = r.photo == null ? null : r.photo.path,
                                         canComment = canComment
                                     };
                                     housesDiscontinued.Add(discontinued);
@@ -1601,7 +1601,7 @@ namespace UserAuth.Controllers
                                         {
                                             houseId = r.house.id,
                                             name = r.house.name,
-                                            photo = r.photo.path,
+                                            photo = r.photo == null ? null : r.photo.path,
                                             leaseStartTime = r.order.leaseStartTime,
                                             leaseEndTime = r.order.leaseEndTime
                                         };
@@ -1616,7 +1616,7 @@ namespace UserAuth.Controllers
                                         {
                                             houseId = r.house.id,
                                             name = r.house.name,
-                                            photo = r.photo.path,
+                                            photo = r.photo == null ? null : r.photo.path,
                                             status = "申請預約看房",
                                             reservationCount = r.appointment.Count(g => g.appointment != null && g.appointment.isValid)
                                         };
@@ -1630,7 +1630,7 @@ namespace UserAuth.Controllers
                                             {
                                                 houseId = r.house.id,
                                                 name = r.house.name,
-                                                photo = r.photo,
+                                                photo = r.photo == null ? null : r.photo.path,
                                                 status = "租約邀請已送出",
                                                 userName = r.tenant.lastName + r.tenant.firstName,
                                             };
@@ -1642,7 +1642,7 @@ namespace UserAuth.Controllers
                                             {
                                                 houseId = r.house.id,
                                                 name = r.house.name,
-                                                photo = r.photo,
+                                                photo = r.photo == null ? null : r.photo.path,
                                                 status = "租約邀請已拒絕",
                                                 userName = r.tenant.lastName + r.tenant.firstName,
                                             };
@@ -1656,7 +1656,7 @@ namespace UserAuth.Controllers
                                     {
                                         houseId = r.house.id,
                                         name = r.house.name,
-                                        photo = r.photo.path,
+                                        photo = r.photo == null ? null : r.photo.path,
                                     };
                                     housesEditing.Add(editing);
                                     break;
