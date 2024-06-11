@@ -582,7 +582,8 @@ namespace UserAuth.Controllers
                                         {
                                             waterBillPayment = a.paymentMethodOfWaterBill.ToString(),
                                             waterBillPerMonth = a.waterBillPerMonth,
-                                            electricBillPayment = a.paymentMethodOfElectricBill.ToString(),
+                                            eletricPaymentType = a.electricBill.ToString(),
+                                            electricPaymentMethod = a.paymentMethodOfElectricBill.ToString(),
                                             electricBillPerMonth = a.electricBillPerDegree,
                                             managementFeePayment = a.paymentMethodOfManagementFee.ToString(),
                                             managementFeePerMonth = a.managementFeePerMonth,
