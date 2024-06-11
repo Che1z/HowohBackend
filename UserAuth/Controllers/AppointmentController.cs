@@ -812,6 +812,11 @@ namespace UserAuth.Controllers
 
         }
 
+        /// <summary>
+        /// [ALA-2] 房東隱藏租客(傳入appointmentId)
+        /// </summary>
+        /// <param name="appointmentId"></param>
+        /// <returns></returns>
         [HttpPatch]
         [JwtAuthFilters]
         [Route("api/appointment/landlord/hidden/{appointmentId}")]
@@ -847,6 +852,58 @@ namespace UserAuth.Controllers
                         else
                         {
                             query.hidden = true;
+                            db.SaveChanges(); // 保存變更
+                            return Content(HttpStatusCode.OK, "預約已隱藏");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return Content(HttpStatusCode.BadRequest, ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// [ALA-3] 房東顯示租客(傳入appointmentId)
+        /// </summary>
+        /// <param name="appointmentId"></param>
+        /// <returns></returns>
+        [HttpPatch]
+        [JwtAuthFilters]
+        [Route("api/appointment/landlord/reveal/{appointmentId}")]
+        public IHttpActionResult revealAppointment(string appointmentId)
+        {
+            // 取得使用者JWT
+            var jwtObject = JwtAuthFilters.GetToken(Request.Headers.Authorization.Parameter);
+
+            // 取得JWT內部資料
+            var role = (UserRoleType)jwtObject["Role"];
+            var userId = (int)jwtObject["Id"];
+
+            if (!ModelState.IsValid || appointmentId == null)
+            {
+                return Content(HttpStatusCode.BadRequest, "錯誤資訊不符合規範");
+            }
+            try
+            {
+                if (role == UserRoleType.租客) // 檢查角色
+                {
+                    return Content(HttpStatusCode.BadRequest, "身分錯誤");
+                }
+                else
+                {
+                    using (var db = new DBModel())
+                    {
+                        int appointmentIdInt = Convert.ToInt32(appointmentId);
+                        var query = db.AppointmentsEntities.Where(a => a.id == appointmentIdInt && a.houseIdFK.userId == userId).FirstOrDefault();
+                        if (query == null)
+                        {
+                            return Content(HttpStatusCode.BadRequest, "資料錯誤");
+                        }
+                        else
+                        {
+                            query.hidden = false;
                             db.SaveChanges(); // 保存變更
                             return Content(HttpStatusCode.OK, "預約已隱藏");
                         }
