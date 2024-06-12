@@ -1595,7 +1595,7 @@ namespace UserAuth.Controllers
                                     break;
 
                                 case statusType.已承租:
-                                    if (r.order != null)
+                                    if (r.order != null) ///todo: order要未過期
                                     {
                                         var leasing = new
                                         {
@@ -1610,7 +1610,7 @@ namespace UserAuth.Controllers
                                     break;
 
                                 case statusType.刊登中:
-                                    if (r.order == null)
+                                    if (r.order == null) ///todo: 如果有order則order已過期
                                     {
                                         var forRent = new
                                         {
@@ -1624,7 +1624,7 @@ namespace UserAuth.Controllers
                                     }
                                     else
                                     {
-                                        if (r.order.status == OrderStatus.待租客回覆租約)
+                                        if (r.order.status == OrderStatus.待租客回覆租約) ///todo: 且order未過期
                                         {
                                             var forRent = new
                                             {
@@ -1636,7 +1636,7 @@ namespace UserAuth.Controllers
                                             };
                                             housesForRent.Add(forRent);
                                         }
-                                        else if (r.order.status == OrderStatus.租客已拒絕租約)
+                                        else if (r.order.status == OrderStatus.租客已拒絕租約) ///todo: 且order未過期
                                         {
                                             var forRent = new
                                             {

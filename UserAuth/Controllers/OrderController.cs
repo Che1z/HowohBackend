@@ -82,6 +82,7 @@ namespace UserAuth.Controllers
                     }
                     else
                     {
+                        ///todo: 刪掉所有同房子的status為拒絕的order
                         order.tenantTelphone = orderInfoInput.tenantTelphone;
                         order.status = OrderStatus.租客非系統用戶;
                         houseToAddOrder.status = statusType.已承租;
@@ -243,7 +244,6 @@ namespace UserAuth.Controllers
                                     var securityDeposit = (securityDepositType)orderContent.order.houseIdFK.securityDeposit;
 
                                     int securityDepositAmount = Convert.ToInt32(securityDeposit) * rentInt;
-                                 
 
                                     //付款方式
                                     List<string> paymentMethod = new List<string> { };
@@ -402,7 +402,7 @@ namespace UserAuth.Controllers
 
                                     //fill_2_2 : 賠償幾個月的租金
                                     string penaltyMonth = orderContent.order.contractTerminationPenaltyMonths ?? "";
-                                    form.SetField("fill_2_2",penaltyMonth);
+                                    form.SetField("fill_2_2", penaltyMonth);
 
                                     //fill_3_2 : 特別約定事項2 (不用填)
                                     //fill_4_2 : 特別約定事項3 (不用填)
@@ -754,7 +754,7 @@ namespace UserAuth.Controllers
 
                                     //fill_1_2 : 提前幾個月通知他方
                                     string noticeBefore = orderContent.order.contractTerminationNoticeMonths != null ? orderContent.order.contractTerminationNoticeMonths : "";
-;                                    form.SetField("fill_1_2", noticeBefore);
+                                    ; form.SetField("fill_1_2", noticeBefore);
 
                                     //fill_2_2 : 賠償幾個月的租金
                                     string penaltyRentMonth = orderContent.order.contractTerminationPenaltyMonths != null ? orderContent.order.contractTerminationPenaltyMonths : "";
@@ -1264,7 +1264,7 @@ namespace UserAuth.Controllers
 
                                     //string securityDeposit = query.securityDeposit.ToString();
                                     var securityDeposit = (securityDepositType)query.securityDeposit;
-                                   
+
                                     int securityDepositAmount = Convert.ToInt32(securityDeposit) * rentInt;
                                     //fill_11 : 押金 (新台幣)
                                     form.SetField("fill_11", securityDepositAmount.ToString("N0"));
@@ -1495,7 +1495,7 @@ namespace UserAuth.Controllers
                     {
                         switch (orderStatusInput.acceptOrder)
                         {
-                            case true:
+                            case true: ///todo: 刪掉所有同房子的status為拒絕的order
                                 Order.order.status = OrderStatus.租客已確認租約;
                                 Order.house.status = statusType.已承租;
                                 foreach (var appointment in Order.appointments)
