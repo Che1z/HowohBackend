@@ -55,6 +55,12 @@ namespace UserAuth.Models
         [Display(Name = "樓")]
         public string floor { get; set; }
 
+        [Display(Name = "經度")]
+        public string latitude { get; set; }
+
+        [Display(Name = "緯度")]
+        public string longitude { get; set; }
+
         [Display(Name = "總樓層")]
         public string floorTotal { get; set; }
 
