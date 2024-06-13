@@ -1512,7 +1512,11 @@ namespace UserAuth.Controllers
                     {
                         throw new Exception("該房源狀態非刊登中，無法變更房源狀態");
                     }
-
+                    var ordersRefused = db.OrdersEntities.Where(o => o.houseId == id && o.status == OrderStatus.租客已拒絕租約).ToList();
+                    if (ordersRefused.Count() > 0)
+                    {
+                        db.OrdersEntities.RemoveRange(ordersRefused);
+                    }
                     houseEnter.status = statusType.已完成;
                     db.SaveChanges();
 
@@ -1557,16 +1561,6 @@ namespace UserAuth.Controllers
                 {
                     var query = from house in db.HouseEntities.AsQueryable()
                                 where house.userId == UserId
-                                //join houseImg in db.HouseImgsEntities on house.id equals houseImg.houseId into houseImgGroup
-                                //from houseImg in houseImgGroup.DefaultIfEmpty()
-                                //where houseImg.isCover == true
-                                //join appointment in db.AppointmentsEntities on house.id equals appointment.houseId into appointmentGroup
-                                //from appointment in appointmentGroup.DefaultIfEmpty()
-                                //join order in db.OrdersEntities on house.id equals order.houseId into orderGroup
-                                //from order in orderGroup.DefaultIfEmpty()
-                                //join user in db.UserEntities on order.userId equals user.Id into userGroup
-                                //from user in userGroup.DefaultIfEmpty()
-                                //group new { house, order, user } by new { house.id, house, order, user } into grouped
                                 select new
                                 {
                                     house,
@@ -1608,7 +1602,7 @@ namespace UserAuth.Controllers
                                     break;
 
                                 case statusType.已承租:
-                                    if (r.orderList.Count() > 0 && r.orderList.Any(ol => DateTime.Today <= ol.order.leaseEndTime && (ol.order.status == OrderStatus.租客已確認租約 || ol.order.status == OrderStatus.租客非系統用戶))) ///todo: order要未過期
+                                    if (r.orderList.Count() > 0 && r.orderList.Any(ol => DateTime.Today <= ol.order.leaseEndTime && (ol.order.status == OrderStatus.租客已確認租約 || ol.order.status == OrderStatus.租客非系統用戶)))
                                     {
                                         var leasingOrder = r.orderList.FirstOrDefault(o => DateTime.Today < o.order.leaseEndTime.AddDays(14) && (o.order.status == OrderStatus.租客已確認租約 || o.order.status == OrderStatus.租客非系統用戶));
                                         var leasing = new
@@ -1624,7 +1618,7 @@ namespace UserAuth.Controllers
                                     break;
 
                                 case statusType.刊登中:
-                                    if (r.orderList.Count() == 0 && !r.orderList.Any(ol => DateTime.Today <= ol.order.leaseEndTime)) ///todo: 如果有order則order已過期
+                                    if (r.orderList.Count() == 0 && !r.orderList.Any(ol => DateTime.Today <= ol.order.leaseEndTime))
                                     {
                                         var forRent = new
                                         {
@@ -1639,7 +1633,7 @@ namespace UserAuth.Controllers
                                     else
                                     {
                                         var pendingOrder = r.orderList.LastOrDefault(ol => DateTime.Today <= ol.order.leaseEndTime);
-                                        if (pendingOrder.order.status == OrderStatus.待租客回覆租約) ///todo: 且order未過期
+                                        if (pendingOrder.order.status == OrderStatus.待租客回覆租約)
                                         {
                                             var forRent = new
                                             {
@@ -1651,7 +1645,7 @@ namespace UserAuth.Controllers
                                             };
                                             housesForRent.Add(forRent);
                                         }
-                                        else if (pendingOrder.order.status == OrderStatus.租客已拒絕租約) ///todo: 且order未過期
+                                        else if (pendingOrder.order.status == OrderStatus.租客已拒絕租約)
                                         {
                                             var forRent = new
                                             {

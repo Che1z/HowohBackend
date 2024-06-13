@@ -91,6 +91,11 @@ namespace UserAuth.Controllers
                         {
                             appointment.isValid = false;
                         }
+                        var ordersRefused = db.OrdersEntities.Where(o => o.houseId == houseToAddOrder.id && o.status == OrderStatus.租客已拒絕租約).ToList();
+                        if (ordersRefused.Count() > 0)
+                        {
+                            db.OrdersEntities.RemoveRange(ordersRefused);
+                        }
                     }
 
                     order.houseId = orderInfoInput.houseId;
@@ -1501,6 +1506,11 @@ namespace UserAuth.Controllers
                                 foreach (var appointment in Order.appointments)
                                 {
                                     appointment.isValid = false;
+                                }
+                                var ordersRefused = db.OrdersEntities.Where(o => o.houseId == Order.house.id && o.status == OrderStatus.租客已拒絕租約).ToList();
+                                if (ordersRefused.Count() > 0)
+                                {
+                                    db.OrdersEntities.RemoveRange(ordersRefused);
                                 }
                                 break;
 
