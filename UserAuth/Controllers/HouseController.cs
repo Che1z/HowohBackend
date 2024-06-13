@@ -129,6 +129,8 @@ namespace UserAuth.Controllers
                     string houseFloor = houseInput.floor;
                     string houseFloorTotal = houseInput.floorTotal;
                     string ping = houseInput.ping;
+                    string longitude = houseInput.longitude;
+                    string latitude = houseInput.latitude;
                     string houseRoomNumbers = houseInput.roomNumbers;
                     string houseLivingRoomNumbers = houseInput.livingRoomNumbers;
                     string houseBathRoomNumbers = houseInput.bathRoomNumbers;
@@ -225,6 +227,14 @@ namespace UserAuth.Controllers
                     if (ping != null)
                     {
                         updateHouse.ping = ping;
+                    }
+                    if (longitude != null)
+                    {
+                        updateHouse.longitude = longitude;
+                    }
+                    if (latitude != null)
+                    {
+                        updateHouse.latitude = latitude;
                     }
                     if (houseRoomNumbers != null)
                     {
@@ -1550,20 +1560,23 @@ namespace UserAuth.Controllers
                                 //join houseImg in db.HouseImgsEntities on house.id equals houseImg.houseId into houseImgGroup
                                 //from houseImg in houseImgGroup.DefaultIfEmpty()
                                 //where houseImg.isCover == true
-                                join appointment in db.AppointmentsEntities on house.id equals appointment.houseId into appointmentGroup
-                                from appointment in appointmentGroup.DefaultIfEmpty()
-                                join order in db.OrdersEntities on house.id equals order.houseId into orderGroup
-                                from order in orderGroup.DefaultIfEmpty()
-                                join user in db.UserEntities on order.userId equals user.Id into userGroup
-                                from user in userGroup.DefaultIfEmpty()
-                                group new { house, appointment, order, user } by new { house.id, house, order, user } into grouped
+                                //join appointment in db.AppointmentsEntities on house.id equals appointment.houseId into appointmentGroup
+                                //from appointment in appointmentGroup.DefaultIfEmpty()
+                                //join order in db.OrdersEntities on house.id equals order.houseId into orderGroup
+                                //from order in orderGroup.DefaultIfEmpty()
+                                //join user in db.UserEntities on order.userId equals user.Id into userGroup
+                                //from user in userGroup.DefaultIfEmpty()
+                                //group new { house, order, user } by new { house.id, house, order, user } into grouped
                                 select new
                                 {
-                                    house = grouped.Key.house,
-                                    photo = db.HouseImgsEntities.FirstOrDefault(p => p.houseId == grouped.Key.house.id && p.isCover == true) ?? null,
-                                    appointment = grouped,
-                                    order = grouped.Key.order,
-                                    tenant = grouped.Key.user
+                                    house,
+                                    photo = db.HouseImgsEntities.FirstOrDefault(p => p.houseId == house.id && p.isCover == true) ?? null,
+                                    appointmentList = db.AppointmentsEntities.Where(a => a.houseId == house.id && a.isValid == true).ToList(),
+                                    orderList = db.OrdersEntities.Where(o => o.houseId == house.id).ToList().Select(o => new
+                                    {
+                                        order = o,
+                                        tenant = db.UserEntities.FirstOrDefault(u => u.Id == o.userId) ?? null
+                                    }),
                                 };
                     var queryResult = query.ToList();
 
@@ -1580,7 +1593,7 @@ namespace UserAuth.Controllers
                             {
                                 case statusType.已完成:
                                     bool canComment = false;
-                                    if (r.order != null && r.order.userId != null && DateTime.Now < r.order.leaseEndTime.AddDays(14))
+                                    if (r.orderList.Count() > 0 && r.orderList.Any(ol => DateTime.Today < ol.order.leaseEndTime.AddDays(14) && ol.order.userId != null))
                                     {
                                         canComment = true;
                                     }
@@ -1595,22 +1608,23 @@ namespace UserAuth.Controllers
                                     break;
 
                                 case statusType.已承租:
-                                    if (r.order != null) ///todo: order要未過期
+                                    if (r.orderList.Count() > 0 && r.orderList.Any(ol => DateTime.Today <= ol.order.leaseEndTime && (ol.order.status == OrderStatus.租客已確認租約 || ol.order.status == OrderStatus.租客非系統用戶))) ///todo: order要未過期
                                     {
+                                        var leasingOrder = r.orderList.FirstOrDefault(o => DateTime.Today < o.order.leaseEndTime.AddDays(14) && (o.order.status == OrderStatus.租客已確認租約 || o.order.status == OrderStatus.租客非系統用戶));
                                         var leasing = new
                                         {
                                             houseId = r.house.id,
                                             name = r.house.name,
                                             photo = r.photo == null ? null : r.photo.path,
-                                            leaseStartTime = r.order.leaseStartTime,
-                                            leaseEndTime = r.order.leaseEndTime
+                                            leaseStartTime = leasingOrder.order.leaseStartTime,
+                                            leaseEndTime = leasingOrder.order.leaseEndTime
                                         };
                                         housesLeasing.Add(leasing);
                                     }
                                     break;
 
                                 case statusType.刊登中:
-                                    if (r.order == null) ///todo: 如果有order則order已過期
+                                    if (r.orderList.Count() == 0 && !r.orderList.Any(ol => DateTime.Today <= ol.order.leaseEndTime)) ///todo: 如果有order則order已過期
                                     {
                                         var forRent = new
                                         {
@@ -1618,13 +1632,14 @@ namespace UserAuth.Controllers
                                             name = r.house.name,
                                             photo = r.photo == null ? null : r.photo.path,
                                             status = "申請預約看房",
-                                            reservationCount = r.appointment.Count(g => g.appointment != null && g.appointment.isValid)
+                                            reservationCount = r.appointmentList.Count()
                                         };
                                         housesForRent.Add(forRent);
                                     }
                                     else
                                     {
-                                        if (r.order.status == OrderStatus.待租客回覆租約) ///todo: 且order未過期
+                                        var pendingOrder = r.orderList.LastOrDefault(ol => DateTime.Today <= ol.order.leaseEndTime);
+                                        if (pendingOrder.order.status == OrderStatus.待租客回覆租約) ///todo: 且order未過期
                                         {
                                             var forRent = new
                                             {
@@ -1632,11 +1647,11 @@ namespace UserAuth.Controllers
                                                 name = r.house.name,
                                                 photo = r.photo == null ? null : r.photo.path,
                                                 status = "租約邀請已送出",
-                                                userName = r.tenant.lastName + r.tenant.firstName,
+                                                userName = pendingOrder.tenant.lastName + pendingOrder.tenant.firstName,
                                             };
                                             housesForRent.Add(forRent);
                                         }
-                                        else if (r.order.status == OrderStatus.租客已拒絕租約) ///todo: 且order未過期
+                                        else if (pendingOrder.order.status == OrderStatus.租客已拒絕租約) ///todo: 且order未過期
                                         {
                                             var forRent = new
                                             {
@@ -1644,7 +1659,7 @@ namespace UserAuth.Controllers
                                                 name = r.house.name,
                                                 photo = r.photo == null ? null : r.photo.path,
                                                 status = "租約邀請已拒絕",
-                                                userName = r.tenant.lastName + r.tenant.firstName,
+                                                userName = pendingOrder.tenant.lastName + pendingOrder.tenant.firstName,
                                             };
                                             housesForRent.Add(forRent);
                                         }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
+using System.Xml.Linq;
 using UserAuth.Models.HouseEnumList;
 using UserAuth.Models.UserEnumList;
 
@@ -56,6 +57,12 @@ namespace UserAuth.Models.ViewModel
         //[Required(ErrorMessage = "{0}必填")]
         [Display(Name = "坪數")]
         public string ping { get; set; }
+
+        [Display(Name = "經度")]
+        public string longitude { get; set; }
+
+        [Display(Name = "緯度")]
+        public string latitude { get; set; }
 
         //[Required(ErrorMessage = "{0}必填")]
         [Display(Name = "房數")]
