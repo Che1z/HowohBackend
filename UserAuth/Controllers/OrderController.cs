@@ -159,7 +159,7 @@ namespace UserAuth.Controllers
                             using (PdfStamper stamper = new PdfStamper(reader, fileStream))
                             {
                                 string path = Path.Combine((HttpContext.Current.Server.MapPath("~/fonts")), "msjh.ttc");
-                                BaseFont chBaseFont = BaseFont.CreateFont($"{path},0", BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
+                                BaseFont chBaseFont = BaseFont.CreateFont($"{path},0", BaseFont.IDENTITY_V, BaseFont.NOT_EMBEDDED);
                                 reader.AcroFields.AddSubstitutionFont(chBaseFont);
 
                                 AcroFields form = stamper.AcroFields;
@@ -523,7 +523,7 @@ namespace UserAuth.Controllers
                 else
                 {
                     string filePath = Path.Combine((HttpContext.Current.Server.MapPath("~/Contracts")), "20240604 好窩房屋租賃合約.pdf");
-                    string tempPDF = Path.Combine((HttpContext.Current.Server.MapPath("~/Contracts/NewContracts")), "輸出契約.pdf"); ;
+                    string tempPDF = Path.Combine((HttpContext.Current.Server.MapPath("~/Contracts/NewContracts")), $"輸出契約{userId}{DateTime.Now.ToString("yyyyMMddhhmmss")}.pdf"); ;
 
                     using (PdfReader reader = new PdfReader(filePath))
                     {

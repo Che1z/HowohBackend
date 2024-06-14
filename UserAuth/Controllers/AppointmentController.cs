@@ -711,6 +711,81 @@ namespace UserAuth.Controllers
         }
 
         /// <summary>
+        /// [ACA-3] 取得租約邀請的列表總數量
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [JwtAuthFilters]
+        [Route("api/appointment/common/list/invitedTotalNumber")]
+        public IHttpActionResult getInvitedListTotalNumber()
+        {
+            try
+            {
+                // 取得使用者JWT
+                var jwtObject = JwtAuthFilters.GetToken(Request.Headers.Authorization.Parameter);
+
+                // 取得JWT內部資料
+                int UserId = (int)jwtObject["Id"];
+                int role = (int)jwtObject["Role"];
+
+                if (role != 1)
+                {
+                    return Content(HttpStatusCode.BadRequest, "身分錯誤");
+                }
+                else
+                {
+                    using (DBModel db = new DBModel())
+                    {
+                        var query = db.OrdersEntities.AsQueryable();
+                        var firstQuery = query.Where(o => o.status.ToString() == "待租客回覆租約" && o.userId == UserId);
+                        var result = firstQuery.Select(a => new
+                        {
+                            orderId = a.id,
+                            orderCreateTime = a.CreateAt,
+                            leaseStartTime = a.leaseStartTime,
+                            leaseEndTime = a.leaseEndTime,
+
+                            houseId = a.houseId,
+                            houseInfo = new
+                            {
+                                houseDetail = db.HouseEntities.Where(h => h.id == a.houseId).Select(b => new
+                                {
+                                    landlordId = b.userId,
+                                    housePhoto = b.HouseImgs.Where(z => z.isCover == true).Select(i => new
+                                    {
+                                        photoPath = i.path,
+                                    }),
+                                    landlordInfo = db.UserEntities.Where(d => d.Id == b.userId).Select(e => new
+                                    {
+                                        lastName = e.lastName,
+                                        firstName = e.firstName,
+                                        gender = e.gender.ToString(),
+                                        intro = e.userIntro,
+                                        phoneNumber = e.telphone,
+                                    }).FirstOrDefault(),
+                                    title = b.name,
+                                    rent = b.rent,
+                                }).FirstOrDefault()
+                            }
+                        }).ToList();
+                        int dataTotalNumber = result.Count();
+
+                        var finalresult = new
+                        {
+                            totalNumber = dataTotalNumber
+
+                        };
+                        return Content(HttpStatusCode.OK, finalresult);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return Content(HttpStatusCode.BadRequest, ex);
+            }
+        }
+
+        /// <summary>
         /// [ATA-2] 取得租約邀請的房源資訊
         /// </summary>
         /// <param name="orderId"></param>
