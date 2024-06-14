@@ -431,7 +431,7 @@ namespace UserAuth.Controllers
                         // 分頁
                         var queryResult = query.OrderByDescending(o => o.order.leaseEndTime).Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
                         //var queryResult = query.ToList();
-                        var orderList = new List<object>();
+                        var orderList = new List<dynamic>();
                         var expiredDate = DateTime.Today.AddDays(-14);
                         foreach (var i in queryResult)
                         {
@@ -476,6 +476,7 @@ namespace UserAuth.Controllers
                             };
                             orderList.Add(order);
                         }
+                        orderList = orderList.OrderByDescending(o => o.commentInfo.canComment).ThenByDescending(o => o.orderInfo.leaseEndTime).ToList();
                         var result = new
                         {
                             statusCode = 200,
