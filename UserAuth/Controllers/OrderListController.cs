@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using UserAuth.Models;
+using UserAuth.Models.OrderEnumList;
 using UserAuth.Models.UserEnumList;
 using UserAuth.Security;
 
@@ -64,7 +65,7 @@ namespace UserAuth.Controllers
                     //            };
 
                     var query = from order in db.OrdersEntities.AsQueryable()
-                                where order.leaseEndTime < DateTime.Today //過期的order
+                                where order.leaseEndTime < DateTime.Today && (order.status == OrderStatus.租客已確認租約 || order.status == OrderStatus.租客非系統用戶)//過期的order
                                 join house in db.HouseEntities on order.houseId equals house.id
                                 where house.userId == UserId //使用者的房子
                                 join houseImg in db.HouseImgsEntities on house.id equals houseImg.houseId

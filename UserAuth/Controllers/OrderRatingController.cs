@@ -479,7 +479,7 @@ namespace UserAuth.Controllers
                         {
                             statusCode = 200,
                             status = "success",
-                            message = "已成功回傳租客的評價列表",
+                            message = "已成功回傳房東的評價列表",
                             data = new
                             {
                                 page = pageNumber,
