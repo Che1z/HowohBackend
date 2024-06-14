@@ -1614,6 +1614,84 @@ namespace UserAuth.Controllers
             catch (Exception ex) { return Content(HttpStatusCode.BadRequest, ex); }
         }
 
+        /// <summary>
+        /// [ATH-4]取得承租歷史總筆數及待評價總筆數
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [JwtAuthFilters]
+        [Route("api/order/tenant/count")]
+        public IHttpActionResult TenentGetOrderCount()
+        {
+            // 取得使用者JWT
+            var jwtObject = JwtAuthFilters.GetToken(Request.Headers.Authorization.Parameter);
+
+            // 取得JWT內部資料
+            var UserRole = (UserRoleType)jwtObject["Role"];
+            var UserId = (int)jwtObject["Id"];
+            try
+            {
+                if (UserRole != UserRoleType.租客)
+                {
+                    return Content(HttpStatusCode.Forbidden, "使用者角色非租客，不得使用此功能");
+                }
+
+                using (DBModel db = new DBModel())
+                {
+                    var query = from order in db.OrdersEntities.AsQueryable()
+                                where order.userId == UserId && order.status == OrderStatus.租客已確認租約
+                                select new
+                                {
+                                    order,
+                                    userComment = db.OrdersRatingEntities.FirstOrDefault(or => or.orderId == order.id && or.UserId == UserId) ?? null
+                                };
+                    var queryResult = query.ToList();
+                    var queryCount = queryResult.Count();
+                    if (queryCount > 0)
+                    {
+                        var canCommentCount = 0;
+                        foreach (var comment in queryResult)
+                        {
+                            if (comment.userComment == null && DateTime.Today > comment.order.leaseEndTime.Date && DateTime.Today <= comment.order.leaseEndTime.Date.AddDays(14))
+                            {
+                                canCommentCount++;
+                            }
+                        }
+                        var data = new
+                        {
+                            orderHistoryCount = queryCount,
+                            canCommentCount = canCommentCount
+                        };
+                        var result = new
+                        {
+                            statusCode = 200,
+                            status = "success",
+                            message = "已成功回傳承租筆數相關資訊",
+                            data = data
+                        };
+                        return Content(HttpStatusCode.OK, result);
+                    }
+                    else
+                    {
+                        var data = new
+                        {
+                            orderHistoryCount = 0,
+                            canCommentCount = 0
+                        };
+                        var result = new
+                        {
+                            statusCode = 200,
+                            status = "success",
+                            message = "已成功回傳承租筆數相關資訊",
+                            data = data
+                        };
+                        return Content(HttpStatusCode.OK, result);
+                    }
+                }
+            }
+            catch (Exception ex) { return Content(HttpStatusCode.BadRequest, ex); }
+        }
+
         // GET: api/Order
         //public IEnumerable<string> Get()
         //{
