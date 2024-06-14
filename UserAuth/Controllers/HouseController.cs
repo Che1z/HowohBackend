@@ -1618,21 +1618,9 @@ namespace UserAuth.Controllers
                                     break;
 
                                 case statusType.刊登中:
-                                    if (r.orderList.Count() == 0 && !r.orderList.Any(ol => DateTime.Today <= ol.order.leaseEndTime))
+                                    if (r.orderList.Count() != 0 && r.orderList.Any(ol => DateTime.Today >= ol.order.leaseStartTime && DateTime.Today <= ol.order.leaseEndTime))
                                     {
-                                        var forRent = new
-                                        {
-                                            houseId = r.house.id,
-                                            name = r.house.name,
-                                            photo = r.photo == null ? null : r.photo.path,
-                                            status = "申請預約看房",
-                                            reservationCount = r.appointmentList.Count()
-                                        };
-                                        housesForRent.Add(forRent);
-                                    }
-                                    else
-                                    {
-                                        var pendingOrder = r.orderList.LastOrDefault(ol => DateTime.Today <= ol.order.leaseEndTime);
+                                        var pendingOrder = r.orderList.LastOrDefault(ol => DateTime.Today >= ol.order.leaseStartTime && DateTime.Today <= ol.order.leaseEndTime);
                                         if (pendingOrder.order.status == OrderStatus.待租客回覆租約)
                                         {
                                             var forRent = new
@@ -1657,6 +1645,18 @@ namespace UserAuth.Controllers
                                             };
                                             housesForRent.Add(forRent);
                                         }
+                                    }
+                                    else
+                                    {
+                                        var forRent = new
+                                        {
+                                            houseId = r.house.id,
+                                            name = r.house.name,
+                                            photo = r.photo == null ? null : r.photo.path,
+                                            status = "申請預約看房",
+                                            reservationCount = r.appointmentList.Count()
+                                        };
+                                        housesForRent.Add(forRent);
                                     }
                                     break;
 
