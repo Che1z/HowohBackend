@@ -198,7 +198,7 @@ namespace UserAuth.Controllers
                                                  .Select(g => new
                                                  {
                                                      Count = g.Count(),
-                                                     Average = g.Average()
+                                                     Average = (double?)g.Average()
                                                  });
                     var queryOfRatingsByOthersResult = queryOfRatingsByOthers.FirstOrDefault();
                     //double landlordRatingAvg = 0;
