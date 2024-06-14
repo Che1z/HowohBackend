@@ -258,21 +258,50 @@ namespace UserAuth.Controllers
                             };
                             resultList.Add(data);
                         }
+                        var result = new
+                        {
+                            statusCode = 200,
+                            status = "success",
+                            message = "已成功回傳租客的租賃列表",
+                            data = new
+                            {
+                                page = pageNumber,
+                                totalCount = totalRecords,
+                                orderList = resultList
+                            }
+                        };
+                        return Content(HttpStatusCode.OK, result);
+                    }
+                    else
+                    {
+                        var result = new
+                        {
+                            statusCode = 200,
+                            status = "success",
+                            message = "已成功回傳租客的租賃列表",
+                            data = new
+                            {
+                                page = pageNumber,
+                                totalCount = totalRecords,
+                                data = resultList
+                            }
+                        };
+                        return Content(HttpStatusCode.OK, result);
                     }
 
-                    var result = new
-                    {
-                        statusCode = 200,
-                        status = "success",
-                        message = "已成功回傳租客的租賃列表",
-                        data = new
-                        {
-                            page = pageNumber,
-                            totalCount = totalRecords,
-                            orderList = resultList
-                        }
-                    };
-                    return Content(HttpStatusCode.OK, result);
+                    //var result = new
+                    //{
+                    //    statusCode = 200,
+                    //    status = "success",
+                    //    message = "已成功回傳租客的租賃列表",
+                    //    data = new
+                    //    {
+                    //        page = pageNumber,
+                    //        totalCount = totalRecords,
+                    //        orderList = resultList
+                    //    }
+                    //};
+                    //return Content(HttpStatusCode.OK, result);
                 }
             }
             catch (Exception ex)
