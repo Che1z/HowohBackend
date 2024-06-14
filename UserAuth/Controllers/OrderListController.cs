@@ -134,7 +134,7 @@ namespace UserAuth.Controllers
         }
 
         /// <summary>
-        /// [ATH-1, ATH-2]取得租客的租賃列表
+        /// [ATH-1]取得租客的租賃列表
         /// </summary>
         /// <param name="page"></param>
         /// <returns></returns>
@@ -166,14 +166,13 @@ namespace UserAuth.Controllers
                         pageNumber = 1;
                     }
                     int pageSize = 12; // 每頁顯示的筆數
+
                     var query = from order in db.OrdersEntities.AsQueryable()
-                                where order.userId == UserId //使用者的訂單
+                                where order.userId == UserId && order.status == OrderStatus.租客已確認租約 //使用者的訂單
                                 join house in db.HouseEntities on order.houseId equals house.id
                                 join houseImg in db.HouseImgsEntities on house.id equals houseImg.houseId
                                 where houseImg.isCover == true
                                 join user in db.UserEntities on house.userId equals user.Id
-                                //join orderRating in db.OrdersRatingEntities on order.id equals orderRating.orderId into orderRatingGroup
-                                //from orderRating in orderRatingGroup.DefaultIfEmpty()
                                 orderby order.leaseEndTime descending
                                 select new
                                 {
@@ -181,26 +180,33 @@ namespace UserAuth.Controllers
                                     house,
                                     photo = houseImg.path,
                                     landlord = user,
-                                    ratingByUser = db.OrdersRatingEntities.FirstOrDefault(or => or.UserId == UserId && or.orderId == order.id) == null ? null : db.OrdersRatingEntities.FirstOrDefault(or => or.UserId == UserId && or.orderId == order.id)
-                                    //ratingByOthers = orderRatingGroup.FirstOrDefault(o => o.UserId != UserId) != null ? orderRatingGroup.FirstOrDefault(o => o.UserId != UserId) : null
+                                    ratingByUser = db.OrdersRatingEntities.FirstOrDefault(or => or.UserId == UserId && or.orderId == order.id) ?? null,
+                                    ratingOfLandlord = from h in db.HouseEntities
+                                                       where h.userId == user.Id
+                                                       join o in db.OrdersEntities on h.id equals o.houseId
+                                                       select new
+                                                       {
+                                                           count = db.OrdersRatingEntities.Where(or => or.orderId == o.id && or.UserId != user.Id).Count(),
+                                                           avg = (double?)db.OrdersRatingEntities.Where(or => or.orderId == o.id && or.UserId != user.Id).Select(or => or.Rating).Average()
+                                                       }
                                 };
                     // 計算資料總筆數
                     int totalRecords = query.Count();
                     // 分頁
                     var paginatedResult = query.OrderByDescending(o => o.order.leaseEndTime).Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
-                    var queryOfRatingsByOthers = (from order in db.OrdersEntities.AsQueryable()
-                                                  where order.userId == UserId
-                                                  join orderRating in db.OrdersRatingEntities on order.id equals orderRating.orderId into orderRatingGroup
-                                                  from orderRating in orderRatingGroup.DefaultIfEmpty()
-                                                  where orderRating.UserId != UserId
-                                                  select orderRating.Rating)
-                                                 .GroupBy(r => 1)
-                                                 .Select(g => new
-                                                 {
-                                                     Count = g.Count(),
-                                                     Average = (double?)g.Average()
-                                                 });
-                    var queryOfRatingsByOthersResult = queryOfRatingsByOthers.FirstOrDefault();
+                    //var queryOfRatingsByOthers = (from order in db.OrdersEntities.AsQueryable()
+                    //                              where order.userId == UserId
+                    //                              join orderRating in db.OrdersRatingEntities on order.id equals orderRating.orderId into orderRatingGroup
+                    //                              from orderRating in orderRatingGroup.DefaultIfEmpty()
+                    //                              where orderRating.UserId != UserId
+                    //                              select orderRating.Rating)
+                    //                             .GroupBy(r => 1)
+                    //                             .Select(g => new
+                    //                             {
+                    //                                 Count = g.Count(),
+                    //                                 Average = (double?)g.Average()
+                    //                             });
+                    //var queryOfRatingsByOthersResult = queryOfRatingsByOthers.FirstOrDefault();
                     //double landlordRatingAvg = 0;
                     //if (queryOfRatingsByOthersResult.Count > 0)
                     //{
@@ -213,13 +219,13 @@ namespace UserAuth.Controllers
                         {
                             //可評價的狀況
                             string orderStatus = "";
-                            if (DateTime.Now < item.order.leaseEndTime)
+                            if (DateTime.Today >= item.order.leaseStartTime.Date && DateTime.Today <= item.order.leaseEndTime.Date)
                             {
                                 orderStatus = "已承租";
                             }
                             else
                             {
-                                if (item.ratingByUser == null && DateTime.Now < item.order.leaseEndTime.AddDays(14))
+                                if (item.ratingByUser == null && DateTime.Today <= item.order.leaseEndTime.Date.AddDays(14))
                                 {
                                     orderStatus = "待評價";
                                 }
@@ -252,8 +258,8 @@ namespace UserAuth.Controllers
                                     tel = item.landlord.telphone,
                                     photo = item.landlord.photo,
                                     description = item.landlord.userIntro,
-                                    ratingCount = queryOfRatingsByOthersResult.Count,
-                                    ratingAvg = queryOfRatingsByOthersResult.Average
+                                    ratingCount = item.ratingOfLandlord.Select(l => l.count), //item.ratingOfLandlord.count
+                                    ratingAvg = item.ratingOfLandlord.Select(l => l.avg) //item.ratingOfLandlord.avg
                                 }
                             };
                             resultList.Add(data);

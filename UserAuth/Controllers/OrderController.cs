@@ -1453,7 +1453,7 @@ namespace UserAuth.Controllers
         }
 
         /// <summary>
-        /// [ATH-3]租客確認或拒絕租約
+        /// [ATH-2]租客確認或拒絕租約
         /// </summary>
         /// <param name="orderId">orderId</param>
         /// <param name="orderStatusInput">是否接受租約邀請</param>
@@ -1615,7 +1615,7 @@ namespace UserAuth.Controllers
         }
 
         /// <summary>
-        /// [ATH-4]取得承租歷史總筆數及待評價總筆數
+        /// [ATH-3]取得承租歷史總筆數及待評價總筆數
         /// </summary>
         /// <returns></returns>
         [HttpGet]
