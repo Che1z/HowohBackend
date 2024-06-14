@@ -293,10 +293,11 @@ namespace UserAuth.Controllers
                         pageNumber = 1;
                     }
                     int pageSize = 12; // 每頁顯示的筆數
+                    var today = DateTime.Today.AddDays(1);
                     if (UserRole == UserRoleType.租客)
                     {
                         var query = from order in db.OrdersEntities.AsQueryable()
-                                    where order.userId == UserId && order.status == OrderStatus.租客已確認租約
+                                    where order.userId == UserId && order.status == OrderStatus.租客已確認租約 && today > order.leaseEndTime
                                     join house in db.HouseEntities on order.houseId equals house.id
                                     join user in db.UserEntities on house.userId equals user.Id
                                     join houseImg in db.HouseImgsEntities on house.id equals houseImg.houseId
@@ -395,7 +396,7 @@ namespace UserAuth.Controllers
                         var query = from house in db.HouseEntities.AsQueryable()
                                     where house.userId == UserId
                                     join order in db.OrdersEntities on house.id equals order.houseId
-                                    where order.status == OrderStatus.租客已確認租約 || order.status == OrderStatus.租客非系統用戶
+                                    where (order.status == OrderStatus.租客已確認租約 || order.status == OrderStatus.租客非系統用戶) && today > order.leaseEndTime
                                     join user in db.UserEntities on order.userId equals user.Id into userGroup
                                     from user in userGroup.DefaultIfEmpty()
                                     join houseImg in db.HouseImgsEntities on house.id equals houseImg.houseId
