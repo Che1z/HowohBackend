@@ -1322,7 +1322,8 @@ namespace UserAuth.Controllers
                                     jobRestriction = jobRestriction.Trim(trimArr);
                                 }
                                 var appointmentCount = db.AppointmentsEntities.Count(x => x.houseId == houseEnter.id && x.isValid == true);
-                                var orderPending = db.OrdersEntities.FirstOrDefault(o => o.houseId == houseEnter.id && o.status == OrderStatus.待租客回覆租約);
+                                var today = DateTime.Now;
+                                var orderPending = db.OrdersEntities.FirstOrDefault(o => o.houseId == houseEnter.id && o.status == OrderStatus.待租客回覆租約 && today >= o.leaseStartTime && today <= o.leaseEndTime) ?? null;
                                 bool canChangeHouseStatus = true;
                                 if (orderPending != null)
                                 {
