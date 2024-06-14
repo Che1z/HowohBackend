@@ -476,7 +476,7 @@ namespace UserAuth.Controllers
                             };
                             orderList.Add(order);
                         }
-                        orderList = orderList.OrderBy(o => o.commentInfo.canComment).ThenByDescending(o => o.orderInfo.leaseEndTime).ToList();
+                        orderList = orderList.OrderByDescending(o => o.commentInfo.canComment ? 1 : 0).ThenByDescending(o => o.orderInfo.leaseEndTime).ToList();
                         var result = new
                         {
                             statusCode = 200,
