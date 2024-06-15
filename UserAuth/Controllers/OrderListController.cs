@@ -179,39 +179,24 @@ namespace UserAuth.Controllers
                                     order,
                                     house,
                                     photo = houseImg.path,
-                                    landlord = user,
+                                    landlord = new
+                                    {
+                                        info = user,
+                                        rating = (from h in db.HouseEntities
+                                                  where h.userId == user.Id
+                                                  join o in db.OrdersEntities on h.id equals o.houseId
+                                                  join or in db.OrdersRatingEntities on o.id equals or.orderId
+                                                  where or.UserId != user.Id
+                                                  select or).ToList()
+                                    },
                                     ratingByUser = db.OrdersRatingEntities.FirstOrDefault(or => or.UserId == UserId && or.orderId == order.id) ?? null,
-                                    ratingOfLandlord = from h in db.HouseEntities
-                                                       where h.userId == user.Id
-                                                       join o in db.OrdersEntities on h.id equals o.houseId
-                                                       select new
-                                                       {
-                                                           count = db.OrdersRatingEntities.Where(or => or.orderId == o.id && or.UserId != user.Id).Count(),
-                                                           avg = (double?)db.OrdersRatingEntities.Where(or => or.orderId == o.id && or.UserId != user.Id).Select(or => or.Rating).Average()
-                                                       }
                                 };
                     // 計算資料總筆數
                     int totalRecords = query.Count();
                     // 分頁
+
                     var paginatedResult = query.OrderByDescending(o => o.order.leaseEndTime).Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
-                    //var queryOfRatingsByOthers = (from order in db.OrdersEntities.AsQueryable()
-                    //                              where order.userId == UserId
-                    //                              join orderRating in db.OrdersRatingEntities on order.id equals orderRating.orderId into orderRatingGroup
-                    //                              from orderRating in orderRatingGroup.DefaultIfEmpty()
-                    //                              where orderRating.UserId != UserId
-                    //                              select orderRating.Rating)
-                    //                             .GroupBy(r => 1)
-                    //                             .Select(g => new
-                    //                             {
-                    //                                 Count = g.Count(),
-                    //                                 Average = (double?)g.Average()
-                    //                             });
-                    //var queryOfRatingsByOthersResult = queryOfRatingsByOthers.FirstOrDefault();
-                    //double landlordRatingAvg = 0;
-                    //if (queryOfRatingsByOthersResult.Count > 0)
-                    //{
-                    //    //queryOfRatingsByOthersResult.
-                    //}
+
                     var resultList = new List<object>();
                     if (paginatedResult.Count > 0)
                     {
@@ -253,13 +238,13 @@ namespace UserAuth.Controllers
                                 },
                                 landlordInfo = new
                                 {
-                                    lastName = item.landlord.lastName,
-                                    gender = item.landlord.gender.ToString(),
-                                    tel = item.landlord.telphone,
-                                    photo = item.landlord.photo,
-                                    description = item.landlord.userIntro,
-                                    ratingCount = item.ratingOfLandlord.Select(l => l.count), //item.ratingOfLandlord.count
-                                    ratingAvg = item.ratingOfLandlord.Select(l => l.avg) //item.ratingOfLandlord.avg
+                                    lastName = item.landlord.info.lastName,
+                                    gender = item.landlord.info.gender.ToString(),
+                                    tel = item.landlord.info.telphone,
+                                    photo = item.landlord.info.photo,
+                                    description = item.landlord.info.userIntro,
+                                    ratingCount = item.landlord.rating.Count(), //item.ratingOfLandlord.count
+                                    ratingAvg = item.landlord.rating.Where(r => r != null).Average(r => (double?)r.Rating) ?? 0.0 //item.ratingOfLandlord.avg
                                 }
                             };
                             resultList.Add(data);
