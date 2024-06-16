@@ -197,7 +197,7 @@ namespace UserAuth.Controllers
 
                     var paginatedResult = query.OrderByDescending(o => o.order.leaseEndTime).Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
 
-                    var resultList = new List<object>();
+                    var resultList = new List<dynamic>();
                     if (paginatedResult.Count > 0)
                     {
                         foreach (var item in paginatedResult)
@@ -249,6 +249,36 @@ namespace UserAuth.Controllers
                             };
                             resultList.Add(data);
                         }
+                        // 定義一個映射函數來將orderStatus轉換為排序用的數字
+                        int GetOrderStatusRank(string orderStatus)
+                        {
+                            switch (orderStatus)
+                            {
+                                case "已承租":
+                                    return 0;
+
+                                case "待評價":
+                                    return 1;
+
+                                case "已完成":
+                                    return 2;
+
+                                default: return 3;
+                            }
+                            //return orderStatus switch
+                            //{
+                            //    "已承租" => 0,
+                            //    "待評價" => 1,
+                            //    "已完成" => 2,
+                            //    _ => 3 // 如果有其他狀態，可以給它一個高的數字，表示放在最後
+                            //};
+                        }
+
+                        // 使用自定義的排序規則對結果列表進行排序
+                        var sortedResultList = resultList
+                            .OrderBy(item => GetOrderStatusRank(item.orderInfo.orderStatus))
+                            .ToList();
+
                         var result = new
                         {
                             statusCode = 200,
@@ -258,7 +288,7 @@ namespace UserAuth.Controllers
                             {
                                 page = pageNumber,
                                 totalCount = totalRecords,
-                                orderList = resultList
+                                orderList = sortedResultList
                             }
                         };
                         return Content(HttpStatusCode.OK, result);
