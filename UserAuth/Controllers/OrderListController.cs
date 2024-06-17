@@ -239,6 +239,7 @@ namespace UserAuth.Controllers
                                 landlordInfo = new
                                 {
                                     lastName = item.landlord.info.lastName,
+                                    firstName = item.landlord.info.firstName,
                                     gender = item.landlord.info.gender.ToString(),
                                     tel = item.landlord.info.telphone,
                                     photo = item.landlord.info.photo,

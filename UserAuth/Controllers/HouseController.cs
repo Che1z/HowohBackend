@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.NetworkInformation;
+using System.Reflection;
 using System.Web.Http;
 using System.Web.Http.Results;
 using System.Web.Routing;
@@ -101,7 +102,7 @@ namespace UserAuth.Controllers
                 //檢查是否為房東
                 if (UserRole != UserRoleType.房東)
                 {
-                    throw new Exception("該使用者不是房東，不可使用此功能");
+                    return Content(HttpStatusCode.Forbidden, "該使用者不是房東，不可使用此功能");
                 }
                 if (!ModelState.IsValid || houseInput == null)
                 {
@@ -109,14 +110,12 @@ namespace UserAuth.Controllers
                 }
                 using (DBModel db = new DBModel())
                 {
-                    //int houseId = houseInput.id;
-
-                    var updateHouse = db.HouseEntities.Where(x => x.id == id).FirstOrDefault();
+                    var updateHouse = db.HouseEntities.FirstOrDefault(x => x.id == id);
 
                     //檢查該房源的房東是不是使用者
                     if (updateHouse.userId != UserId)
                     {
-                        throw new Exception("該物件不屬於此使用者，不可修改房源內容");
+                        return Content(HttpStatusCode.Forbidden, "該物件不屬於此使用者，不可修改房源內容");
                     }
 
                     string houseName = houseInput.name;
@@ -455,6 +454,47 @@ namespace UserAuth.Controllers
                 return Content(HttpStatusCode.BadRequest, ex);
             }
         }
+
+        //public void UpdateHouseProperties(House updateHouse, House houseInput)
+        //{
+        //    //PropertyInfo
+        //    foreach (var property in houseInput.GetType().GetProperties())
+        //    {
+        //        // 忽略特定屬性，如果需要
+        //        if (property.Name == "SomePropertyToIgnore")
+        //        {
+        //            continue;
+        //        }
+
+        //        // 檢查是否為可空類型
+        //        if (Nullable.GetUnderlyingType(property.PropertyType) != null)
+        //        {
+        //            var value = property.GetValue(houseInput);
+        //            if (value != null)
+        //            {
+        //                property.SetValue(updateHouse, value);
+        //            }
+        //        }
+        //        else
+        //        {
+        //            // 非可空類型的屬性更新
+        //            var value = property.GetValue(houseInput);
+        //            if (value != null && !value.Equals(GetDefaultValue(property.PropertyType)))
+        //            {
+        //                property.SetValue(updateHouse, value);
+        //            }
+        //        }
+        //    }
+        //}
+
+        //public object GetDefaultValue(Type type)
+        //{
+        //    if (type.IsValueType)
+        //    {
+        //        return Activator.CreateInstance(type);
+        //    }
+        //    return null;
+        //}
 
         /// <summary>
         /// [ALO-4]新增房源照片
