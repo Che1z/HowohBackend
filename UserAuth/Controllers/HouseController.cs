@@ -1721,47 +1721,98 @@ namespace UserAuth.Controllers
                 }
                 using (DBModel db = new DBModel())
                 {
-                    var query = from order in db.OrdersEntities.AsQueryable()
-                                where order.userId != null && order.leaseEndTime < DateTime.Today //過期的order
-                                join house in db.HouseEntities on order.houseId equals house.id
-                                where house.userId == UserId //使用者的房子
-                                join user in db.UserEntities on order.userId equals user.Id
-                                join orderRating in db.OrdersRatingEntities on order.id equals orderRating.orderId into orderRatingGroup
-                                from orderRating in orderRatingGroup.DefaultIfEmpty()
+                    var query = from house in db.HouseEntities.AsQueryable()
+                                where house.userId == UserId
+                                join order in db.OrdersEntities on house.id equals order.houseId
+                                where order.status == OrderStatus.租客已確認租約
                                 select new
                                 {
                                     order,
-                                    house,
-                                    tenant = user,
-                                    ratingByLandlord = orderRatingGroup.FirstOrDefault(o => o.UserId == UserId) != null ? orderRatingGroup.FirstOrDefault(o => o.UserId == UserId) : null,
-                                    ratingByTenant = orderRatingGroup.FirstOrDefault(o => o.UserId != UserId) != null ? orderRatingGroup.FirstOrDefault(o => o.UserId != UserId) : null
+                                    userComment = db.OrdersRatingEntities.FirstOrDefault(or => or.orderId == order.id && or.UserId == UserId) ?? null
                                 };
+                    //var query = from order in db.OrdersEntities.AsQueryable()
+                    //            where order.userId != null && order.leaseEndTime < DateTime.Today //過期的order
+                    //            join house in db.HouseEntities on order.houseId equals house.id
+                    //            where house.userId == UserId //使用者的房子
+                    //            join user in db.UserEntities on order.userId equals user.Id
+                    //            join orderRating in db.OrdersRatingEntities on order.id equals orderRating.orderId into orderRatingGroup
+                    //            from orderRating in orderRatingGroup.DefaultIfEmpty()
+                    //            select new
+                    //            {
+                    //                order,
+                    //                house,
+                    //                tenant = user,
+                    //                ratingByLandlord = orderRatingGroup.FirstOrDefault(o => o.UserId == UserId) != null ? orderRatingGroup.FirstOrDefault(o => o.UserId == UserId) : null,
+                    //                ratingByTenant = orderRatingGroup.FirstOrDefault(o => o.UserId != UserId) != null ? orderRatingGroup.FirstOrDefault(o => o.UserId != UserId) : null
+                    //            };
                     var queryResult = query.ToList();
-                    int canCommentCount = 0;
-                    if (queryResult.Count > 0)
+                    var queryCount = queryResult.Count();
+                    if (queryCount > 0)
                     {
-                        foreach (var item in queryResult)
+                        var canCommentCount = 0;
+                        foreach (var comment in queryResult)
                         {
-                            //可評價的狀況
-
-                            if (DateTime.Now < item.order.leaseEndTime.AddDays(14) && item.ratingByLandlord == null)
+                            if (comment.userComment == null && DateTime.Today > comment.order.leaseEndTime.Date && DateTime.Today <= comment.order.leaseEndTime.Date.AddDays(14))
                             {
                                 canCommentCount++;
                             }
                         }
-                    }
-
-                    var result = new
-                    {
-                        statusCode = 200,
-                        status = "success",
-                        message = "已成功回傳房東待評價的房源筆數",
-                        data = new
+                        var data = new
                         {
+                            //orderHistoryCount = queryCount,
                             count = canCommentCount
-                        }
-                    };
-                    return Content(HttpStatusCode.OK, result);
+                        };
+                        var result = new
+                        {
+                            statusCode = 200,
+                            status = "success",
+                            message = "已成功回傳房東待評價的房源筆數",
+                            data = data
+                        };
+                        return Content(HttpStatusCode.OK, result);
+                    }
+                    else
+                    {
+                        var data = new
+                        {
+                            //orderHistoryCount = 0,
+                            count = 0
+                        };
+                        var result = new
+                        {
+                            statusCode = 200,
+                            status = "success",
+                            message = "已成功回傳承租筆數相關資訊",
+                            data = data
+                        };
+                        return Content(HttpStatusCode.OK, result);
+                    }
+                    //var queryResult = query.ToList();
+                    //int canCommentCount = 0;
+                    //if (queryResult.Count > 0)
+                    //{
+                    //    foreach (var item in queryResult)
+                    //    {
+                    //        //可評價的狀況
+
+                    //        if (DateTime.Now < item.order.leaseEndTime.AddDays(14) && item.ratingByLandlord == null)
+                    //        {
+                    //            canCommentCount++;
+                    //        }
+                    //    }
+                    //}
+
+                    //var result = new
+                    //{
+                    //    statusCode = 200,
+                    //    status = "success",
+                    //    message = "已成功回傳房東待評價的房源筆數",
+                    //    data = new
+                    //    {
+                    //        count = canCommentCount
+                    //    }
+                    //};
+                    //return Content(HttpStatusCode.OK, result);
                 }
             }
             catch (Exception ex)
