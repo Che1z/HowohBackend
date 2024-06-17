@@ -45,7 +45,7 @@ namespace UserAuth.Controllers
             {
                 if (UserRole != UserRoleType.房東)
                 {
-                    throw new Exception("該使用者不是房東，不可使用此功能");
+                    return Content(HttpStatusCode.Forbidden, "該使用者不是房東，不可使用此功能");
                 }
                 using (DBModel db = new DBModel())
                 {
@@ -58,7 +58,7 @@ namespace UserAuth.Controllers
                     db.HouseEntities.Add(InsertNewHouse);
 
                     db.SaveChanges();
-                    var createHouse = db.HouseEntities.Where(x => x.userId == UserId).OrderByDescending(x => x.id).FirstOrDefault();
+                    var createHouse = db.HouseEntities.OrderByDescending(x => x.id).FirstOrDefault(x => x.userId == UserId);
 
                     var result = new
                     {
