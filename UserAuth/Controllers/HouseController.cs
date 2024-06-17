@@ -1588,18 +1588,69 @@ namespace UserAuth.Controllers
                             {
                                 case statusType.已完成:
                                     bool canComment = false;
-                                    if (r.orderList.Count() > 0 && r.orderList.Any(ol => DateTime.Today < ol.order.leaseEndTime.AddDays(14) && ol.order.userId != null))
+                                    string orderId = "";
+                                    if (r.orderList.Count() > 0)
                                     {
-                                        canComment = true;
+                                        var orderListOrderByLeaseStartTime = r.orderList.OrderByDescending(ol => ol.order.leaseStartTime);
+                                        string status = "";
+                                        if (orderListOrderByLeaseStartTime.Any(ol => ol.order.status == OrderStatus.租客已確認租約))
+                                        {
+                                            status = "系統用戶";
+                                            var validOrder = orderListOrderByLeaseStartTime.FirstOrDefault(ol => ol.order.status == OrderStatus.租客已確認租約);
+                                            var today = DateTime.Today;
+                                            if (today > validOrder.order.leaseEndTime.Date && today <= validOrder.order.leaseEndTime.Date.AddDays(14))
+                                            {
+                                                var comment = db.OrdersRatingEntities.FirstOrDefault(or => or.orderId == validOrder.order.id) ?? null;
+                                                if (comment == null)
+                                                {
+                                                    canComment = true;
+                                                    orderId = validOrder.order.id.ToString();
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            status = "非系統用戶";
+                                        }
+                                        var discontinued = new
+                                        {
+                                            houseId = r.house.id,
+                                            name = r.house.name,
+                                            photo = r.photo == null ? null : r.photo.path,
+                                            status = status,
+                                            canComment = canComment,
+                                            orderId = orderId
+                                        };
+                                        housesDiscontinued.Add(discontinued);
                                     }
-                                    var discontinued = new
+                                    else
                                     {
-                                        houseId = r.house.id,
-                                        name = r.house.name,
-                                        photo = r.photo == null ? null : r.photo.path,
-                                        canComment = canComment
-                                    };
-                                    housesDiscontinued.Add(discontinued);
+                                        var discontinued = new
+                                        {
+                                            houseId = r.house.id,
+                                            name = r.house.name,
+                                            photo = r.photo == null ? null : r.photo.path,
+                                            status = "強制變更",
+                                            canComment = canComment,
+                                            orderId = orderId
+                                        };
+                                        housesDiscontinued.Add(discontinued);
+                                    }
+                                    //bool canComment = false;
+                                    //if (r.orderList.Count() > 0 && r.orderList.Any(ol => DateTime.Today < ol.order.leaseEndTime.AddDays(14) && ol.order.userId != null))
+                                    //{
+                                    //    canComment = true;
+                                    //}
+                                    //var discontinued = new
+                                    //{
+                                    //    houseId = r.house.id,
+                                    //    name = r.house.name,
+                                    //    photo = r.photo == null ? null : r.photo.path,
+                                    //    status = "",
+                                    //    canComment = canComment,
+                                    //    orderId = ""
+                                    //};
+                                    //housesDiscontinued.Add(discontinued);
                                     break;
 
                                 case statusType.已承租:
