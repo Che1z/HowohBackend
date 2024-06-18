@@ -711,7 +711,7 @@ namespace UserAuth.Controllers
         }
 
         /// <summary>
-        /// [ACA-3] 取得租約邀請的列表總數量
+        /// [ATA-4] 取得租約邀請的列表總數量
         /// </summary>
         /// <returns></returns>
         [HttpGet]

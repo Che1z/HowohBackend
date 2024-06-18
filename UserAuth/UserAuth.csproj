@@ -228,6 +228,7 @@
     <Compile Include="Models\House.cs" />
     <Compile Include="Models\HouseEnumList\HouseEnum.cs" />
     <Compile Include="Models\HouseImg.cs" />
+    <Compile Include="Models\MapSearchHouse.cs" />
     <Compile Include="Models\Order.cs" />
     <Compile Include="Models\OrderEnumList\OrderEnum.cs" />
     <Compile Include="Models\OrderRating.cs" />

@@ -1,9 +1,11 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Routing;
 using System.Web.UI.WebControls;
@@ -17,6 +19,9 @@ namespace UserAuth.Controllers
 {
     public class HouseListController : ApiController
     {
+
+        private static readonly string GoogleMapsApiKey = "AIzaSyDJ4Dpw3mS88UWh2HpRDAwZm5IcOB5w4gM"; // 替換為你的 Google Maps API 金鑰
+
         /// <summary>
         /// [FCO-1]取得系統推薦的房源列表
         /// </summary>
@@ -739,6 +744,207 @@ namespace UserAuth.Controllers
             catch (Exception ex)
             {
                 return Content(HttpStatusCode.BadRequest, ex);
+            }
+        }
+
+
+        /// <summary>
+        /// [FCO-5] 取得地圖搜尋結果的房源列表
+        /// </summary>
+        /// <param name="houseinput"></param>
+        /// <returns></returns>
+
+        [HttpGet]
+        [Route("api/house/common/map/list")]
+        public async Task<IHttpActionResult> searchMapHouse([FromBody] MapSearchHouse houseinput) {
+            try
+            {
+                using (DBModel db = new DBModel())
+                {
+                    var houses = db.HouseEntities.AsQueryable();
+                    var distances = new List<object>();
+
+                    if (houseinput.distance == null || houseinput.distance == 0)
+                    {
+                        houseinput.distance = 1000;
+                    }
+                    if (houseinput.pageNumber == null || houseinput.pageNumber == 0)
+                    {
+                        houseinput.pageNumber = 1;
+                    }
+
+                    int itemsPerPage = 12;
+                    int skipCount = (houseinput.pageNumber - 1) * itemsPerPage;
+                    int addedCount = 0;
+
+                    foreach (var house in houses)
+                    {
+
+                        if (house.latitude == null || house.longitude == null)
+                        {
+                            continue;
+                        }
+                        double latitude;
+                        double longitude;
+
+                        try
+                        {
+                            latitude = Convert.ToDouble(house.latitude);
+                            longitude = Convert.ToDouble(house.longitude);
+                        }
+                        catch (FormatException)
+                        {
+                            continue;
+                        }
+
+                        double distance;
+                        try
+                        {
+                            distance = await GetDistanceAsync(houseinput.latitude, houseinput.longitude, latitude, longitude);
+                        }
+                        catch (Exception)
+                        {
+                            // 如果距離有問題，則跳過該房屋
+                            continue;
+                        }
+                      
+                        if (distance < houseinput.distance) // 只返回距離小於傳入參數的結果
+                        {
+                            if (skipCount > 0)
+                            {
+                                skipCount--;
+                                continue;
+                            }
+
+                            distances.Add(new
+                            {
+                                houseId = house.id,
+                                title = house.name,
+                                city = house.city.ToString(),
+                                district = house.district.ToString(),
+                                isCookAllowed = house.isCookAllowed,
+                                isPetAllowed = house.isPetAllowed,
+                                isRentSubsidy = house.isRentSubsidy,
+                                isSTRAllowed = house.isSTRAllowed,
+                                road = house.road,
+                                alley = house.alley,
+                                number = house.number,
+                                rent = house.rent,
+                                type = house.type.ToString(),
+                                floor = house.floor,
+                                floorTotal = house.floorTotal,
+                                ping = house.ping,
+                                coverImage = house.HouseImgs.FirstOrDefault(a => a.isCover)?.path,
+                                distance = distance + " 公尺",
+                            }) ;
+
+                            addedCount++;
+                            if (addedCount == itemsPerPage) // 只取當前頁的資料
+                            {
+                                break;
+                            }
+                        }
+                    }
+                    return Ok(distances);
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+
+        }
+        private static async Task<double> GetDistanceAsync(double lat1, double lng1, double lat2, double lng2)
+        {
+            using (var client = new HttpClient())
+            {
+                var requestUri = $"https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins={lat1},{lng1}&destinations={lat2},{lng2}&key={GoogleMapsApiKey}";
+                var response = await client.GetAsync(requestUri);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new HttpRequestException("Error fetching distance from Google Maps API");
+                }
+
+                var content = await response.Content.ReadAsStringAsync();
+                var json = JObject.Parse(content);
+
+                var status = json["status"].ToString();
+                if (status != "OK")
+                {
+                    throw new Exception($"Error fetching distance: {status}");
+                }
+
+                var element = json["rows"][0]["elements"][0];
+                var elementStatus = element["status"].ToString();
+                if (elementStatus != "OK")
+                {
+                    throw new Exception($"Error fetching distance element: {elementStatus}");
+                }
+
+                // 使用 "value" 來取得距離，確保單位為公尺
+                var distance = element["distance"]["value"].ToObject<double>();
+                return distance;
+            }
+        }
+       
+        [HttpGet]
+        [Route("api/house/common/map/count")]
+        public async Task<IHttpActionResult> GetHouseCount([FromBody] MapSearchHouse houseInput)
+        {
+            try
+            {
+                using (DBModel db = new DBModel())
+                {
+                    var houses = db.HouseEntities.AsQueryable();
+
+                    if (houseInput.distance == null || houseInput.distance == 0)
+                    {
+                        houseInput.distance = 1000;
+                    }
+                    int houseCount = 0;
+
+                    foreach (var house in houses)
+                    {
+                        if (house.latitude == null || house.longitude == null)
+                        {
+                            continue;
+                        }
+                        double latitude;
+                        double longitude;
+
+                        try
+                        {
+                            latitude = Convert.ToDouble(house.latitude);
+                            longitude = Convert.ToDouble(house.longitude);
+                        }
+                        catch (FormatException)
+                        {
+                            continue;
+                        }
+
+                        double distance;
+                        try
+                        {
+                            distance = await GetDistanceAsync(houseInput.latitude, houseInput.longitude, latitude, longitude);
+                        }
+                        catch (Exception)
+                        {
+                            // 如果距離有問題，則跳過該房屋
+                            continue;
+                        }
+                        if (distance < houseInput.distance)
+                        {
+                            houseCount++;
+                        }
+                    }
+
+                    return Ok(houseCount);
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
             }
         }
     }
