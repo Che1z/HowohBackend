@@ -14,6 +14,7 @@ using System.IO;
 using iTextSharp.text.pdf;
 using iTextSharp.text;
 using System.Web;
+using static iTextSharp.text.pdf.AcroFields;
 
 namespace UserAuth.Controllers
 {
@@ -1683,6 +1684,100 @@ namespace UserAuth.Controllers
                             statusCode = 200,
                             status = "success",
                             message = "已成功回傳承租筆數相關資訊",
+                            data = data
+                        };
+                        return Content(HttpStatusCode.OK, result);
+                    }
+                }
+            }
+            catch (Exception ex) { return Content(HttpStatusCode.BadRequest, ex); }
+        }
+
+        /// <summary>
+        /// [ATH-4]取得承租歷史的單一承租資訊
+        /// </summary>
+        /// <param name="orderId">orderId</param>
+        /// <returns></returns>
+        [HttpGet]
+        [JwtAuthFilters]
+        [Route("api/order/tenant/orderInfo/{orderId}")]
+        public IHttpActionResult TenentGetOrderInfo(int orderId)
+        {
+            // 取得使用者JWT
+            var jwtObject = JwtAuthFilters.GetToken(Request.Headers.Authorization.Parameter);
+
+            // 取得JWT內部資料
+            var UserRole = (UserRoleType)jwtObject["Role"];
+            var UserId = (int)jwtObject["Id"];
+            try
+            {
+                if (UserRole != UserRoleType.租客)
+                {
+                    return Content(HttpStatusCode.Forbidden, "使用者角色非租客，不得使用此功能");
+                }
+
+                using (DBModel db = new DBModel())
+                {
+                    var query = from order in db.OrdersEntities.AsQueryable()
+                                where order.id == orderId && order.status == OrderStatus.租客已確認租約
+                                join house in db.HouseEntities on order.houseId equals house.id
+                                join user in db.UserEntities on house.userId equals user.Id
+                                select new
+                                {
+                                    order,
+                                    house,
+                                    landlord = new
+                                    {
+                                        info = user,
+                                        rating = (from h in db.HouseEntities
+                                                  where h.userId == user.Id
+                                                  join o in db.OrdersEntities on h.id equals o.houseId
+                                                  join or in db.OrdersRatingEntities on o.id equals or.orderId
+                                                  where or.UserId != user.Id
+                                                  select or).ToList()
+                                    }
+                                };
+                    var queryResult = query.FirstOrDefault() ?? null;
+                    if (queryResult == null)
+                    {
+                        return Content(HttpStatusCode.NotFound, "該order不存在");
+                    }
+                    else
+                    {
+                        var data = new
+                        {
+                            orderInfo = new
+                            {
+                                orderId = queryResult.order.id,
+                                rent = queryResult.house.rent,
+                                securityDeposit = queryResult.house.securityDeposit.ToString(),
+                                leaseStartTime = queryResult.order.leaseStartTime,
+                                leaseEndTime = queryResult.order.leaseEndTime,
+                            },
+                            //houseInfo = new
+                            //{
+                            //    photo = item.photo,
+                            //    name = item.house.name,
+                            //    rent = item.house.rent,
+                            //    securityDeposit = item.house.securityDeposit.ToString()
+                            //},
+                            landlordInfo = new
+                            {
+                                lastName = queryResult.landlord.info.lastName,
+                                firstName = queryResult.landlord.info.firstName,
+                                //gender = item.landlord.info.gender.ToString(),
+                                //tel = item.landlord.info.telphone,
+                                photo = queryResult.landlord.info.photo,
+                                description = queryResult.landlord.info.userIntro,
+                                ratingCount = queryResult.landlord.rating.Count(), //item.ratingOfLandlord.count
+                                ratingAvg = queryResult.landlord.rating.Where(r => r != null).Average(r => (double?)r.Rating) ?? 0.0 //item.ratingOfLandlord.avg
+                            }
+                        };
+                        var result = new
+                        {
+                            statusCode = 200,
+                            status = "success",
+                            message = "已成功回傳租客的單一承租資訊",
                             data = data
                         };
                         return Content(HttpStatusCode.OK, result);
