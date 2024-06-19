@@ -293,7 +293,7 @@ namespace UserAuth.Controllers
                         pageNumber = 1;
                     }
                     int pageSize = 12; // 每頁顯示的筆數
-                    var today = DateTime.Today.AddDays(1);
+                    var today = DateTime.Today;
                     if (UserRole == UserRoleType.租客)
                     {
                         var query = from order in db.OrdersEntities.AsQueryable()
@@ -333,13 +333,15 @@ namespace UserAuth.Controllers
                         var queryResult = query.OrderByDescending(o => o.order.leaseEndTime).Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
                         //var queryResult = query.ToList();
                         var orderList = new List<object>();
-                        var expiredDate = DateTime.Today.AddDays(-14);
+                        //var expiredDate = DateTime.Today.AddDays(-14);
                         foreach (var i in queryResult)
                         {
-                            bool canComment = true;
-                            if (expiredDate > i.order.leaseEndTime || i.myComment != null)
+                            bool canComment = false;
+                            if (today > i.order.leaseEndTime.Date
+                                    && today <= i.order.leaseEndTime.Date.AddDays(14)
+                                    && i.myComment == null)
                             {
-                                canComment = false;
+                                canComment = true;
                             }
                             var order = new
                             {
@@ -434,13 +436,16 @@ namespace UserAuth.Controllers
                         var queryResult = query.OrderByDescending(o => o.order.leaseEndTime).Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
                         //var queryResult = query.ToList();
                         var orderList = new List<dynamic>();
-                        var expiredDate = DateTime.Today.AddDays(-14);
+                        //var today = DateTime.Today;
+                        //var expiredDate = DateTime.Today.AddDays(-14);
                         foreach (var i in queryResult)
                         {
-                            bool canComment = true;
-                            if (expiredDate > i.order.leaseEndTime || i.myComment != null || i.tenant == null)
+                            bool canComment = false;
+                            if (today > i.order.leaseEndTime.Date
+                                   && today <= i.order.leaseEndTime.Date.AddDays(14)
+                                   && i.myComment == null)
                             {
-                                canComment = false;
+                                canComment = true;
                             }
                             var order = new
                             {
