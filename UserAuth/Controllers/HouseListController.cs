@@ -754,7 +754,7 @@ namespace UserAuth.Controllers
         /// <param name="houseinput"></param>
         /// <returns></returns>
 
-        [HttpGet]
+        [HttpPost]
         [Route("api/house/common/map/list")]
         public async Task<IHttpActionResult> searchMapHouse([FromBody] MapSearchHouse houseinput) {
             try
@@ -888,7 +888,7 @@ namespace UserAuth.Controllers
             }
         }
        
-        [HttpGet]
+        [HttpPost]
         [Route("api/house/common/map/count")]
         public async Task<IHttpActionResult> GetHouseCount([FromBody] MapSearchHouse houseInput)
         {
