@@ -19,7 +19,6 @@ namespace UserAuth.Controllers
 {
     public class HouseListController : ApiController
     {
-
         private static readonly string GoogleMapsApiKey = "AIzaSyDJ4Dpw3mS88UWh2HpRDAwZm5IcOB5w4gM"; // 替換為你的 Google Maps API 金鑰
 
         /// <summary>
@@ -541,204 +540,231 @@ namespace UserAuth.Controllers
                     var queryOfAppointment = from appointment in db.AppointmentsEntities.AsQueryable()
                                              where appointment.houseId == id && appointment.isValid == true && appointment.userId == UserId
                                              select appointment;
+                    //try
+                    var queryOfTry = from house in db.HouseEntities.AsQueryable()
+                                     where house.id == id && house.status == statusType.刊登中
+                                     join user in db.UserEntities on house.userId equals user.Id
+                                     select new
+                                     {
+                                         house,
+                                         landlord = user,
+                                         rating = (from h in db.HouseEntities
+                                                   where h.userId == user.Id
+                                                   join o in db.OrdersEntities on h.id equals o.houseId
+                                                   join or in db.OrdersRatingEntities on o.id equals or.orderId
+                                                   where or.UserId != user.Id
+                                                   join u in db.UserEntities on or.UserId equals u.Id
+                                                   select new
+                                                   {
+                                                       h,
+                                                       o,
+                                                       or,
+                                                       u,
+                                                       r = db.ReplyRatingEntities.FirstOrDefault(r => r.orderRatingId == or.id)
+                                                   }).ToList()
+                                     };
                     // 評價
-                    var queryOfRatingAndReplyForLandlord = from orderRating in db.OrdersRatingEntities.AsQueryable()
-                                                           join user in db.UserEntities on orderRating.UserId equals user.Id
-                                                           join order in db.OrdersEntities on orderRating.orderId equals order.id
-                                                           join house in db.HouseEntities on order.houseId equals house.id
-                                                           join replyRating in db.ReplyRatingEntities on orderRating.id equals replyRating.orderRatingId into replyRatingGroup
-                                                           from replyRating in replyRatingGroup.DefaultIfEmpty()
-                                                           where house.id == id
-                                                           where house.status == statusType.刊登中
-                                                           where orderRating.UserId != house.userId
-                                                           select new
-                                                           {
-                                                               tenant = user,
-                                                               house,
-                                                               order,
-                                                               rating = orderRating,
-                                                               reply = replyRating,
-                                                           };
+                    //var queryOfRatingAndReplyForLandlord = from orderRating in db.OrdersRatingEntities.AsQueryable()
+                    //                                       join user in db.UserEntities on orderRating.UserId equals user.Id
+                    //                                       join order in db.OrdersEntities on orderRating.orderId equals order.id
+                    //                                       join house in db.HouseEntities on order.houseId equals house.id
+                    //                                       join replyRating in db.ReplyRatingEntities on orderRating.id equals replyRating.orderRatingId into replyRatingGroup
+                    //                                       from replyRating in replyRatingGroup.DefaultIfEmpty()
+                    //                                       where house.id == id
+                    //                                       where house.status == statusType.刊登中
+                    //                                       where orderRating.UserId != house.userId
+                    //                                       select new
+                    //                                       {
+                    //                                           tenant = user,
+                    //                                           house,
+                    //                                           order,
+                    //                                           rating = orderRating,
+                    //                                           reply = replyRating,
+                    //                                       };
                     //房源
-                    var query = from house in db.HouseEntities.AsQueryable()
-                                join user in db.UserEntities on house.userId equals user.Id
-                                join order in db.OrdersEntities on house.id equals order.houseId into orderGroup
-                                from order in orderGroup.DefaultIfEmpty()
-                                join orderRating in db.OrdersRatingEntities on order.id equals orderRating.orderId into orderRatingGroup
-                                from orderRating in orderRatingGroup.DefaultIfEmpty()
-                                join replyRating in db.ReplyRatingEntities on orderRating.id equals replyRating.orderRatingId into replyRatingGroup
-                                from replyRating in replyRatingGroup.DefaultIfEmpty()
-                                where house.id == id
-                                where house.status == statusType.刊登中
-                                where orderRating.UserId != house.userId
-                                group orderRating by new { house, user } into grouped
-                                select new
-                                {
-                                    house = grouped.Key.house,
-                                    landlord = grouped.Key.user,
-                                    rating = grouped,
-                                };
+                    //var query = from house in db.HouseEntities.AsQueryable()
+                    //            join user in db.UserEntities on house.userId equals user.Id
+                    //            join order in db.OrdersEntities on house.id equals order.houseId into orderGroup
+                    //            from order in orderGroup.DefaultIfEmpty()
+                    //            join orderRating in db.OrdersRatingEntities on order.id equals orderRating.orderId into orderRatingGroup
+                    //            from orderRating in orderRatingGroup.DefaultIfEmpty()
+                    //            join replyRating in db.ReplyRatingEntities on orderRating.id equals replyRating.orderRatingId into replyRatingGroup
+                    //            from replyRating in replyRatingGroup.DefaultIfEmpty()
+                    //            where house.id == id
+                    //            where house.status == statusType.刊登中
+                    //            where orderRating.UserId != house.userId
+                    //            group orderRating by new { house, user } into grouped
+                    //            select new
+                    //            {
+                    //                house = grouped.Key.house,
+                    //                landlord = grouped.Key.user,
+                    //                rating = grouped,
+                    //            };
                     // 執行查詢並保存結果
                     //房源
-                    var queryResult = query.FirstOrDefault();
+                    var queryResult = queryOfTry.FirstOrDefault() ?? null;
                     if (queryResult == null)
                     {
                         return Content(HttpStatusCode.NotFound, "此房源不存在");
                     }
-
-                    //預約
-                    bool? anyAppointment = null;
-                    if (UserId != null)
+                    else
                     {
-                        anyAppointment = queryOfAppointment.Any() ? false : true;
-                        if (UserRole == UserRoleType.房東)
+                        //預約
+                        bool? anyAppointment = null;
+                        if (UserId != null)
                         {
-                            anyAppointment = false;
+                            anyAppointment = queryOfAppointment.Any() ? false : true;
+                            if (UserRole == UserRoleType.房東)
+                            {
+                                anyAppointment = false;
+                            }
                         }
-                    }
-
-                    //評價
-                    var queryOfRatingAndReplyForLandlordResult = queryOfRatingAndReplyForLandlord.ToList();
-                    var ratings = new List<object>();
-
-                    foreach (var i in queryOfRatingAndReplyForLandlordResult)
-                    {
-                        ratings.Add(new
+                        //評價
+                        //var queryOfRatingAndReplyForLandlordResult = queryOfRatingAndReplyForLandlord.ToList();
+                        var ratings = new List<object>();
+                        if (queryResult.rating.Count() > 0)
                         {
-                            tenantName = i.tenant.lastName,
-                            tenantGender = Enum.GetName(typeof(UserSexType), i.tenant.gender),
-                            houseName = i.house.name,
-                            leaseStartTime = i.order.leaseStartTime,
-                            leaseEndTime = i.order.leaseEndTime,
-                            ratingScore = i.rating.Rating,
-                            comment = i.rating.Comment,
-                            landlordReply = i.reply.ReplyComment != null ? i.reply.ReplyComment : null
-                        });
-                    }
-                    var data = new
-                    {
-                        appointmentAvailable = anyAppointment,
-                        photos = new
-                        {
-                            firstPic = queryResult.house.HouseImgs
-                                                    .Where(i => i.isCover)
-                                                    .Select(i => i.path)
-                                                    .FirstOrDefault(),
-                            restOfPic = queryResult.house.HouseImgs
-                                                    .Select(i => i.path)
-                                                    .ToList(),
-                        },
-                        name = queryResult.house.name,
-                        features = new
-                        {
-                            isRentSubsidy = queryResult.house.isRentSubsidy,
-                            isPetAllowed = queryResult.house.isPetAllowed, //寵物友善
-                            isCookAllowed = queryResult.house.isCookAllowed, //可開伙
-                            isSTRAllowed = queryResult.house.isSTRAllowed, //可短租
-                        },
-                        basicInfo = new
-                        {
-                            address = Enum.GetName(typeof(CityType), queryResult.house.city)
-                                                + Enum.GetName(typeof(DistrictType), queryResult.house.district).Remove(0, 3)
-                                                + queryResult.house.road,
-                            ping = queryResult.house.ping,
-                            floor = $"{queryResult.house.floor}/{queryResult.house.floorTotal}",
-                            type = Enum.GetName(typeof(type), queryResult.house.type),
-                            roomNumbers = queryResult.house.roomNumbers, //房
-                            livingRoomNumbers = queryResult.house.livingRoomNumbers, //廳
-                            bathRoomNumbers = queryResult.house.bathRoomNumbers, //衛浴
-                            balconyNumbers = queryResult.house.balconyNumbers, //陽台
-                            parkingSpaceNumbers = queryResult.house.parkingSpaceNumbers, //車位
-                        },
-                        description = queryResult.house.description,
-                        facilities = new
-                        {
-                            lifeFunctions = new
+                            foreach (var i in queryResult.rating)
                             {
-                                isNearByDepartmentStore = queryResult.house.isNearByDepartmentStore, //附近機能: 百貨商場
-                                isNearBySchool = queryResult.house.isNearBySchool, //附近機能: 學校
-                                isNearByMorningMarket = queryResult.house.isNearByMorningMarket, //附近機能: 早市
-                                isNearByNightMarket = queryResult.house.isNearByNightMarket, //附近機能: 夜市
-                                isNearByConvenientStore = queryResult.house.isNearByConvenientStore, //附近機能: 超商
-                                isNearByPark = queryResult.house.isNearByPark, //附近機能: 公園綠地
-                            },
-                            otherFeatures = new
-                            {
-                                hasGarbageDisposal = queryResult.house.hasGarbageDisposal, //屋源特色: 垃圾集中處理
-                                hasWindowInBathroom = queryResult.house.hasWindowInBathroom, //屋源特色: 浴室開窗
-                                hasElevator = queryResult.house.hasElevator, //有電梯
-                            },
-                            furnitures = new
-                            {
-                                hasAirConditioner = queryResult.house.hasAirConditioner, //設備: 冷氣
-                                hasWashingMachine = queryResult.house.hasWashingMachine, //設備: 洗衣機
-                                hasRefrigerator = queryResult.house.hasRefrigerator, //設備: 冰箱
-                                hasCloset = queryResult.house.hasCloset, //設備: 衣櫃
-                                hasTableAndChair = queryResult.house.hasTableAndChair, //設備: 桌椅
-                                hasWaterHeater = queryResult.house.hasWaterHeater, //設備: 熱水器
-                                hasInternet = queryResult.house.hasInternet, //設備: 網路
-                                hasBed = queryResult.house.hasBed, //設備: 床
-                                hasTV = queryResult.house.hasTV, //設備: 電視
-                            },
-                            transportation = new
-                            {
-                                isNearMRT = queryResult.house.isNearMRT, //是否鄰近捷運
-                                kmAwayMRT = queryResult.house.kmAwayMRT, //鄰近捷運公里
-                                isNearLRT = queryResult.house.isNearLRT, //是否鄰近輕軌
-                                kmAwayLRT = queryResult.house.kmAwayLRT, //鄰近輕軌公里
-                                isNearBusStation = queryResult.house.isNearBusStation, //是否鄰近公車站
-                                kmAwayBusStation = queryResult.house.kmAwayBusStation, //鄰近公車站公里
-                                isNearHSR = queryResult.house.isNearHSR, //是否鄰近高鐵
-                                kmAwayHSR = queryResult.house.kmAwayHSR, //鄰近高鐵公里
-                                isNearTrainStation = queryResult.house.isNearTrainStation, //是否鄰近火車
-                                kmAwayTrainStation = queryResult.house.kmAwayTrainStation //鄰近火車公里
+                                ratings.Add(new
+                                {
+                                    tenantName = i.u.lastName,
+                                    tenantGender = i.u.gender.ToString(),
+                                    houseName = i.h.name,
+                                    leaseStartTime = i.o.leaseStartTime,
+                                    leaseEndTime = i.o.leaseEndTime,
+                                    ratingScore = i.or.Rating,
+                                    comment = i.or.Comment,
+                                    landlordReply = i.r == null ? null : i.r.ReplyComment
+                                });
                             }
-                        },
-                        cost = new
+                        }
+                        var data = new
                         {
-                            waterBill = new
+                            appointmentAvailable = anyAppointment,
+                            photos = new
                             {
-                                paymentMethodOfWaterBill = Enum.GetName(typeof(paymentTypeOfWaterBill), queryResult.house.paymentMethodOfWaterBill), //水費繳納方式 Enum
-                                waterBillPerMonth = queryResult.house.waterBillPerMonth, //水費每月價錢
+                                firstPic = queryResult.house.HouseImgs?
+                                                        .Where(i => i.isCover)
+                                                        .Select(i => i.path)
+                                                        .FirstOrDefault(),
+                                restOfPic = queryResult.house.HouseImgs?
+                                                        .Select(i => i.path)
+                                                        .ToList(),
                             },
-                            electricBill = new
+                            name = queryResult.house.name,
+                            features = new
                             {
-                                electricBill = Enum.GetName(typeof(paymentTypeOfElectricBill), queryResult.house.electricBill), //電費計價方式 Enum
-                                electricBillPerDegree = queryResult.house.electricBillPerDegree, //電費每度元
-                                paymentMethodOfElectricBill = Enum.GetName(typeof(paymentMethodOfElectricBill), queryResult.house.paymentMethodOfElectricBill), //電費繳納方式 Enum
+                                isRentSubsidy = queryResult.house.isRentSubsidy,
+                                isPetAllowed = queryResult.house.isPetAllowed, //寵物友善
+                                isCookAllowed = queryResult.house.isCookAllowed, //可開伙
+                                isSTRAllowed = queryResult.house.isSTRAllowed, //可短租
                             },
-                            managementFee = new
+                            basicInfo = new
                             {
-                                paymentMethodOfManagementFee = Enum.GetName(typeof(paymentMethodOfManagementFee), queryResult.house.paymentMethodOfManagementFee), //管理費方式 Enum
-                                managementFeePerMonth = queryResult.house.managementFeePerMonth, //管理費每月價錢
-                            }
-                        },
-                        price = new
-                        {
-                            rent = queryResult.house.rent,
-                            securityDeposit = queryResult.house.securityDeposit
-                        },
-                        landlord = new
-                        {
-                            lastName = queryResult.landlord.lastName,
-                            gender = Enum.GetName(typeof(UserSexType), queryResult.landlord.gender),
-                            photo = queryResult.landlord.photo,
-                            description = queryResult.landlord.userIntro,
-                            ratingAvg = queryResult.rating.Where(gr => gr != null).Any() ? queryResult.rating.Average(gr => gr.Rating) : 0,
-                            //queryResult.rating.Where(gr => gr != null).Average(gr => gr.Rating),
-                            ratingCount = queryResult.rating.Count(gr => gr != null),
-                        },
-                        ratings = ratings
-                    };
+                                address = Enum.GetName(typeof(CityType), queryResult.house.city)
+                                                    + Enum.GetName(typeof(DistrictType), queryResult.house.district).Remove(0, 3)
+                                                    + queryResult.house.road,
+                                ping = queryResult.house.ping,
+                                floor = $"{queryResult.house.floor}/{queryResult.house.floorTotal}",
+                                type = Enum.GetName(typeof(type), queryResult.house.type),
+                                roomNumbers = queryResult.house.roomNumbers, //房
+                                livingRoomNumbers = queryResult.house.livingRoomNumbers, //廳
+                                bathRoomNumbers = queryResult.house.bathRoomNumbers, //衛浴
+                                balconyNumbers = queryResult.house.balconyNumbers, //陽台
+                                parkingSpaceNumbers = queryResult.house.parkingSpaceNumbers, //車位
+                            },
+                            description = queryResult.house.description,
+                            facilities = new
+                            {
+                                lifeFunctions = new
+                                {
+                                    isNearByDepartmentStore = queryResult.house.isNearByDepartmentStore, //附近機能: 百貨商場
+                                    isNearBySchool = queryResult.house.isNearBySchool, //附近機能: 學校
+                                    isNearByMorningMarket = queryResult.house.isNearByMorningMarket, //附近機能: 早市
+                                    isNearByNightMarket = queryResult.house.isNearByNightMarket, //附近機能: 夜市
+                                    isNearByConvenientStore = queryResult.house.isNearByConvenientStore, //附近機能: 超商
+                                    isNearByPark = queryResult.house.isNearByPark, //附近機能: 公園綠地
+                                },
+                                otherFeatures = new
+                                {
+                                    hasGarbageDisposal = queryResult.house.hasGarbageDisposal, //屋源特色: 垃圾集中處理
+                                    hasWindowInBathroom = queryResult.house.hasWindowInBathroom, //屋源特色: 浴室開窗
+                                    hasElevator = queryResult.house.hasElevator, //有電梯
+                                },
+                                furnitures = new
+                                {
+                                    hasAirConditioner = queryResult.house.hasAirConditioner, //設備: 冷氣
+                                    hasWashingMachine = queryResult.house.hasWashingMachine, //設備: 洗衣機
+                                    hasRefrigerator = queryResult.house.hasRefrigerator, //設備: 冰箱
+                                    hasCloset = queryResult.house.hasCloset, //設備: 衣櫃
+                                    hasTableAndChair = queryResult.house.hasTableAndChair, //設備: 桌椅
+                                    hasWaterHeater = queryResult.house.hasWaterHeater, //設備: 熱水器
+                                    hasInternet = queryResult.house.hasInternet, //設備: 網路
+                                    hasBed = queryResult.house.hasBed, //設備: 床
+                                    hasTV = queryResult.house.hasTV, //設備: 電視
+                                },
+                                transportation = new
+                                {
+                                    isNearMRT = queryResult.house.isNearMRT, //是否鄰近捷運
+                                    kmAwayMRT = queryResult.house.kmAwayMRT, //鄰近捷運公里
+                                    isNearLRT = queryResult.house.isNearLRT, //是否鄰近輕軌
+                                    kmAwayLRT = queryResult.house.kmAwayLRT, //鄰近輕軌公里
+                                    isNearBusStation = queryResult.house.isNearBusStation, //是否鄰近公車站
+                                    kmAwayBusStation = queryResult.house.kmAwayBusStation, //鄰近公車站公里
+                                    isNearHSR = queryResult.house.isNearHSR, //是否鄰近高鐵
+                                    kmAwayHSR = queryResult.house.kmAwayHSR, //鄰近高鐵公里
+                                    isNearTrainStation = queryResult.house.isNearTrainStation, //是否鄰近火車
+                                    kmAwayTrainStation = queryResult.house.kmAwayTrainStation //鄰近火車公里
+                                }
+                            },
+                            cost = new
+                            {
+                                waterBill = new
+                                {
+                                    paymentMethodOfWaterBill = Enum.GetName(typeof(paymentTypeOfWaterBill), queryResult.house.paymentMethodOfWaterBill), //水費繳納方式 Enum
+                                    waterBillPerMonth = queryResult.house.waterBillPerMonth, //水費每月價錢
+                                },
+                                electricBill = new
+                                {
+                                    electricBill = Enum.GetName(typeof(paymentTypeOfElectricBill), queryResult.house.electricBill), //電費計價方式 Enum
+                                    electricBillPerDegree = queryResult.house.electricBillPerDegree, //電費每度元
+                                    paymentMethodOfElectricBill = Enum.GetName(typeof(paymentMethodOfElectricBill), queryResult.house.paymentMethodOfElectricBill), //電費繳納方式 Enum
+                                },
+                                managementFee = new
+                                {
+                                    paymentMethodOfManagementFee = Enum.GetName(typeof(paymentMethodOfManagementFee), queryResult.house.paymentMethodOfManagementFee), //管理費方式 Enum
+                                    managementFeePerMonth = queryResult.house.managementFeePerMonth, //管理費每月價錢
+                                }
+                            },
+                            price = new
+                            {
+                                rent = queryResult.house.rent,
+                                securityDeposit = queryResult.house.securityDeposit
+                            },
+                            landlord = new
+                            {
+                                lastName = queryResult.landlord.lastName,
+                                gender = Enum.GetName(typeof(UserSexType), queryResult.landlord.gender),
+                                photo = queryResult.landlord.photo,
+                                description = queryResult.landlord.userIntro,
+                                ratingAvg = queryResult.rating.Count() > 0 ? queryResult.rating.Where(r => r != null).Average(r => (double?)r.or.Rating) : 0.0,
+                                //ratingAvg = queryResult.rating.Where(gr => gr != null).Any() ? queryResult.rating.Average(gr => gr.Rating) : 0,
+                                //queryResult.rating.Where(gr => gr != null).Average(gr => gr.Rating),
+                                ratingCount = queryResult.rating.Count() > 0 ? queryResult.rating.Count() : 0,
+                            },
+                            ratings = ratings
+                        };
 
-                    var result = new
-                    {
-                        statusCode = 200,
-                        status = "success",
-                        message = "已成功回傳房源內容",
-                        data = data
-                    };
-                    return Content(HttpStatusCode.OK, result);
+                        var result = new
+                        {
+                            statusCode = 200,
+                            status = "success",
+                            message = "已成功回傳房源內容",
+                            data = data
+                        };
+                        return Content(HttpStatusCode.OK, result);
+                    }
                 }
             }
             catch (Exception ex)
@@ -746,7 +772,6 @@ namespace UserAuth.Controllers
                 return Content(HttpStatusCode.BadRequest, ex);
             }
         }
-
 
         /// <summary>
         /// [FCO-5] 取得地圖搜尋結果的房源列表
@@ -756,7 +781,8 @@ namespace UserAuth.Controllers
 
         [HttpPost]
         [Route("api/house/common/map/list")]
-        public async Task<IHttpActionResult> searchMapHouse([FromBody] MapSearchHouse houseinput) {
+        public async Task<IHttpActionResult> searchMapHouse([FromBody] MapSearchHouse houseinput)
+        {
             try
             {
                 using (DBModel db = new DBModel())
@@ -779,7 +805,6 @@ namespace UserAuth.Controllers
 
                     foreach (var house in houses)
                     {
-
                         if (house.latitude == null || house.longitude == null)
                         {
                             continue;
@@ -807,7 +832,7 @@ namespace UserAuth.Controllers
                             // 如果距離有問題，則跳過該房屋
                             continue;
                         }
-                      
+
                         if (distance < houseinput.distance) // 只返回距離小於傳入參數的結果
                         {
                             if (skipCount > 0)
@@ -823,7 +848,7 @@ namespace UserAuth.Controllers
                                 city = house.city.ToString(),
                                 district = house.district.ToString(),
                                 latitude = house.latitude,
-                                longitude =house.longitude,
+                                longitude = house.longitude,
                                 isCookAllowed = house.isCookAllowed,
                                 isPetAllowed = house.isPetAllowed,
                                 isRentSubsidy = house.isRentSubsidy,
@@ -842,7 +867,7 @@ namespace UserAuth.Controllers
                                 ping = house.ping,
                                 coverImage = house.HouseImgs.FirstOrDefault(a => a.isCover)?.path,
                                 distance = distance + " 公尺",
-                            }) ;
+                            });
 
                             addedCount++;
                             if (addedCount == itemsPerPage) // 只取當前頁的資料
@@ -858,8 +883,8 @@ namespace UserAuth.Controllers
             {
                 return InternalServerError(ex);
             }
-
         }
+
         private static async Task<double> GetDistanceAsync(double lat1, double lng1, double lat2, double lng2)
         {
             using (var client = new HttpClient())
@@ -893,7 +918,7 @@ namespace UserAuth.Controllers
                 return distance;
             }
         }
-       
+
         [HttpPost]
         [Route("api/house/common/map/count")]
         public async Task<IHttpActionResult> GetHouseCount([FromBody] MapSearchHouse houseInput)
