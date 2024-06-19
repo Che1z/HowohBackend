@@ -1590,8 +1590,10 @@ namespace UserAuth.Controllers
                                                                                 + queryResult.house.road
                                                                                 + (String.IsNullOrEmpty(queryResult.house.lane) == true ? "" : (queryResult.house.lane + "巷"))
                                                                                 + (String.IsNullOrEmpty(queryResult.house.alley) == true ? "" : (queryResult.house.alley + "弄"))
-                                                                                + queryResult.house.number + "號"
-                                                                                + queryResult.house.floor + "樓"
+                                                                                + (String.IsNullOrEmpty(queryResult.house.number) == true ? "" : (queryResult.house.number + "號"))
+                                                                                + (String.IsNullOrEmpty(queryResult.house.floor) == true ? "" : (queryResult.house.floor + "樓"))
+                                                                                //+ queryResult.house.number + "號"
+                                                                                //+ queryResult.house.floor + "樓"
                                                                                 : queryResult.order.contractAddress,
                             contractRentPaymentBeforeDate = queryResult.order.contractRentPaymentBeforeDate == null ? null : queryResult.order.contractRentPaymentBeforeDate,
                             contractTerminationNoticeMonths = queryResult.order.contractTerminationNoticeMonths == null ? null : queryResult.order.contractTerminationNoticeMonths,
