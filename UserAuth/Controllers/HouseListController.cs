@@ -301,6 +301,7 @@ namespace UserAuth.Controllers
                 landlordFirstName = h.userIdFK.firstName,
                 landlordlastName = h.userIdFK.lastName,
                 landlordgender = h.userIdFK.gender,
+                landlordDisplayName = h.userIdFK.lastName + (h.userIdFK.gender == 0 ? "先生" : "小姐"),
 
                 // 列舉所有data
                 //ratingsData = db.OrdersEntities
