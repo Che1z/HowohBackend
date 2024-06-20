@@ -756,12 +756,15 @@ namespace UserAuth.Controllers
 
         [HttpPost]
         [Route("api/house/common/map/list")]
-        public async Task<IHttpActionResult> searchMapHouse([FromBody] MapSearchHouse houseinput) {
+        public async Task<IHttpActionResult> searchMapHouse([FromBody] MapSearchHouse houseinput)
+        {
             try
             {
                 using (DBModel db = new DBModel())
                 {
-                    var houses = db.HouseEntities.AsQueryable();
+                    var query = db.HouseEntities.AsQueryable();
+
+                    var houses = query.Where(a => a.status == (statusType)10);
                     var distances = new List<object>();
 
                     if (houseinput.distance == null || houseinput.distance == 0)
@@ -807,7 +810,7 @@ namespace UserAuth.Controllers
                             // 如果距離有問題，則跳過該房屋
                             continue;
                         }
-                      
+
                         if (distance < houseinput.distance) // 只返回距離小於傳入參數的結果
                         {
                             if (skipCount > 0)
@@ -823,7 +826,7 @@ namespace UserAuth.Controllers
                                 city = house.city.ToString(),
                                 district = house.district.ToString(),
                                 latitude = house.latitude,
-                                longitude =house.longitude,
+                                longitude = house.longitude,
                                 isCookAllowed = house.isCookAllowed,
                                 isPetAllowed = house.isPetAllowed,
                                 isRentSubsidy = house.isRentSubsidy,
@@ -842,7 +845,7 @@ namespace UserAuth.Controllers
                                 ping = house.ping,
                                 coverImage = house.HouseImgs.FirstOrDefault(a => a.isCover)?.path,
                                 distance = distance + " 公尺",
-                            }) ;
+                            });
 
                             addedCount++;
                             if (addedCount == itemsPerPage) // 只取當前頁的資料
@@ -893,7 +896,7 @@ namespace UserAuth.Controllers
                 return distance;
             }
         }
-       
+
         [HttpPost]
         [Route("api/house/common/map/count")]
         public async Task<IHttpActionResult> GetHouseCount([FromBody] MapSearchHouse houseInput)
@@ -902,8 +905,9 @@ namespace UserAuth.Controllers
             {
                 using (DBModel db = new DBModel())
                 {
-                    var houses = db.HouseEntities.AsQueryable();
+                    var query = db.HouseEntities.AsQueryable();
 
+                    var houses = query.Where(a => a.status == (statusType)10);
                     if (houseInput.distance == null || houseInput.distance == 0)
                     {
                         houseInput.distance = 1000;
