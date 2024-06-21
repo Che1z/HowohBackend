@@ -160,7 +160,7 @@ namespace UserAuth.Controllers
                             using (PdfStamper stamper = new PdfStamper(reader, fileStream))
                             {
                                 string path = Path.Combine((HttpContext.Current.Server.MapPath("~/fonts")), "msjh.ttc");
-                                BaseFont chBaseFont = BaseFont.CreateFont($"{path},0", BaseFont.IDENTITY_V, BaseFont.NOT_EMBEDDED);
+                                BaseFont chBaseFont = BaseFont.CreateFont($"{path},0", BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
                                 reader.AcroFields.AddSubstitutionFont(chBaseFont);
 
                                 AcroFields form = stamper.AcroFields;
