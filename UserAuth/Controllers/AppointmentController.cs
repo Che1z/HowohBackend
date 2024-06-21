@@ -130,7 +130,7 @@ namespace UserAuth.Controllers
                         // Appointment的isValid若為False，則判定房子為已承租
                         if (houseStatus == 20)
                         {
-                            query = query.OrderBy(a => a.CreateAt).Where(a => a.userId == UserId && db.HouseEntities.Any(h => h.id == a.houseId && a.isValid == false)).Skip(init).Take(12);
+                            query = query.OrderBy(a => a.CreateAt).Where(a => a.userId == UserId && db.HouseEntities.Any(h => h.id == a.houseId && h.status == (statusType)houseStatus && a.isValid == false)).Skip(init).Take(12);
                         }
 
                         var result = query.Select(r => new
