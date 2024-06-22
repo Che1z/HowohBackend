@@ -546,7 +546,14 @@ namespace UserAuth.Controllers
 
                     //修改房源狀態
                     var updateHouse = db.HouseEntities.Where(x => x.id == id).FirstOrDefault();
-                    updateHouse.status = houseImgInput.status;
+                    //updateHouse.status = houseImgInput.status;
+                    if (houseImgInput.status.HasValue)
+                    {
+                        if (houseImgInput.status.Value > updateHouse.status)
+                        {
+                            updateHouse.status = houseImgInput.status.Value;
+                        }
+                    }
                     db.SaveChanges();
 
                     var result = new

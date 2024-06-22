@@ -10,7 +10,7 @@ namespace UserAuth.Models.ViewModel
     public class HouseImgInput
     {
         [Display(Name = "房源狀態")]
-        public statusType status { get; set; }
+        public statusType? status { get; set; }
 
         public List<houseImgObject> files { get; set; }
     }
