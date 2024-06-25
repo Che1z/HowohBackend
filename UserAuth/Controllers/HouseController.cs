@@ -1647,7 +1647,7 @@ namespace UserAuth.Controllers
                                             var today = DateTime.Today;
                                             if (today > validOrder.order.leaseEndTime.Date && today <= validOrder.order.leaseEndTime.Date.AddDays(14))
                                             {
-                                                var comment = db.OrdersRatingEntities.FirstOrDefault(or => or.orderId == validOrder.order.id) ?? null;
+                                                var comment = db.OrdersRatingEntities.FirstOrDefault(or => or.orderId == validOrder.order.id && or.UserId == UserId) ?? null;
                                                 if (comment == null)
                                                 {
                                                     canComment = true;
