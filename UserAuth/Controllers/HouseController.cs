@@ -839,7 +839,9 @@ namespace UserAuth.Controllers
                             {
                                 var today = DateTime.Now.Date;
                                 var query = from order in db.OrdersEntities.AsQueryable()
-                                            where order.houseId == houseEnter.id && today <= order.leaseEndTime && today >= order.leaseStartTime && (order.status == OrderStatus.租客已確認租約 || order.status == OrderStatus.租客非系統用戶)
+                                            where order.houseId == houseEnter.id && today <= order.leaseEndTime
+                                            //&& today >= order.leaseStartTime
+                                            && (order.status == OrderStatus.租客已確認租約 || order.status == OrderStatus.租客非系統用戶)
                                             join house in db.HouseEntities on order.houseId equals house.id
                                             //var query = from house in db.HouseEntities.AsQueryable()
                                             //            where house.id == houseEnter.id
@@ -1703,7 +1705,7 @@ namespace UserAuth.Controllers
                                 case statusType.已承租:
                                     if (r.orderList.Count() > 0 && r.orderList.Any(ol => DateTime.Today <= ol.order.leaseEndTime && (ol.order.status == OrderStatus.租客已確認租約 || ol.order.status == OrderStatus.租客非系統用戶)))
                                     {
-                                        var leasingOrder = r.orderList.FirstOrDefault(o => DateTime.Today < o.order.leaseEndTime.AddDays(14) && (o.order.status == OrderStatus.租客已確認租約 || o.order.status == OrderStatus.租客非系統用戶));
+                                        var leasingOrder = r.orderList.LastOrDefault(o => DateTime.Today < o.order.leaseEndTime.AddDays(14) && (o.order.status == OrderStatus.租客已確認租約 || o.order.status == OrderStatus.租客非系統用戶));
                                         var leasing = new
                                         {
                                             houseId = r.house.id,

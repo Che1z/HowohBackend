@@ -1567,7 +1567,8 @@ namespace UserAuth.Controllers
                     var today = DateTime.Now.Date;
                     var query = from order in db.OrdersEntities.AsQueryable()
                                 where order.id == orderId && (order.status == OrderStatus.租客已確認租約 || order.status == OrderStatus.租客非系統用戶)
-                                && today >= order.leaseStartTime && today <= order.leaseEndTime
+                                //&& today >= order.leaseStartTime
+                                && today <= order.leaseEndTime
                                 join house in db.HouseEntities on order.houseId equals house.id
                                 where house.status == statusType.已承租
                                 select new
