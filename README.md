@@ -77,3 +77,38 @@
       - 建立合約：使用消基會定型化契約為範本，自動帶入房東、租客、房源資訊等
     - 已完成：可檢視房源內容，並可以在列表卡片上檢視可否評價
   - 出租歷史：房東可在此查看所有房源過往的出租歷史
+<h3>後端 (Back-End)</h3>
+ <p>
+
+* 後端開發環境：
+    * 框架：.NET Framework 4.7.2
+    * 專案：ASP.NET Web API 2
+* 後端開發技術：
+  <div align="center">
+    <img alt="Visual_Studio" src="https://img.shields.io/badge/Visual_Studio-5C2D91?style=for-the-badge&logo=visual%20studio&logoColor=white" />
+    <img alt=".NET" src="https://img.shields.io/badge/.NET-512BD4?style=for-the-badge&logo=dotnet&logoColor=white" />
+    <img alt="C#" src="https://img.shields.io/badge/C%23-239120?style=for-the-badge&logo=c-sharp&logoColor=white" />
+    <img alt="SQL" src="https://img.shields.io/badge/Microsoft%20SQL%20Server-CC2927?style=for-the-badge&logo=microsoft%20sql%20server&logoColor=white" />
+    <img alt="Entity_Framework" src="https://img.shields.io/badge/Entity_Framework-yellow?style=for-the-badge">
+    <img alt="LINQ" src="https://img.shields.io/badge/LINQ-8A2BE2?style=for-the-badge">
+  </div>
+  <div align="center">
+    <img alt="Azure" src="https://img.shields.io/badge/microsoft%20azure-0089D6?style=for-the-badge&logo=microsoft-azure&logoColor=white" />
+    <img alt="SignalR" src="https://img.shields.io/badge/SignalR-007ACC?style=for-the-badge&logoColor=white" />
+    <img alt="GIT" src="https://img.shields.io/badge/GIT-E44C30?style=for-the-badge&logo=git&logoColor=white" />
+    <img alt="GitHUB" src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white" />
+    <img alt="POSTMAN" src="https://img.shields.io/badge/Postman-FF6C37?style=for-the-badge&logo=Postman&logoColor=white" />
+    <img alt="OAuth2.0" src="https://img.shields.io/badge/OAuth_2.0-black?style=for-the-badge">
+    <img alt="Passkey" src="https://img.shields.io/badge/Passkey-gray?style=for-the-badge&logo=webauthn">
+    <img alt="Youtube" src="https://img.shields.io/badge/Youtube-FF0000?style=for-the-badge&logo=youtubestudio">
+  </div>
+  
+  - 資料庫存取：Microsoft SQL Server 搭配 Entity Framework Code First 以及 LINQ 進行資料庫存取
+  
+  - 雲端服務：Azure 上建立虛擬機(VM)，並於 VM 上建立 SQL Server 與 IIS 環境，部署 Web API Application
+
+  - 合約生成：以「消基會提供之定型化契約」為範本，透過 iTextSharp 套件進行合約建立並寫入契約相關個資，供使用者進行下載
+ 
+  - 地圖搜尋：串接 Google Place API 進行搜尋地點的範圍計算，提供最佳結果供前端進行畫面渲染
+  
+ 
