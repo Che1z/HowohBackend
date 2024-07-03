@@ -24,7 +24,7 @@
   API swagger
   </a>
   <span>｜</span>
-  <a href="https://smart-governor-e0d.notion.site/b5ca7a9893f9435ba967d608b0cbc2d4?pvs=4">
+  <a href="https://smart-governor-e0d.notion.site/dcb5f3681dab463493feb3c58d23ba0e">
   Notion
   </a>
 </div>
