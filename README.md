@@ -112,5 +112,111 @@
   - 合約生成：以「消基會提供之定型化契約」為範本，透過 iTextSharp 套件建立合約模板，並寫入前端的輸入資料，提供使用者下載
   
   - 地圖搜尋：串接 Google Place API 進行搜尋地點的範圍計算，提供最佳結果供前端進行畫面渲染
-  
+
+ * 後端專案結構：
+```
+Howoh_Backend_Project
+│  chathub.cs
+│  FarmerPro.csproj
+│  FarmerPro.csproj.user
+│  favicon.ico
+│  Global.asax
+│  Global.asax.cs
+│  packages.config
+│  Startup.cs
+│  Web.config
+│  Web.config.template
+│  Web.Debug.config
+│  Web.Release.config
+│  
+├─App_Start
+│      BundleConfig.cs
+│      FilterConfig.cs
+│      RouteConfig.cs
+|      SwaggerConfig.cs
+│      WebApiConfig.cs
+│      
+├─Areas
+│    ...
+│                  
+├─bin
+│    ...
+│          
+├─Content
+│    ...
+│      
+├─Controllers
+│      AppointmentController.cs
+│      HomeController.cs
+│      HouseController.cs
+│      HouseListController.cs
+│      OrderController.cs
+│      LoginForgetController.cs
+│      OrderController.cs
+│      OrderListController.cs
+│      OrderRatingController.cs
+│      TenentController.cs
+│      UserAuthController.cs
+│      
+├─Migrations
+│      ...
+│      Configuration.cs
+│      
+├─Models
+│  │  Appointment.cs
+│  │  DBModel.cs
+│  │  House.cs
+│  │  HouseImg.cs
+│  │  MapSearchHouse.cs
+│  │  Order.cs
+│  │  OrderRating.cs
+│  │  ReplyRating.cs
+│  │  User.cs
+│  │  
+│  └─ViewModel
+│  |       ContractInput.cs
+│  |       HouseImgInput.cs
+│  |       HouseInput.cs
+│  |       LogInInput.cs
+│  |       OrderInfoInput.cs
+│  |       OrderRatingInput.cs
+│  |       OrderStatusInput.cs
+│  |       PhoneNumberVerifiInput.cs
+│  |       ReplyRatingInput.cs
+|  └─HouseEnumList
+|  |       HouseEnum.cs
+|  └─OrderEnumList
+|  |       OrderEnum.cs
+|  └─UserEnumList
+|	   UserEnum.cs
+│          
+├─obj
+│    ...
+│
+├─Properties
+│    ...
+│          
+├─Scripts
+│    ...
+│      
+├─Security
+│      JwtAuthFilter.cs
+│      JwtAuthUtil.cs
+│      
+├─upload
+│    ...
+│                  
+└─Views
+    │  Web.config
+    │  _ViewStart.cshtml
+    │  
+    ├─Home
+    │      Index.cshtml
+    │      
+    └─Shared
+            Error.cshtml
+            _Layout.cshtml
+```
+
+</p> 
  
