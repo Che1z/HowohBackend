@@ -3,7 +3,7 @@
 	&nbsp;HowOh｜租屋交易與評價系統平台
 </h1>
 <div align="center" style="margin-bottom:24px">
-  <a href="https://drive.google.com/file/d/1PA-nUPBaDxbWcsjRX8_U9CmcTLuKvKSq/view?usp=drive_link">
+  <a href="https://drive.google.com/file/d/1u6j75ort2OTCD0HyekRZVQ8iSxDCp2nj/view">
     簡報介紹
   </a>
   <span>｜</span>
